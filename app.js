@@ -1,0 +1,129 @@
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+//ÕâÊÇ¸øsocketioÁôµÄ¼àÌý¶Ë¿Ú
+var server = require('http').createServer(app)
+  , socketio = require('socket.io').listen(server);
+  
+server.listen(8012)
+
+
+
+
+//载入所有的http路由处理模块
+var routes = require('./routes/index');
+var usersroute = require('./routes/users');
+//ÕâÐ©¶¼ÊÇÊý¾ÝÂ·ÓÉ
+var movieroute = require('./routes/movie');
+var personroute = require('./routes/personroute');
+var messageroute = require('./routes/messageroute');
+var pointroute = require('./routes/pointroute');
+var fileuploaderroute = require('./routes/fileuploaderroute');
+var fileupdirectiveloaderroute = require('./routes/filedirectuploadroute');
+var processIDroute = require('./routes/processIDcardroute');
+var heritagepointroute = require('./routes/heritagepointroute');
+var panoimgroute = require('./routes/panoimgroute');/**/
+var departmentroute=require('./routes/departmentroute');
+var gridarearoute = require('./routes/gridarearoute');
+var spotarearoute=require('./routes/spotarearoute');
+var casetyperoute=require('./routes/casetyperoute');
+//var caseprocessroute=require('./routes/caseprocessroute');
+//var casetsteproute=require('./routes/casetsteproute');
+
+// var messageroute = require('./routes/messageroute');
+
+var http = require('http')
+, path = require('path')
+, cors = require('cors')
+, ejs = require('ejs');
+var SessionStore = require("session-mongoose");
+var app = express();
+app.use(cors());
+//express·þÎñÆ÷¼àÌýµÄ¶Ë¿Ú
+app.listen(2000);
+
+//app.use(express.bodyParser({ keepExtensions: true, uploadDir: '/tmp' }));
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+//Â·ÓÉ¶ÔÓ¦µÄ·ÃÎÊÂ·¾¶
+// app.use('/', routes);
+app.use('/users', usersroute);
+//将所有不同种类的路由都在服务器注册
+app.use('/movie', movieroute);
+app.use('/person', personroute);
+app.use('/message', messageroute);
+app.use('/point', pointroute);
+app.use('/fileupload', fileuploaderroute);
+app.use('/filedirectupload', fileupdirectiveloaderroute);
+app.use('/processID', processIDroute);
+app.use('/heritagepoint', heritagepointroute);
+app.use('/gridarea', gridarearoute);
+app.use('/department', departmentroute);
+app.use('/panoimg', panoimgroute);
+app.use('/spotarea', spotarearoute);
+app.use('/casetyperoute', casetyperoute);
+//app.use('/caseprocessroute', caseprocessroute);
+//app.use('/casetsteproute', casetsteproute);
+
+
+
+//app.use('/panoimg/:removepanoId',panoimgroute.dopanoimgRemove);
+
+/**/
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
+});
+
+function setStaticHeaders(res) {
+console.log("ÇëÇó¾²Ì¬Êý¾ÝÄÚÈÝ");
+ // res.setHeader("Access-Control-Allow-Origin", "*");
+}
+
+//ÍÐ¹Ü¾²Ì¬ÎÄ¼þµÄ¸ùÄ¿Â¼
+//app.use(express.static('ionicclient'));//²âÊÔ·¢ÏÖÖ»ÄÜÓÐÒ»¸ö¾²Ì¬Ä¿Â¼
+// app.use(express.static('public',{'setHeaders':setStaticHeaders}));
+// app.use("/",express.static(__dirname + "/public"));//为性能优化，不用nodejs去调用静态目录
+//app.get('/movie/json/:name',movie.movieJSON);//JSONÊý¾Ý
+
+module.exports = app;

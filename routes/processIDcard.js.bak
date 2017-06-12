@@ -1,0 +1,27 @@
+﻿/*
+//上面是单纯的百度ocr
+//重要的是前面的api key，是在百度申请到的
+var ocr = require('baidu-ocr').create('b1c4974787b7640e6480e4a840297df9','1311f98c10f240428f857e692ab8a891'),
+  image =  './id_imgs/id3.jpg' ;
+
+// detectType: `LocateRecognize`代表整图文字检测、识别,以行为单位（默认）  
+// languageType: `CHN_ENG`(中英)（默认）  
+// imageType: `2`代表图片原文件（只支持JPG，大小不能超过300K）
+// image: 图片流对象 或 base64 编码的字符串  
+ocr.scan( 'LocateRecognize', 'CHN_ENG', 2, image, function( err, data ) {
+  if ( err ) {
+    return // //console.error( err );
+  }
+
+  // //console.log( 'words:' );
+  // //console.log( data.word );
+});
+*/
+
+var idcardOCR = require('baidu-ocr-idcard').create('b1c4974787b7640e6480e4a840297df9');
+var idcard =  './IDCard/id1.jpg' ;
+var side='obverse';//正面为'obverse'，反面为'reverse',自动为‘auto’
+var processIDCardImg=idcardOCR.scan;
+
+exports.processIDCardImg = processIDCardImg;
+exports.side = side;

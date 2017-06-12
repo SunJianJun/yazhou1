@@ -1,0 +1,57 @@
+﻿var mongodb = require('./mongodb');
+var Schema = mongodb.mongoose.Schema;
+var locationModuler=require('./locationschema');
+var locationSchema=locationModuler.LocationSchema;
+/*
+{ name: '奥巴马',
+  sex: '男，',
+  nation: '肯尼亚卢欧族',
+  birthday: '1968-08-04',
+  residence: '华盛顿市区中心宾夕法尼亚大街16＂号',
+  idNum: '123456196108041236',
+  side: 'obverse' }
+     			$rootScope.curUser={
+				    name:'string',			//姓名 
+				    sex:'string',			//性别 
+				    nation:'string',		//民族 
+				    birthday:'string',		//生日 
+				    residence:'string',		//住所 
+				    idNum:'string',			//身份证号码 
+				    side:'string',		//值为'obverse' 
+				    
+				    idUrl:'string',			//身份证图片地址 
+				    phoneNum:'string',			//手机号码 
+				    phoneUUID:'string'		//手机UUID
+					};
+*/
+var PersonSchema = new Schema({
+name : String,
+sex : String,
+nation: String,
+birthday: String,
+residence:String,
+idNum: String,
+mobileUUid:String,
+title : String,
+mobile:Number,
+age:Number,
+create_date : { type: Date, default: Date.now},
+images :{
+coverSmall:String,
+coverBig:String,
+},
+source :String,
+link:String,
+lastmessageFK:Schema.Types.ObjectId,
+lastLocationFK:Schema.Types.ObjectId,
+lastmessage:String,
+personlocations: [locationSchema]
+});
+
+
+console.log('mongodb PersonSchema load is ok!:'+PersonSchema);
+var Personmodel=mongodb.mongoose.model("Person", PersonSchema);
+//module.exports= PersonSchema;
+//这两行引用方式不一样的
+exports.PersonSchema = PersonSchema;
+exports.Personmodel = Personmodel;
