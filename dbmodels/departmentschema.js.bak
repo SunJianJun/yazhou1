@@ -1,0 +1,36 @@
+﻿var mongodb = require('./mongodb');
+
+var PersonModule = require('./personschema');
+var Schema = mongodb.mongoose.Schema;
+var PersonSchema=PersonModule.PersonSchema;
+var tree = require('mongoose-tree');
+
+var DepartmentSchema = new Schema({
+	//部门名称
+name : String,
+	//部门一把手，类型当然是person
+leader : PersonSchema,
+	//部门副手，数组，类型也是person
+alias : [PersonSchema],
+	//部门直属成员
+persons : [PersonSchema],
+	//部门下属部门
+//subDepartment:[DepartmentSchema],//通过tree插件直接指定，用法见https://github.com/briankircho/mongoose-tree
+	//部门介绍
+info： String,
+	//成立时间
+create_date : { type: Date, default: Date.now},
+	//相关业务流程
+processes:Number,
+	//详细链接
+infoLink:String
+
+});
+DepartmentSchema.plugin(tree);
+
+console.log('mongodb DepartmentSchema load is ok!:'+DepartmentSchema);
+var Departmentmodel=mongodb.mongoose.model("Department", DepartmentSchema);
+//module.exports= DepartmentSchema;
+//这两行引用方式不一样的
+exports.DepartmentSchema = DepartmentSchema;//相当于本模块导出有两个类
+exports.Departmentmodel = Departmentmodel;//相当于本模块导出有两个类
