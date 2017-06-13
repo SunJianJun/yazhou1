@@ -24,13 +24,10 @@ var Schema = mongodb.mongoose.Schema;
 //});
 
 var Concreteabstractschema = new Schema({//抽象表
-  type:{
-    person:[String],
-    addTime:Date,
-    place:String, //地点
-    statute:[String]//法规
-  },//类型
-  argument:String,//参数
+  type:String,//填写类型
+  argument:{
+    setp:[String]
+  },//参数
   order:Number  //序号
 })
 // console.log(ConcreteabstractSchema);

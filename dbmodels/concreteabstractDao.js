@@ -346,10 +346,11 @@ ConcreteabstractDAO.prototype.readtConcreteabstract = function (mid, outcallback
 var concreteabstractObj = new ConcreteabstractDAO();
 
 concreteabstractObj.sendAConcreteabstract({//抽象表
-  type:{
-    addTime:'2017-03-01'
-  },
-  argument:'2017-03-01',
+  type:'无照经营',
+  argument:{setp:[
+    '1..',
+    '2..'
+  ]},
   order:1
 });
 // concreteabstractObj.getConcreteabstractsInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
