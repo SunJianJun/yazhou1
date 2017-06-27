@@ -1,36 +1,20 @@
 ﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
-////网格化区域，geojson导入，后期要支持他们的编辑
-//var ConcretearguSchema = new Schema({
-//  file_template:{template:String,fileName:String},//文档模板
-//  power:[{
-//    newCase.:[String],
-//    updateCase:[String],
-//    deleteCase:[String],
-//    adotpCase:[String]
-//  }],
-//  worker:{
-//    persons: [{//
-//      'name': String,
-//      'personID': String
-//    }]
-//  },
-//  name: String,
-//  info: String,
-//  status: Number,//1生效，0废止
-//  timeLimit:Date
-//
-//});
 
+//每一个具体的参数
 var ConcretearguSchema = new Schema({//word模板参数
-  type:{
-    person:[String],
-    addTime:Date,
-    place:String, //地点
-    statute:[String]//法规
-  },
-  value:String,
+  // 参数的具体值，虽然有很多种可能，但是只有一个具体值
+  value:[String],
+  // {
+  //   personOutsideSystem:[String],//{name,idNum,residential},
+  //   personInsideSystem:String,//objId,
+  //   addTime:Date,
+  //   place:String, //地点
+  //   statute:[String]//法规
+  // },
+  // 值在哪个属性上，这里指示
+  type:String,
   setTime:Date,
   setByWho:String,//这个参数是谁设置的
   identified:String//表示这个值是输入了个人签名密码的

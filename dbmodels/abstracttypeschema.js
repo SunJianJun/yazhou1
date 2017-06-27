@@ -2,7 +2,7 @@
 var Schema = mongodb.mongoose.Schema;
 
 ////网格化区域，geojson导入，后期要支持他们的编辑
-//var ConcreteabstractSchema = new Schema({
+//var AbstracttypeSchema = new Schema({
 //  file_template:{template:String,fileName:String},//文档模板
 //  power:[{
 //    newCase.:[String],
@@ -23,19 +23,19 @@ var Schema = mongodb.mongoose.Schema;
 //
 //});
 
-var Concreteabstractschema = new Schema({//抽象表
-  type:String,//填写类型
-  argument:{
-    setp:[String]
-  },//参数
-  order:Number  //序号
+var AbstracttypeSchema = new Schema({//抽象事件
+  typeName:String,//事件类型
+  steps:[String],//步骤的ID
+  newer:Date,//更新
+  setDate:Date,
+  status:Number//1正常 0删除
 })
-// console.log(ConcreteabstractSchema);
+// console.log(AbstracttypeSchema);
 
-console.log('mongodb ConcreteabstractSchema load is ok!:' + ConcreteabstractSchema);
+console.log('mongodb AbstracttypeSchema load is ok!:' + AbstracttypeSchema);
 
-var Concreteabstractmodel = mongodb.mongoose.model("Concreteabstract", ConcreteabstractSchema);
-//module.exports= ConcreteabstractSchema;
+var Abstracttypemodel = mongodb.mongoose.model("Abstracttype", AbstracttypeSchema);
+//module.exports= AbstracttypeSchema;
 //这两行引用方式不一样的
-exports.ConcreteabstractSchema = ConcreteabstractSchema;
-exports.Concreteabstractmodel = Concreteabstractmodel;
+exports.AbstracttypeSchema = AbstracttypeSchema;
+exports.Abstracttypemodel = Abstracttypemodel;

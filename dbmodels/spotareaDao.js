@@ -106,60 +106,23 @@ SpotareaDAO.prototype.getMyNewestSpotarea = function(receiverID, outcallback) {
     });
 };
 
-SpotareaDAO.prototype.getMyNewestSpotareaFromWho = function(receiverID,senderID,isAbstract, outcallback) {
+SpotareaDAO.prototype.getNewestSpotarea = function(outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
-                console.log('callback getMyNewestSpotareaFromWho 出错：'+'<>'+err);
+                console.log('callback getMyNewestSpotareaFromWho 出错：');
             }else{
-                for(var index =0;index<obj.length;index++)
-                {
-                    console.log('callback getMyNewestSpotareaFromWho 成功：'+'<>'+obj[index]);
-                }
-                if(obj.abstract){
-
-                    console.log('callback getMyNewestSpotareaFromWho 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
-                }
+                console.log('callback getMyNewestSpotareaFromWho 成功：');
             }
         };
 
-    var query = Spotareamodel.find({'receiver': receiverID,sender:senderID,status:1},{});
-    var opts = [{
-        path: 'sender',
-        //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-        // ,
-        // select : '-personlocations'
-        // ,'images':0
-        select: {'name': 1}
-    }];
-    query.populate(opts);
+    var query = Spotareamodel.find({status:1});
     // 排序，不过好像对子文档无效
-    query.sort({'create_date':1});//desc asc
-    // query.limit(1);
-
     query.exec(function (err, docs) {
         if(!err){
-            // 如果是需要摘要信息，而且指定来源的消息数量》0
-            if(isAbstract && docs.length>0){
-                var count=docs.length;
-                var abstract=docs[docs.length-1].text?docs[docs.length-1].text.substr(0,6)+'...':((docs[docs.length-1].image|| docs[docs.length-1].video|| docs[docs.length-1].voice)?'多媒体消息...':'....');
-                var output={sender:docs[docs.length-1].sender,count:count,abstract:abstract,
-                    startTime:docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-                    lastTime:docs[docs.length-1].create_date.Format("yyyy-MM-dd hh:mm:ss")
-                    // ,
-                    // unreadspotareas:docs
-                };
-                callback(err,output);
-            }
-            // 如果不需要摘要信息，而且消息数量大于0
-            else if(docs.length>0) {
-                callback(err,docs);
-            }else{
-                // 虽然没有错，但是也没有消息
-                callback(err,null);
-            }
-        }
-        else {
+            callback(err,docs);
+        }else{
+            callback(null)
         }
     });
 };
@@ -323,19 +286,19 @@ SpotareaDAO.prototype.getMyUnreadSpotareasCount = function(receiverID, outcallba
 
 
 
-SpotareaDAO.prototype.readtSpotarea = function(mid, outcallback) {
+SpotareaDAO.prototype.sendPersontarea = function(mid, outcallback) {
 
  console.log('a--------------------------------')
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
-                console.log('callback readtSpotarea 出错：'+'<>'+err);
+                console.log('callback sendPersontarea 出错：'+'<>'+err);
             }else{
                 for(var index =0;index<obj.length;index++)
                 {
-                    console.log('callback readtSpotarea 成功：'+'<>'+obj[index]);
+                    console.log('callback sendPersontarea 成功：'+'<>'+obj[index]);
                 }
-                console.log('callback readtSpotarea 成功：'+'<>');
+                console.log('callback sendPersontarea 成功：'+'<>');
             }
         };
 
@@ -354,6 +317,16 @@ SpotareaDAO.prototype.readtSpotarea = function(mid, outcallback) {
         }
     });
 };
+SpotareaDAO.prototype.updateASpotarea=function(uid,uname,ucoordinates,callback){
+
+    Spotareamodel.update({_id:uid},{name:uname,coordinates:ucoordinates},function(err,obj){
+        if(err){
+            callback(err,obj)
+        }else{
+            callback(null,obj)
+        }
+    })
+}
 
 
 var spotareaObj=new SpotareaDAO();
@@ -392,7 +365,7 @@ var spotareaObj=new SpotareaDAO();
 // ObjectId("58c96cb24fd511384b81cba5")ObjectId("58c043cc40cbb100091c640d")
 // spotareaObj.getMyNewestSpotarea("58c043cc40cbb100091c640d");
 // spotareaObj.getMyUnreadSpotareasCount("58bff0836253fd4008b3d41b");
-// spotareaObj.readtSpotarea("58c85b9628b792000a779bfa");
+// spotareaObj.sendPersontarea("58c85b9628b792000a779bfa");
 // spotareaObj.sendASpotarea(
 //     {text:'这里有个事故kjhkjh123'},"58c043cc40cbb100091c640d","58cb2031e68197ec0c7b935b"
 // );

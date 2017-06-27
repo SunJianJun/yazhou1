@@ -29,6 +29,25 @@ ConcretearguDAO.prototype.save = function (obj, callback) {
     callback(err);
   });
 };
+ConcretearguDAO.prototype.getparametersaccordingtoParameter = function(arguID, outcallback){
+    var callback = outcallback ? outcallback : function (err, obj) {
+      if (err) {
+        console.log('callback sendAConcreteargu 出错：-' + '<>' + err);
+      } else {
+        console.log('callback sendAConcreteargu 成功：-' + '<>' + obj);
+      }
+    };
+    Concreteargumodel.find({ _id : {$in:arguID}} ,function(err,obj){
+        if (err) {
+          console.log('callback  出错：-' + '<>' + err);
+          outcallback(err,null)
+        } else {
+          console.log('callback  成功：-' + '<>' + obj);
+          outcallback(null,obj)
+        }
+    })
+
+}
 
 ConcretearguDAO.prototype.findByName = function (name, callback) {
   Concreteargumodel.findOne({name: name}, function (err, obj) {
@@ -62,6 +81,33 @@ ConcretearguDAO.prototype.sendAConcreteargu = function (concretearguObj, outcall
       callback(err, uobj);
     }
   });
+};
+
+ConcretearguDAO.prototype.sendAllConcreteargu = function (concretearguObj, outcallback) {
+  //console.log('添加多条数据');
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback sendAllConcreteargu 出错：-' + '<>' + err);
+    } else {
+      console.log('callback sendAllConcreteargu 成功：-' + '<>' + obj);
+    }
+  };
+  for(var i=0;i<concretearguObj.length;i++) {
+    // concretearguObj.sender=senderID;
+
+    // concretearguObj.receiver=receiverID;
+    //console.log(concretearguObj);
+    var newM = new Concreteargumodel(concretearguObj[i]);
+    newM.save(function (err, uobj) {
+      if (err) {
+        //console.log('callback sendAllConcreteargu 出错：' + '<>' + err);
+        callback(err, null);
+      } else {
+        //console.log('callback sendAllConcreteargu 成功：' + '<>' + uobj);
+        callback(err, uobj);
+      }
+    });
+  }
 };
 
 
@@ -345,16 +391,19 @@ ConcretearguDAO.prototype.readtConcreteargu = function (mid, outcallback) {
 
 var concretearguObj = new ConcretearguDAO();
 
-concretearguObj.sendAConcreteargu({
-  type:{
-    person:['张三'],
-  },
-  value:'张三',
-  setTime:new Date(),
-  setByWho:'张三',//这个参数是谁设置的
-  identified:'123321'//表示这个值是输入了个人签名密码的
-});
-// concretearguObj.getConcreteargusInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
+// concretearguObj.sendAConcreteargu({
+//  type:'日期',
+//  value:'案发日期',
+//  setTime:new Date(),
+//  setByWho:'张三',//这个参数是谁设置的
+//  identified:'1'//表示这个值是输入了个人签名密码的
+// });
+// concretearguObj.sendAConcreteargu({
+//  type:'地点',
+//  value:'案发地点',
+//  setTime:new Date(),
+//  setByWho:'李四',//这个参数是谁设置的
+//  identified:'1'//表示这个值是输入了个人签名密码的
+// });
 
-// concretearguObj.getMyNewestConcretearguFromWho("58c043cc40cbb100091c640d","58bff0836253fd4008b3d41b",false);
 module.exports = concretearguObj;

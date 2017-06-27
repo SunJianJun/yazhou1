@@ -29,9 +29,17 @@ var panoimgroute = require('./routes/panoimgroute');/**/
 var departmentroute=require('./routes/departmentroute');
 var gridarearoute = require('./routes/gridarearoute');
 var spotarearoute=require('./routes/spotarearoute');
+
+var mobilegridservice=require('./routes/mobilegridservice');//网格业务接口
+var personadminroute=require('./routes/personadminroute'); //人员管理接口
+var maproute=require('./routes/maproute');  //地图功能接口
+var personalinfo=require('./routes/personalinfoconfig');//个人信息配置接口
+
 var concreteeventroute=require('./routes/concreteeventroute');
 var concretesteproute=require('./routes/concretesteproute');
 var concretearguroute=require('./routes/concretearguroute');
+var abstractsteproute=require('./routes/abstractsteproute');
+var abstracttyperoute=require('./routes/abstracttyperoute');
 
 // var messageroute = require('./routes/messageroute');
 
@@ -75,15 +83,22 @@ app.use('/gridarea', gridarearoute);
 app.use('/department', departmentroute);
 app.use('/panoimg', panoimgroute);
 app.use('/spotarea', spotarearoute);
+
+app.use('/mobilegridservice', mobilegridservice);
+app.use('/personadmin',personadminroute);
+app.use('/map',maproute);
+
 app.use('/concreteeventroute', concreteeventroute);
 app.use('/concretesteproute', concretesteproute);
 app.use('/concretearguroute', concretearguroute);
+app.use('/abstractsteproute', abstractsteproute);
+app.use('/abstracttyperoute', abstracttyperoute);
 
 
 
 //app.use('/panoimg/:removepanoId',panoimgroute.dopanoimgRemove);
 
-/**/
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

@@ -9,20 +9,14 @@ var spotarea = require('../dbmodels/spotareaschema.js');
 var spotareaDAO = require('../dbmodels/spotareaDao');
 
 
-var getMyNewestSpotareaFromWho = function(req, res) {
-    // //console.log('call getMyNewestSpotareaFromWho');
-    //for(var i in req.body){ //console.log("getMyNewestSpotareaFromWho 请求内容body子项："+i+"<>\n")};
-    var receiverID=req.body.receiverID,
-    senderID=req.body.senderID,
-    isAbstract=req.body.isAbstract;
+var getNewestSpotarea = function(req, res) {
 
         // console.log('senderID:'+senderID);
-    spotareaDAO.getMyNewestSpotareaFromWho(receiverID,senderID,isAbstract,function( err,obj){
+    spotareaDAO.getNewestSpotarea(function( err,obj){
         if(!err) {
-            // //console.log('getMyNewestSpotareaFromWho 查询所有'+senderID+'发送的消息:'+obj);
             res.send(obj);
         } else{
-            // //console.log('getMyNewestSpotareaFromWho 查询所有'+senderID+'发送的消息为空:'+err);
+            // //console.log('getNewestSpotarea 查询所有'+senderID+'发送的消息为空:'+err);
             res.send(null);
         }});
 };
@@ -34,10 +28,10 @@ var spotareaDelete=function(req,res){
     console.log('删除'+name);
     spotareaDAO.spotareaDelete(name,function(err,obj){
         if(!err){
-            console.log('readtSpotarea 查询所有'+name+'发送的消息:'+obj);
+            console.log('sendPersontarea 查询所有'+name+'发送的消息:'+obj);
             res.send(name);
         }else{
-            console.log('readtSpotarea 查询所有'+name+'发送的消息为空:'+err);
+            console.log('sendPersontarea 查询所有'+name+'发送的消息为空:'+err);
             res.send(null);
         }
     })
@@ -47,10 +41,10 @@ var spotareapeopleDelete=function(req,res){
     var position=req.body.position;
     spotareaDAO.spotareapeopleDelete(areaID,position,function(err,obj){
         if(!err){
-            console.log('readtSpotarea 查询所有'+areaID+'发送的消息:'+obj);
+            console.log('spotareapeopleDelete 查询所有'+areaID+'发送的消息:'+obj);
             res.send(areaID);
         }else{
-            console.log('readtSpotarea 查询所有'+areaID+'发送的消息为空:'+err);
+            console.log('spotareapeopleDelete 查询所有'+areaID+'发送的消息为空:'+err);
             res.send(null);
         }
     })
@@ -58,25 +52,25 @@ var spotareapeopleDelete=function(req,res){
 
 
 
-var readtSpotarea = function(req, res) {
-    //console.log('call readtSpotarea');
+var sendPersontarea = function(req, res) {
+    //console.log('call sendPersontarea');
     // for(var i in req.body){ 
-    //     console.log("readtSpotarea 请求内容body子项："+i+"<>\n")
+    //     console.log("sendPersontarea 请求内容body子项："+i+"<>\n")
     // };
     // console.log(req.body);
-    var name=req.body;
+    var eve=req.body;
     // console.log(name);
     // 调用方法
     // spotareaObj.getSpotareasInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     // console.log('messID:'+messID);
-    spotareaDAO.readtSpotarea(name,function( err,obj){
+    spotareaDAO.sendPersontarea(eve,function( err,obj){
         if(!err) {
             // console.log('没有错误')
-            console.log('readtSpotarea 查询所有'+name+'发送的消息:'+obj);
+            console.log('sendPersontarea 查询所有'+eve+'发送的消息:'+obj);
             // console.log(obj);
-            res.send(name);
+            res.send(eve);
         } else{
-            console.log('readtSpotarea 查询所有'+name+'发送的消息为空:'+err);
+            console.log('sendPersontarea 查询所有'+eve+'发送的消息为空:'+err);
             res.send(null);
         }});
 };
@@ -114,11 +108,36 @@ var getSpotareasInATimeSpanFromWho = function(req, res) {
             res.send(null);
         }});
 };
+//{“_id”:"图层ID",name:"南六环",geometry:{coordinates:["116.430587","39.909989","116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"],type:"Polygon"}}
+var updateASpotarea=function(req,res){
+    var date=req.body;
+    var _id=date._id,
+        name=date.name,
+        coordinates=date.geometry;
+    spotareaDAO.updateASpotarea(_id,name,coordinates,function(err,obj){
+        if(err){
+            res.send(null)
+        }else{
+            res.send(obj)
+            //res(obj)
+        }
+    })
+}
+//updateASpotarea({"_id":"5950ba7d2cbfdd5c3a9b0b85",name:"默认11",geometry:{coordinates:[116.469039,
+//    39.891024,
+//    116.469039,
+//    39.881024,
+//    116.485039,
+//    39.881024,
+//    116.485039,
+//    39.891024],type:"Polygon"}},function(e){
+//    console.log(e)
+//})
 
 
 spotarearouter.post('/sendASpotarea',sendASpotarea);//增加
-spotarearouter.post('/readtSpotarea',readtSpotarea);//提交
-spotarearouter.post('/getMyNewestSpotareaFromWho',getMyNewestSpotareaFromWho);//编辑查询
+spotarearouter.post('/sendPersontarea',sendPersontarea);//绑定人员
+spotarearouter.post('/getNewestSpotarea',getNewestSpotarea);//编辑查询
 spotarearouter.post('/getSpotareasInATimeSpanFromWho',getSpotareasInATimeSpanFromWho);//编辑查询
 spotarearouter.post('/spotareaDelete',spotareaDelete);//查找  
 spotarearouter.post('/spotareapeopleDelete',spotareapeopleDelete);//查找  

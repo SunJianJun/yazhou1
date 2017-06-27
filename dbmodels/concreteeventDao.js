@@ -1,6 +1,11 @@
 var mongodb = require('./mongodb');
 var Concreteeventmodule = require('./concreteeventschema');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
+//var abstracttypeDAO = require('./abstracttypeDao'); //抽象类型
+//var abstractstepDAO = require('./abstractstepDao'); //抽象步骤
+
+//var concretearguDAO = require('./concretearguDao');//具体参数表
+//var concretestepDAO = require('./concretestepDao');//具体步骤表
 var db = mongodb.mongoose.connection;
 db.on('error',
   console.error.bind(console, '连接错误:')
@@ -37,18 +42,20 @@ ConcreteeventDAO.prototype.findByName = function (name, callback) {
 ConcreteeventDAO.prototype.getAllConcreteevent=function(callback){//获取所有类型
     var callback = callback ? callback : function (err, obj) {
     if (err) {
-      console.log('callback sendAConcreteevent 出错：-' + '<>' + err);
+      console.log('callback getAllConcreteevent 出错：-' + '<>' + err);
     } else {
-      console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
+      console.log('callback getAllConcreteevent 成功：-' + '<>' + obj);
     }
   };
-   Concreteeventmodel.find({'status':1}).exec(function(err,obj){
-      callback(err,obj)
+   Concreteeventmodel.find({}).exec(function(err,obj){
+     if(err){
+       callback(err,null)
+     }else{
+       callback(null,obj)
+     }
    })
 }
 ConcreteeventDAO.prototype.sendAConcreteevent = function (concreteeventObj, outcallback) {
-
-  console.log('添加数据');
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback sendAConcreteevent 出错：-' + '<>' + err);
@@ -56,25 +63,34 @@ ConcreteeventDAO.prototype.sendAConcreteevent = function (concreteeventObj, outc
       console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
     }
   };
-
-  // concreteeventObj.sender=senderID;
-
-  // concreteeventObj.receiver=receiverID;
   concreteeventObj.status = 1;
-  console.log(concreteeventObj);
   var newM = new Concreteeventmodel(concreteeventObj);
   newM.save(function (err, uobj) {
     if (err) {
-      console.log('callback sendAConcreteevent 出错：' + '<>' + err);
       callback(err, null);
     } else {
-      console.log('callback sendAConcreteevent 成功：' + '<>' + uobj._id);
       callback(err, uobj);
     }
   });
 };
-
-
+ConcreteeventDAO.prototype.geteventTimestatistics=function(){
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback sendAConcreteevent 出错：-' + '<>' + err);
+    } else {
+      console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
+    }
+  };
+}
+ConcreteeventDAO.prototype.currentProcessedevents=function(userID,outcallback){
+  var callback=outcallback?outcallback:function(err,obj){
+    if (err) {
+      console.log('callback sendAConcreteevent 出错：-' + '<>' + err);
+    } else {
+      console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
+    }
+  }
+}
 ConcreteeventDAO.prototype.getMyNewestConcreteevent = function (receiverID, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -168,20 +184,15 @@ ConcreteeventDAO.prototype.getMyNewestConcreteeventFromWho = function (receiverI
   });
 };
 
-ConcreteeventDAO.prototype.concreteeventDelete = function (name, outcallback) {
+ConcreteeventDAO.prototype.concreteeventDelete = function (id, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback concreteeventDelete 出错：' + '<>' + err);
     } else {
-      for (var index = 0; index < obj.length; index++) {
-        console.log('callback concreteeventDelete 成功：' + '<>' + obj[index]);
-      }
-      if (obj.abstract) {
-        console.log('callback concreteeventDelete 成功：' + '<>' + obj.abstract + '<>' + obj.count + '<>' + obj.lastTime);
-      }
+        console.log('callback concreteeventDelete 成功：' + '<>' + obj);
     }
   };
-  var query = Concreteeventmodel.remove({'name': name, status: 1}, {});
+  var query = Concreteeventmodel.remove({'_id': id, status: 1}, {});
   query.exec(function (err, docs) {
     if (!err) {
       // console.log(docs);
@@ -193,6 +204,48 @@ ConcreteeventDAO.prototype.concreteeventDelete = function (name, outcallback) {
     }
   });
 }
+ConcreteeventDAO.prototype.updateaddsetp = function (eventId,step, callback) {
+  var callback = callback ? callback : function (err, obj) {
+    if (err) {
+      console.log('callback updateaddsetp 出错：' + '<>' + err);
+    } else {
+        console.log('callback updateaddsetp 成功：' + '<>' + obj);
+    }
+  }
+  var stepjson=step;
+      console.log('--11--')
+      console.log(step)
+
+  console.log('--22--')
+      Concreteeventmodel.update({_id: eventId}, {$set: {'step':step}}, function (err, res) {
+        if (!err) {
+          console.log('修改');
+          callback(err, res);
+        }
+        else {
+          console.log('没有数据');
+          callback(err, 0);
+        }
+      });
+}
+ConcreteeventDAO.prototype.geteventStatus = function (status, callback) {
+  var callback = callback ? callback : function (err, obj) {
+    if (err) {
+      console.log('callback updateaddsetp 出错：' + '<>' + err);
+    } else {
+      console.log('callback updateaddsetp 成功：' + '<>' + obj);
+    }
+  }
+  Concreteeventmodel.find({status: status},function (err,obj) {
+    if (!err) {
+      callback(obj);
+    }
+    else {
+      callback(null);
+    }
+  });
+}
+
 ConcreteeventDAO.prototype.concreteeventpeopleDelete = function (areaID, position, outcallback) {
   // var areaID=area.areaID;
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -296,6 +349,19 @@ ConcreteeventDAO.prototype.getConcreteeventsInATimeSpanFromWho = function (recei
     }
   });
 };
+ConcreteeventDAO.prototype.getpersonEvent=function(personID,callback){ //人员id查询在哪个事件中
+  var query=Concreteeventmodel.find({people:{$in:[personID]}});
+
+
+  query.exec(function(err,obj){
+    if(err){
+      console.log('查询错误')
+      callback(err,null)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 
 ConcreteeventDAO.prototype.getMyUnreadConcreteeventsCount = function (receiverID, outcallback) {
@@ -351,6 +417,16 @@ ConcreteeventDAO.prototype.readtConcreteevent = function (mid, outcallback) {
     }
   });
 };
+ConcreteeventDAO.prototype.geteventposition=function(callback){
+  Concreteeventmodel.find({status:1},'name newer position',function(err,obj){
+    if(err){
+      callback(err,null)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+
 
 
 var concreteeventObj = new ConcreteeventDAO();
@@ -359,6 +435,7 @@ var concreteeventObj = new ConcreteeventDAO();
 //   type:'无证运营案',
 //   name: '摩托车无证运营案',
 //   newer: 'null',
+//   status:0,
 //   step: [
 //     {
 //       types: '1.立案审批表',
@@ -394,436 +471,5 @@ var concreteeventObj = new ConcreteeventDAO();
 //   ]
 // });
 
-// concreteeventObj.sendAConcreteevent({
-//   name: '擅自挖掘城市道路案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '占道经营案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '运载沙土泄露污染路面案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '无照经营案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '无规划许可证擅自建设案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '生猪屠宰案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
-// concreteeventObj.sendAConcreteevent({
-//   name: '设立废品收购点未备案',
-//   info: 'null',
-//   persons: [{
-//     name: '张三'
-//   }],
-//   process: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0,
-//       create_time: new Date(),
-//       delete_time: null
-//     }
-//   ]
-// });
 
-
-// ObjectId("58c96cb24fd511384b81cba5")ObjectId("58c043cc40cbb100091c640d")
-// concreteeventObj.getMyNewestConcreteevent("58c043cc40cbb100091c640d");
-// concreteeventObj.getMyUnreadConcreteeventsCount("58bff0836253fd4008b3d41b");
-// concreteeventObj.readtConcreteevent("58c85b9628b792000a779bfa");
-// concreteeventObj.sendAConcreteevent(
-//     {text:'这里有个事故kjhkjh123'},"58c043cc40cbb100091c640d","58cb2031e68197ec0c7b935b"
-// );
-// concreteeventObj.getConcreteeventsInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
-
-// concreteeventObj.getMyNewestConcreteeventFromWho("58c043cc40cbb100091c640d","58bff0836253fd4008b3d41b",false);
 module.exports = concreteeventObj;

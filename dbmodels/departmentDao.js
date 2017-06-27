@@ -17,7 +17,6 @@ var fs = require('fs')
 
 db.on('error', console.error.bind(console, '连接错误:'));
 db.on('open', function () {
-
   console.log('mongodb DepartmentSchema connection is ok!:' + mongodb);
 });
 
@@ -60,16 +59,36 @@ var DepartmentDAO = function () {
 DepartmentDAO.prototype.save = function (obj, callback) {
   //Departmentmodel.create();
   // 终端打印如下信息
-  console.log('called Department save');
   var instance = new Departmentmodel(obj);
-  console.log('param value:' + obj + '<>instance.save:' + instance);
-  instance.save(function (err) {
-    console.log('save Department' + instance + ' fail:' + err);
-    callback(err);
+  instance.save(function (err,iobj) {
+    if(err){
+      callback(err);
+    }else{
+      callback(null,iobj)
+    }
   });
-  return instance.get('_id');
+  //return instance.get('_id');
 };
-
+//获取上级部门ID
+DepartmentDAO.prototype.getParent = function (obj, callback) {
+  Departmentmodel.find({_id:obj},'path',function (err,obj) {
+    if(err){
+      callback(err);
+    }else{
+      callback(null,obj);
+    }
+  })
+};
+//添加上级部门path
+DepartmentDAO.prototype.addparentpath=function(_id,path,callback){
+  Departmentmodel.update({_id:_id},{path:path}, function (err,obj) {
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 DepartmentDAO.prototype.analysisXml = function (xml) {
   fs.readFile(xml, function (err, data) {
@@ -379,11 +398,21 @@ DepartmentDAO.prototype.getLeadersByDepartmentID = function (id, callback) {
   });
 };
 
-//得到此部门的全部人员（下属）
+//得到此部门的全部人员
 DepartmentDAO.prototype.getPersonsByDepartmentID = function (id, callback) {
   Departmentmodel.findOne({_id: id}, function (err, departmentObt) {
     if (!err) {
-      callback(err, departmentObt.persons);
+      var person=departmentObt.persons;
+      for(var i=0,arr=[];i<person.length;i++){
+        arr.push(person[i].person)
+      }
+      Personmodel.find({_id:{$in:arr}},{personlocations:0,pwd:0},function(err,person){
+        if(err){
+          callback(err, null);
+        }else{
+          callback(null,person);
+        }
+      })
     } else {
       callback(err, null);
     }
@@ -430,21 +459,20 @@ DepartmentDAO.prototype.getAllDepartment = function (callback) {
 };
 
 //得到所有有效的部门
-DepartmentDAO.prototype.getAllDepartment = function (outcallback) {
-  //console.log('called getAllDepartment :');
+DepartmentDAO.prototype.getAllDepartments = function (outcallback) {
+  //console.log('called getAllDepartments :');
 
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
-      //console.log('callback getAllDepartment 出错：'+'<>'+err);
+      //console.log('callback getAllDepartments 出错：'+'<>'+err);
     } else {
       for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getAllDepartment 成功：'+'<>'+obj[index]);
+        //console.log('callback getAllDepartments 成功：'+'<>'+obj[index]);
         if (obj.name) {
 
-          //console.log('callback getAllDepartment 成功：'+'<>'+obj[index]._id+'<>'+obj[index].name);
+          //console.log('callback getAllDepartments 成功：'+'<>'+obj[index]._id+'<>'+obj[index].name);
         }
       }
-
     }
   };
   //找到所有有效状态的部门
@@ -726,7 +754,6 @@ DepartmentDAO.prototype.getAllpersonsByDepartIdOneStep = function (curDepartId, 
         }
         if (obj.persons) {
           // console.log('callback getAllpersonsByDepartIdOneStep persons成功：'+'<>'+obj.persons);
-
         }
       }
     }
@@ -827,6 +854,9 @@ DepartmentDAO.prototype.findByMobile = function (mobile, callback) {
     console.log(' Department findout:' + obj);
   });
 };
+DepartmentDAO.prototype.getDepartmentgird=function(callback){
+
+}
 
 var dptObj = new DepartmentDAO();
 

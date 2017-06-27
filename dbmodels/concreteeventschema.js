@@ -1,28 +1,24 @@
 ﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
-// //网格化区域，geojson导入，后期要支持他们的编辑
-// var ConcreteeventSchema = new Schema({
-//   name: String,
-//   info: String,
-//   status: Number,//1生效，0废止
-//   create_date:Date,
-//   persons: [{//
-//     'name': String,
-//     'personID': String
-//   }],
-//   process: [{
-//     'types': String, 'status': Number,effective_date:Date,obsolete_date:Date}]//流程集合
-// });
-var ConcreteeventSchema=new Schema({
+
+var ConcreteeventSchema=new Schema({//事件表
   type:String,//从哪个事件类型那里来的
   name:String,
-  newer:String,//更新
-  step:[{types:String,
-  		 status:Number
-  }],
-  status:Number//完结状态是当且仅当所有步骤的状态为完结时才完结
-})
+  newer:String,//更新日期
+  step:[String], //步骤ID
+  //    [{types:String,
+  //		 status:Number, //是否正在进行
+  //		 caseID:String //步骤ID
+  //}],
+  status:Number,// 1表示完结， 完结状态是当且仅当所有步骤的状态为完结时才完结
+
+  setupTime:Date, //建立日期
+  ediTime:Date,  //结束日期
+  document:String,//事件归属部门
+  people:[String],//事件参与人员
+  position:[Number]
+});
 
 console.log('mongodb ConcreteeventSchema load is ok!:' + ConcreteeventSchema);
 

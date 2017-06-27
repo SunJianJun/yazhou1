@@ -14,12 +14,17 @@ var getMyNewestMessageFromWho = function(req, res) {
     var receiverID=req.body.receiverID,
     senderID=req.body.senderID,
     isAbstract=req.body.isAbstract;
+    //var receiverID="593e5b56c6178a040fa757ae",
+    //    senderID="594cc13fc6178a040fa76063",
+    //    isAbstract=true;
 
     // //console.log('senderID:'+senderID);
     messageDAO.getMyNewestMessageFromWho(receiverID,senderID,isAbstract,function( err,obj){
         if(!err) {
-            // //console.log('getMyNewestMessageFromWho 查询所有'+senderID+'发送的消息:'+obj);
+             //console.log('getMyNewestMessageFromWho 查询所有'+senderID+'发送的消息:'+obj);
             res.send(obj);
+            //console.log('返回消息')
+            //console.log(obj)
         } else{
             // //console.log('getMyNewestMessageFromWho 查询所有'+senderID+'发送的消息为空:'+err);
             res.send(null);

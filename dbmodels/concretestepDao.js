@@ -1,6 +1,6 @@
 var mongodb = require('./mongodb');
 var Concretestepmodule = require('./concretestepschema');
-var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
+var ConcreteeventSchema = require('./concreteeventschema');//这里相当于ConcreteeventSchema的export，真正要引用ConcreteeventSchema，应该这样ConcreteeventSchema.ConcreteeventSchema
 var db = mongodb.mongoose.connection;
 db.on('error',
   console.error.bind(console, '连接错误:')
@@ -14,7 +14,7 @@ db.once('open', function () {
 
 var Concretestepmodel = Concretestepmodule.Concretestepmodel;
 //console.log('mongodb Schema:++'+Concretestepmodel);
-var Personmodel = PersonSchema.Personmodel;
+var Concreteeventmodel = ConcreteeventSchema.Concreteeventmodel;
 
 var ConcretestepDAO = function () {
 };
@@ -38,7 +38,7 @@ ConcretestepDAO.prototype.findByName = function (name, callback) {
 
 ConcretestepDAO.prototype.sendAConcretestep = function (concretestepObj, outcallback) {
 
-  console.log('添加数据');
+  //console.log('添加数据');
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback sendAConcretestep 出错：-' + '<>' + err);
@@ -51,7 +51,7 @@ ConcretestepDAO.prototype.sendAConcretestep = function (concretestepObj, outcall
 
   // concretestepObj.receiver=receiverID;
   concretestepObj.status = 1;
-  console.log(concretestepObj);
+  //console.log(concretestepObj);
   var newM = new Concretestepmodel(concretestepObj);
   newM.save(function (err, uobj) {
     if (err) {
@@ -99,6 +99,42 @@ ConcretestepDAO.prototype.getMyNewestConcretestep = function (receiverID, outcal
       callback(err, null);
     }
   });
+};
+ConcretestepDAO.prototype.updateaddargu = function (eventId,step, callback) {
+  var callback = callback ? callback : function (err, obj) {
+    if (err) {
+      console.log('callback updateaddargu 出错：' + '<>' + err);
+    } else {
+      console.log('callback updateaddargu 成功：' + '<>' + obj);
+    }
+  }
+  var steps=step;
+  //Concretestepmodel.find({_id: eventId},function(err,step){
+  //  if(err){
+  //
+  //  }else{
+  //    if(step.argu) {
+  //      var steps;
+  //      if(step.argu.length){
+  //        steps = step.argu.push(stepjson);
+  //      } else {
+  //        steps = step.argu = [stepjson];
+  //      }
+  //      console.log('找不到了')
+  //      console.log(steps)
+        Concretestepmodel.update({_id: eventId}, {$set: {'argu':steps}}, function (err, res) {
+          if (!err) {
+            //console.log('修改');
+            callback(err, res);
+          }
+          else {
+            console.log('没有数据');
+            callback(err, 0);
+          }
+        });
+      //}
+  //  }
+  //})
 };
 
 ConcretestepDAO.prototype.getMyNewestConcretestepFromWho = function (receiverID, senderID, isAbstract, outcallback) {
@@ -286,6 +322,43 @@ ConcretestepDAO.prototype.getConcretestepsInATimeSpanFromWho = function (receive
     }
   });
 };
+ConcretestepDAO.prototype.getoneeventstep=function (ID,outcallback) {
+  // var areaID=area.areaID;
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback getoneeventstep 出错：' + '<>' + err);
+    } else {
+        console.log('callback getoneeventstep 成功：' + '<>' + obj);
+      }
+    }
+  var query = Concretestepmodel.findOne({_id: ID, status: 1}, function (err, result) {
+    if (err) {
+      outcallback(err,null)
+    } else {
+      console.log(result);
+      outcallback(null,result);
+    }
+  });
+}
+ConcretestepDAO.prototype.geteventstep=function (ID,outcallback) {
+  // var areaID=area.areaID;
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback getoneeventstep 出错：' + '<>' + err);
+    } else {
+      console.log('callback getoneeventstep 成功：' + '<>' + obj);
+    }
+  }
+  //console.log(ID)
+  var query = Concretestepmodel.find({_id:{$in:ID}, status: 1}, function (err, result) {
+    if (err) {
+      outcallback(err,null)
+    } else {
+      console.log(result);
+      outcallback(null,result);
+    }
+  });
+}
 
 
 ConcretestepDAO.prototype.getMyUnreadConcretestepsCount = function (receiverID, outcallback) {
