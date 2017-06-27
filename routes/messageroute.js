@@ -107,24 +107,27 @@ var sendAMessage = function(req, res) {
         }});
 };
 /**
- * 发送群体性消息
+ * 发送群体性消息，未实现
  * @param {json} req - json形式：(senderID:“dfdf",type:"broadcast",receiverType:"department(按部门发送)|title（按头衔发送）|persons（选择一些人发送）",messageObj：{
  * text:"文本内容",voice:"语音消息",video:"视频消息",image:"图片消息"（四种消息必有一种）}，receiverInfo:"(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)")
  * @param {json} res - 发送失败 null，发送成功， 消息本身
  */
 var sendBroadcast = function(req, res) {
-        // //console.log('call sendAMessage');
-        //for(var i in req.body){ //console.log("sendAMessage 请求内容body子项："+i+"<>\n")};
-        var senderID=req.body.senderID;
-        var messType=req.body.type;
-        var receiverType=req.body.receiverType;
-        var receiverInfo=req.body.receiverInfo;
-        //如果没有类型，或者类型不是广播，就返回
-        if(!req.body.type && req.body.type!="broadcast" && messType && receiverType && receiverInfo){
-            // //console.log("客户端发来的json有空值");
-            res.send(null);
-            return;
-        };
+    //实现后删掉这一行
+    res.send(null);
+
+    // //console.log('call sendAMessage');
+    //for(var i in req.body){ //console.log("sendAMessage 请求内容body子项："+i+"<>\n")};
+    var senderID=req.body.senderID;
+    var messType=req.body.type;
+    var receiverType=req.body.receiverType;
+    var receiverInfo=req.body.receiverInfo;
+    //如果没有类型，或者类型不是广播，就返回
+    if(!req.body.type && req.body.type!="broadcast" && messType && receiverType && receiverInfo){
+        // //console.log("客户端发来的json有空值");
+        res.send(null);
+        return;
+    };
         // //console.log('senderID:'+senderID);
     var recieverIds=[];
     switch (receiverType){
@@ -165,7 +168,7 @@ var sendBroadcast = function(req, res) {
 
 
 /**
- *得到一个时间段内某人发来的消息 或者 群体消息
+ *得到一个时间段内某人发来的消息 或者 群体消息（群体消息部分未实现）
  * @param {Object} req - 客户端提交的json{receiverID:"sdfdsf",startTime:"开始时间",lastTime:"结束时间","senderID":"发送者id"，type：“broadcast|message”（跟发送者id不同时作用，可以只发送type为broadcast而不指定senderid，如果有明确的发送者id，且type未指定或者为‘message’时，就查询个人消息，否则就是群体消息）}
  * @param {string} req.body.receiverID - 接受者id.
  * @param {string} req.body.senderID - 发送者id.
