@@ -17,6 +17,12 @@ ocr.scan( 'LocateRecognize', 'CHN_ENG', 2, image, function( err, data ) {
   // //console.log( data.word );
 });
 */
+
+
+/**
+ * @module 身份证识别模块   url：/processID
+ */
+
 var express = require('express');
 var request = require('request'),
   fs = require('fs');
@@ -147,97 +153,116 @@ return json;
 }
 
 //new xiangyun IDCard ocr
-processIDPhoto.post('/IDCard', function ( req, res ) {//deprated no use
-try {
-	if(req.body){
-		// code to try
-   // //console.log("待解析的身份证啊："+req.body);
-   //var rqe=JSON.parse(req.body); //'解析ok！'
-   for (var o in req.body) {
-   	 // //console.log("待解析的req.body："+o);
-   }
-   // //console.log('解析文件名：'+req.body.fileURL );
-	 //注意服务器端和客户端一定要名称统一，之前这里是fileName,客户端传过来是fileURL
-	 idcard=req.body.fileURL;
-	 if(idcard){
-   // //console.log( 'idcard进入ok！');
-   					
-    				
-     		var that = this;
-			  var formData = {
-			    key : '5YvFQKftFc9eoTTF23jC7e',
-			    secret : '30e8964158ac4bd0968be8ff041bceba',
-			    typeId : '2',
-			    format : "xml",
-			    imagetype : 'image/jpeg',
-			    file : fs.createReadStream( idcard )//,'image/jpeg'}
-			  };
+/**
+ * 身份证图片识别方法，一般是紧跟着身份证图片上传方法的返回值进行调用
+ * @param {json} req - {fileURL：“上传身份证照片后服务器返回的地址”}
+ * @param {json} res - 如果识别正确返回{
+ 	 	name;
+	 	sex;
+	 	nation;
+	 	birthday;
+	 	residence;
+	 	idNum;
+	 	images={
+			coverSmall:'base64',
+			coverBig:'',}}这些属性，如果失败，返回null
+ * @constructor
+ */
+var IDCard=function ( req, res ) {//deprated no use
+    try {
+        if(req.body){
+            // code to try
+            // //console.log("待解析的身份证啊："+req.body);
+            //var rqe=JSON.parse(req.body); //'解析ok！'
+            for (var o in req.body) {
+                // //console.log("待解析的req.body："+o);
+            }
+            // //console.log('解析文件名：'+req.body.fileURL );
+            //注意服务器端和客户端一定要名称统一，之前这里是fileName,客户端传过来是fileURL
+            idcard=req.body.fileURL;
+            if(idcard){
+                // //console.log( 'idcard进入ok！');
 
-			  var options = {
-			    url: 'http://netocr.com/api/recog.do',
-			    method: 'POST',
-			    formData: formData
-			    /*headers: {
-			      'apikey': this.apikey
-			    }*/
-			  };
 
-			  request( options,  function ( err, respon, body ) {
-			    if ( err ) {
-			    	 //console.log('\nIDcard ocr err:'+err);
-			    	return;
-			      //return cb( null, err );
-			    }
+                var that = this;
+                var formData = {
+                    key : '5YvFQKftFc9eoTTF23jC7e',
+                    secret : '30e8964158ac4bd0968be8ff041bceba',
+                    typeId : '2',
+                    format : "xml",
+                    imagetype : 'image/jpeg',
+                    file : fs.createReadStream( idcard )//,'image/jpeg'}
+                };
 
-			    // 处理请求结果
-			    //var response = that._responseParse( detectType, body );
+                var options = {
+                    url: 'http://netocr.com/api/recog.do',
+                    method: 'POST',
+                    formData: formData
+					/*headers: {
+					 'apikey': this.apikey
+					 }*/
+                };
 
-			    	 //console.log('\nIDcard ocr ok:'+respon+'<>'+body);
-						//测试xml的读取
-			    	//var xml = body;
-			    	//var dataxml=fs.readFileSync("C:/mySanyaHeritage360Server/routes/testid.xml", "utf-8");
+                request( options,  function ( err, respon, body ) {
+                    if ( err ) {
+                        //console.log('\nIDcard ocr err:'+err);
+                        return;
+                        //return cb( null, err );
+                    }
 
-    				
-/*
-			    	var out=JSON.stringify(body);
+                    // 处理请求结果
+                    //var response = that._responseParse( detectType, body );
 
-			    	for (var obj in body.cardsinfo) {
-			    		 // code to be executed
-			    	 //console.log('\nbody_obj:'+obj+'<>'+obj.length);
-				    	for (var index = 0;  index < obj.length-1; index++) {
-				    		 // code to be executed
-				    	 //console.log('\obj1:'+obj[index]+'<>'+obj[index].length);
-				    	}
-			    	}*/
-			    	var idjson=processIdXml(body);
-			    	if (idjson && idjson.name) {
-							res.send(idjson);
-			    	}else {
-							res.send(null);
-						}
-			    // 出错
-			    /*
-			    if ( response.error ) {
-			    	 //console.log('\nIDcard ocr err:'+err);
+                    //console.log('\nIDcard ocr ok:'+respon+'<>'+body);
+                    //测试xml的读取
+                    //var xml = body;
+                    //var dataxml=fs.readFileSync("C:/mySanyaHeritage360Server/routes/testid.xml", "utf-8");
 
-			      cb( response.data, null );
-			    } else {
-			    	 //console.log('\nIDcard ocr err:'+err);
-			      cb( null, response.data );
-			    }*/
-			  });
-			};
-		}
-    else {
-		res.send(null);
-	}
-} catch (e) {
-	// handle errors here
 
-  			 //console.log(e );
-		res.send(null);
-}
+					/*
+					 var out=JSON.stringify(body);
 
-});
+					 for (var obj in body.cardsinfo) {
+					 // code to be executed
+					 //console.log('\nbody_obj:'+obj+'<>'+obj.length);
+					 for (var index = 0;  index < obj.length-1; index++) {
+					 // code to be executed
+					 //console.log('\obj1:'+obj[index]+'<>'+obj[index].length);
+					 }
+					 }*/
+                    var idjson=processIdXml(body);
+                    if (idjson && idjson.name) {
+                        res.send(idjson);
+                    }else {
+                        res.send(null);
+                    }
+                    // 出错
+					/*
+					 if ( response.error ) {
+					 //console.log('\nIDcard ocr err:'+err);
+
+					 cb( response.data, null );
+					 } else {
+					 //console.log('\nIDcard ocr err:'+err);
+					 cb( null, response.data );
+					 }*/
+                });
+            };
+        }
+        else {
+            res.send(null);
+        }
+    } catch (e) {
+        // handle errors here
+
+        //console.log(e );
+        res.send(null);
+    }
+
+};
+
+
+
+processIDPhoto.post('/IDCard', IDCard);
 
 module.exports = processIDPhoto;
