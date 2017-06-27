@@ -343,8 +343,10 @@ departmentrouter.post('/editDepartment',dodepartmentEdit);//提交
 departmentrouter.post('/getAllDepartments',departmentAllJSON);//提交
 departmentrouter.post('/departmentInitialize',departmentInitialize);//提交
 departmentrouter.post('/getAllbyID',getAllbyID);//提交
-departmentrouter.post('/getAllInvolvedDepartmentsByUserid',getAllInvolvedDepartmentsByUserid);//提交
 // departmentrouter.post('/getAllchildrenDepartmentsByDobj',getAllchildrenDepartmentsByDobj);//提交
+//根据用户id获取其所在的全部部门
+departmentrouter.post('/getAllInvolvedDepartmentsByUserid',getAllInvolvedDepartmentsByUserid);//提交
+//根据部门id得到所有人员（不递归下级部门和下级部门的人员）
 departmentrouter.post('/getAllpersonsByDepartIdOneStep',getAllpersonsByDepartIdOneStep);//提交
 
 module.exports = departmentrouter;

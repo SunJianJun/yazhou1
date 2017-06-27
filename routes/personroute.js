@@ -1,4 +1,8 @@
-﻿var express = require('express');
+﻿/**
+ * @module 人员信息管理模块
+ */
+
+var express = require('express');
 var personrouter = express.Router();
 
 //获取数据模型
@@ -83,9 +87,18 @@ res.send(obj);
 });
 }
 
-//添加人员位置
+
+/**
+ * 添加人员位置
+ * @param {json} req - // {personid:"人员id",curlocation:{
+//     positioningdate:new Date(),
+//     SRS:'4321',
+//     geolocation:[119,37]
+// }}
+ * @param {string} res - 失败会发回null，成功会发回personobj
+ */
 var personAddLocation = function(req, res) {
-console.log('调用了personAddLocation方法 by params:'+req.params);
+ //console.log('调用了personAddLocation方法 by params:'+req.params);
 // //for(var i in req.params){ //console.log("请求内容params子项："+i+"<>")};
 // //for(var i in req.body){ //console.log("请求内容body子项："+i+"<>\n")};
 person.addNewLocation(req.body.personid,req.body.curlocation,function(err, obj){
@@ -98,7 +111,12 @@ person.addNewLocation(req.body.personid,req.body.curlocation,function(err, obj){
 });
 }
 
-//通过身份证添加用户
+
+/**
+ * 通过身份证添加用户
+ * @param {json} req - 包括从身份证中解析出来的数据，手机号码、手机uuid和选择的部门（这个后期不需要，因为已经预先导入了）
+ * @param {json} res - 如果成功
+ */
 var personAddByIDCard= function(req, res) {
  //console.log('调用了personAddByIDCard方法 by params:'+req.params);
 //for(var i in req.params){ //console.log("请求内容params子项："+i+"<>")};
@@ -181,22 +199,20 @@ if (req.body.mobileUUid) {
 //根据用户名密码获取用户
 //三种角色，supper，departmentManager，worker
 var getPersonByPcLogin = function(req, res) {
-    console.log('调用了getPersonByPcLogin方法 by params');
-    console.log(req.body);
+    // //console.log('调用了getPersonByPcLogin方法 by params');
     //for(var i in req.data){ //console.log("请求内容body子项："+i+"<>\n")};
     if (req.body.name && req.body.pwd ) {
         // //console.log('getPersonByPcLogin:'+req.body.name +'<>'+ req.body.pwd);
         person.findByNameAndPwd(req.body.name , req.body.pwd,function(err, obj){
             if(err) {
-                console.log('findByNameAndPwd查询出错');
+                // //console.log('findByNameAndPwd查询出差');
                 res.send({'success':false,'err':err});
             } else if (obj) {
 
-                console.log('pc端findByNameAndPwd查询用户成功:'+obj.name);
-                // console.log('\nreq.body.mobileUUid查询用户成功,用户的照片:'+obj.images.coverSmall);
+                // //console.log('pc端findByNameAndPwd查询用户成功:'+obj.name);
+                // // //console.log('\nreq.body.mobileUUid查询用户成功,用户的照片:'+obj.images.coverSmall);
                 res.send(obj);
             }else {
-                console.log('没有数据');
                 res.send(null);
             }});
     }else {
@@ -224,13 +240,13 @@ var getPersonLatestPosition = function(req, res) {
     var personID=req.body.personID;
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
-    // console.log('personID:'+personID);
+    // //console.log('personID:'+personID);
     person.getPersonLatestPosition(personID,function( err,obj){
         if(!err) {
-            // console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+obj);
+            // //console.log('getPersonLatestPosition 查询所有'+personID+'发送的消息id:'+obj);
             res.send(obj);
         } else{
-            // //console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+err);
+            // //console.log('getPersonLatestPosition 查询所有'+personID+'发送的消息为空:'+err);
             res.send(null);
         }});
 }
@@ -241,7 +257,6 @@ var getPersonPositionInTimespan = function(req, res) {
     var personid=req.body.personID;
     var startTime=req.body.startTime;
     var endTime=req.body.endTime;
-    console.log(req.body);
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     // //console.log('senderID:'+senderID);
@@ -255,14 +270,12 @@ var getPersonPositionInTimespan = function(req, res) {
         }});
 }
 
-// 根据用户id查询同事
 var getWorkmatesByUserId = function(req, res) {
     // //console.log('call getWorkmatesByUserId');
     //for(var i in req.body){ //console.log("getWorkmatesByUserId 请求内容body子项："+i+"<>\n")};
     var userid=req.body.userid;
-    // var userid='58c043cc40cbb100091c640d';
     // 调用方法
-    person.getWorkmatesByUserId(userid,function(err,obj){
+    person.getWorkmatesByUserId(userid,function( err,obj){
         if(!err) {
             // //console.log('getWorkmatesByUserId 查询所有'+userid+'相关同事ok:'+obj);
             res.send(obj);
@@ -271,6 +284,7 @@ var getWorkmatesByUserId = function(req, res) {
             res.send(null);
         }});
 }
+
 var getUserPicById = function(req, res) {
     // //console.log('call getUserPicById');
     //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
@@ -298,6 +312,6 @@ personrouter.post('/getUserPicById',getUserPicById);//提交
 // personrouter.post('/initializePersons',initializePersons);//提交
 personrouter.post('/getPersonLatestPosition',getPersonLatestPosition);//提交
 personrouter.post('/getPersonLatestPositionInTimespan',getPersonPositionInTimespan);//提交
-personrouter.post('/getWorkmatesByUserId',getWorkmatesByUserId);//提交   根据用户id查询同事
+personrouter.post('/getWorkmatesByUserId',getWorkmatesByUserId);//提交
 
 module.exports = personrouter;

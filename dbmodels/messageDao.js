@@ -1,4 +1,5 @@
-﻿var mongodb = require('./mongodb');
+﻿
+var mongodb = require('./mongodb');
 var MessageSchema = require('./messageschema');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var db = mongodb.mongoose.connection; 
@@ -75,6 +76,44 @@ MessageDAO.prototype.sendAMessage = function(messageObj,senderID,receiverID, out
 };
 
 
+MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverType,receiverIDs, outcallback) {
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                //console.log('callback sendAMessage 出错：'+'<>'+err);
+            }else{
+                //console.log('callback sendAMessage 成功：'+'<>'+obj);
+            }
+        };
+
+    if(!(messageObj.text || messageObj.image || messageObj.voice || messageObj.video)){
+        callback("你没有发送任何内容！",null);
+        return;
+    }
+    if(!senderID || !receiverID){
+        callback("消息没有明确的发送和接收者！",null);
+        return;
+    }
+    messageObj.sender=senderID;
+
+    messageObj.receiver=receiverID;
+    messageObj.status=0;//消息是未读的
+    var newM=new Messagemodel(messageObj);
+    newM.save( function(err,uobj){
+        if(err)
+        {
+            //console.log('callback sendAMessage 出错：'+'<>'+err);
+            callback(err, null);
+        }else{
+            //console.log('callback sendAMessage 成功：'+'<>'+uobj._id);
+            callback(err, uobj);
+        }
+    });
+    // });
+};
+
+
+
 
 MessageDAO.prototype.getMyNewestMessage = function(receiverID, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
@@ -113,7 +152,13 @@ MessageDAO.prototype.getMyNewestMessage = function(receiverID, outcallback) {
         }
     });
 };
-
+/**
+ * getMyNewestMessageFromWho
+ * @param receiverID 接收者id
+ * @param senderID 发送者id
+ * @param isAbstract 是否需要摘要 如果有超过1条的消息 而且此变量为真，则自动生成消息摘要
+ * @param outcallback 回调函数
+ */
 MessageDAO.prototype.getMyNewestMessageFromWho = function(receiverID,senderID,isAbstract, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
@@ -267,7 +312,7 @@ MessageDAO.prototype.getMyUnreadMessagesCount = function(receiverID, outcallback
 
 
 
-MessageDAO.prototype.readtMessage = function(mid, outcallback) {
+MessageDAO.prototype.readtMessage = function(mid,curUserID, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
@@ -283,9 +328,16 @@ MessageDAO.prototype.readtMessage = function(mid, outcallback) {
 
     Messagemodel.findOne({_id:mid}, function(err, obj){
         if(!err && obj){
-            Messagemodel.update({_id:mid},{status:1},function(err,uobj){
-                callback(err, uobj);
-            });
+            if(curUserID && obj.receiver==curUserID){
+                Messagemodel.update({_id:mid},{status:1},function(err,uobj){
+                    callback(err, uobj);
+                });
+            }else if(curUserID==""){
+                Messagemodel.update({_id:mid},{status:1},function(err,uobj){
+                    callback(err, uobj);
+                });
+
+            }
         }
         else {
             callback(err,null);
@@ -293,6 +345,30 @@ MessageDAO.prototype.readtMessage = function(mid, outcallback) {
     });
 };
 
+
+MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                console.log('callback getAllUnreadMessages 出错：'+'<>'+err);
+            }else{
+                for(var index =0;index<obj.length;index++)
+                {
+                    console.log('callback getAllUnreadMessages 成功：'+'<>'+obj[index]);
+                }
+                console.log('callback getAllUnreadMessages 成功：'+'<>');
+            }
+        };
+
+    Messagemodel.find({receiver:receiverId,status:0}, function(err, obj){
+        if(!err && obj){
+            callback(err,obj);
+        }
+        else {
+            callback(err,null);
+        }
+    });
+};
 
 var messageObj=new MessageDAO();
 // messageObj.sendAMessage(
@@ -330,4 +406,5 @@ var messageObj=new MessageDAO();
 // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
 
 // messageObj.getMyNewestMessageFromWho("58c043cc40cbb100091c640d","58bff0836253fd4008b3d41b",false);
+messageObj.getAllUnreadMessages("58dd96c9ac015a0809000070");
 module.exports = messageObj;
