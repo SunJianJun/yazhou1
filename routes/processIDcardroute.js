@@ -166,8 +166,7 @@ return json;
 	 	images={
 			coverSmall:'base64',
 			coverBig:'',}}这些属性，如果失败，返回null
- * @constructor
- */
+  */
 var IDCard=function ( req, res ) {//deprated no use
     try {
         if(req.body){

@@ -1,4 +1,7 @@
-﻿var express = require('express');
+﻿/**
+ * @module 老的人员管理模块 url：/person
+ */
+var express = require('express');
 var personrouter = express.Router();
 
 //获取数据模型
@@ -98,7 +101,12 @@ person.addNewLocation(req.body.personid,req.body.curlocation,function(err, obj){
 });
 }
 
-//通过身份证添加用户
+//
+/**
+ * 通过身份证解析后的json和手机uuid 和选定的部门id添加用户
+ * @param {json} req - IDCard身份证识别方法返回的json 再添加 mobileUUid:"手机的uuid"，departments:[{department：“部门id”，role：“worker|admin|..”},..]
+ * @param  {json} res - 注册成功返回{'success':true,"_id":“人员id”}注册失败返回{'success':false,'err':err}
+ */
 var personAddByIDCard= function(req, res) {
  //console.log('调用了personAddByIDCard方法 by params:'+req.params);
 //for(var i in req.params){ //console.log("请求内容params子项："+i+"<>")};
