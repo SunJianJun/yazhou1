@@ -10,7 +10,8 @@ imglocation: {
     index: '2d'      // create the geospatial index
     }
 });
-
+/**/
+});
 
 console.log('mongodb ImageSchema load is ok!:'+ImageSchema);
 var Imagemodel=mongodb.mongoose.model("Image", ImageSchema);

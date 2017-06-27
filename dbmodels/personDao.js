@@ -548,17 +548,14 @@ PersonDAO.prototype.changePersonStatus = function (personid, status, callback, r
   // var instance = new Personmodel(obj);
   Personmodel.findOne({_id: personid}, {personlocations: 0}, function (err, doc) {
       if (!err) {
-        Personmodel.update({_id: personid},{status:status}, function (er1r,udoc) {
+        doc.status = status;//1,正常;0离职;2请假;3旷工
+        var _id = doc._id; //需要取出主键_id
+        delete doc._id;    //再将其删除
+        Personmodel.update({_id: _id}, doc, function (er1r) {
           //console.log('更新人员状态失败：'+personid);
-          if(er1r){
-            callback('更新人员状态失败：'+personid)
-          }else{
-            callback(null,udoc)
-          }
         });
       } else {
         //console.log('单位注册查无此人：'+personid);
-        callback('单位注册查无此人：'+personid)
       }
     }
   );
@@ -891,6 +888,36 @@ PersonDAO.prototype.editUser = function (userObj, callback) {
   });
 };
 
+var getAllUser = function () {//获取所有用户  //批量修改status
+  Personmodel.remove({status: 1}).exec(function (err, objs) {
+    console.log('-------------')
+    if (!err) {
+      // for(var i=0;i<objs.length;i++) {
+      //  Personmodel.update({status:0},{$set:{'status':8}},function(err,res){
+      //    if(!err){
+      //      console.log('修改');
+      //      console.log(res);
+      //      //callback(err,res);
+      //    }
+      //    else {
+      //      console.log('没有数据');
+      //      //callback(err,0);
+      //    }
+      //  })
+      // }
+      //objs.forEach(function (value, key) {
+      //  console.log(value.name)
+      //})
+      //console.log(objs.length)
+      //
+      departmentModel.update({status:1},{persons:[1]},function(err,dep){
+        //console.log(dep[0].info)
+        console.log('删除完成')
+      })
+    }
+  })
+}
+//getAllUser();
 
 
 // 根据用户id查询同事
@@ -934,7 +961,7 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
                           // 虽然没有错，但是也没有消息
                           callback(err, null);
                         }
-                    });
+                    })
 return;
 
 
@@ -1002,24 +1029,12 @@ PersonDAO.prototype.findByIDNum = function (IDNum, callback) {
   });
 };
 
-//获取某一职务的人员
-PersonDAO.prototype.getPersonsByTitle= function (titleID,callback) {
-  Personmodel.find({title:titleID},{personlocations:0,images:0},function(err,obj){
-    if(err){
-      callback(err)
-    }else{
-      callback(null,obj)
-    }
-  })
-}
-
 PersonDAO.prototype.findByMobileUUid = function (mobileUUid, callback) {
   Personmodel.findOne({mobileUUid: mobileUUid}, {personlocations: 0}, function (err, obj) {
     callback(err, obj);
   });
 };
 
-//获取照片
 PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -1041,7 +1056,6 @@ PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
     return;
   });
 };
-
 PersonDAO.prototype.updateById = function (person, callback) {
   var options = {upsert: true};
   console.log('called Person update id:' + person._id);
@@ -1063,14 +1077,6 @@ PersonDAO.prototype.findByMobile = function (mobile, callback) {
   });
 };
 
-PersonDAO.prototype.addpersonCheckwork = function (mobile, callback) {
-
-  console.log('called Person findOne by mobile' + mobile);//mobile
-  Personmodel.findOne({'mobile': mobile}, function (err, obj) {
-    callback(err, obj);
-    console.log(' Person findout:' + obj);
-  });
-};
 
 //为指定用户添加新的定位点
 PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallback) {
@@ -1124,78 +1130,14 @@ PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallbac
   }
 };
 
-//验证用户是否存在
-PersonDAO.prototype.provingperson=function(idNum,name,sex,callback){
-  var ops={idNum:idNum}
-  name?ops.name=name:'', sex?ops.sex=sex:'';
-  console.log(ops)
-  Personmodel.find(ops,{personlocations:0},function(err,obj){
-    if(err){
-      callback('需要审核')
-    }else{
-      //console.log(obj._id)
-      Personmodel.update({_id:obj[0]._id},{status:1},function(err,uobj){
-        if(err){
-          callback(err)
-        }else{
-          callback(null,'激活')
-        }
-      })
-    }
-  })
-}
-//获取某一状态的人员
-PersonDAO.prototype.getpersonstate= function (status,callback) {
-  Personmodel.find({status:status},{personlocations:0},function(err,obj){
-    if(err){
-      callback(err)
-    }else{
-      callback(null,obj)
-    }
-  })
-}
-//根据部门查找人员
-//获取所有用户  批量修改status
-var getAllUser = function () {
-  Personmodel.remove({status: 1}).exec(function (err, objs) {
-    console.log('-------------')
-    if (!err) {
-      // for(var i=0;i<objs.length;i++) {
-      //  Personmodel.update({status:0},{$set:{'status':8}},function(err,res){
-      //    if(!err){
-      //      console.log('修改');
-      //      console.log(res);
-      //      //callback(err,res);
-      //    }
-      //    else {
-      //      console.log('没有数据');
-      //      //callback(err,0);
-      //    }
-      //  })
-      // }
-      //objs.forEach(function (value, key) {
-      //  console.log(value.name)
-      //})
-      //console.log(objs.length)
-      //
-      departmentModel.update({status:1},{persons:[1]},function(err,dep){
-        //console.log(dep[0].info)
-        console.log('删除完成')
-      })
-    }
-  })
-}
-//getAllUser();
-
 var daoObj = new PersonDAO();
-//
-//var locationObj = {
-//  positioningdate: new Date(),
-//  SRS: '4321',
-//  geolocation: [119, 37]
-//};
-//daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 
+var locationObj = {
+  positioningdate: new Date(),
+  SRS: '4321',
+  geolocation: [119, 37]
+};
+daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 // 测试
 // daoObj.getPersonLatestPosition('58c043cc40cbb100091c640d');
 // daoObj.getWorkmatesByUserId('58c043cc40cbb100091c640d');
