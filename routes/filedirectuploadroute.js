@@ -1,10 +1,5 @@
-﻿/**
- * @module 文件上传模块
- */
-
-var express = require('express');
+﻿var express = require('express');
 var uuid = require('node-uuid');
-
 var uploadPhoto = express.Router();
 var commentImgDir='./public/images';
 var IDcardImgDir='./IDCard';
@@ -33,16 +28,10 @@ var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destinat
     }
 })
 };
-/**
- * 上传文件的基本函数
- * 没有暴露出可访问url
- * @param ImgDir 文件路径
- * @param imgfileName 文件名
- * @returns {*}
- */
+
 var uploadImgs = function(ImgDir,imgfileName){ return multer({
     storage: storage(ImgDir,imgfileName),
-    limits: 52428800,//上传结束时触发
+    limits: 1000000,//上传结束时触发
 		onFileUploadComplete:function(file){			
 			 //console.log("upload commentImg complete\n"+file.path);
 		}
@@ -50,7 +39,7 @@ var uploadImgs = function(ImgDir,imgfileName){ return multer({
 
 var uploadIDcards = function(ImgDir,imgfileName){ return multer({
     storage: storage(ImgDir,imgfileName),
-    limits: 52428800,//上传结束时触发
+    limits: 1000000,//上传结束时触发
 		onFileUploadComplete:function(file){			
 			 //console.log("upload IDcardImg complete\n"+file.path);
 		}
@@ -58,7 +47,7 @@ var uploadIDcards = function(ImgDir,imgfileName){ return multer({
 
 var uploadVideo = function(videoDir,videofileName){ return multer({
     storage: storage(videoDir,videofileName),
-    limits: 52428800,//上传结束时触发
+    limits: 1000000,//上传结束时触发
 		onFileUploadComplete:function(file){			
 			 // console.log("upload videofileName complete\n"+file.path);
 		}
@@ -67,23 +56,14 @@ var uploadVideo = function(videoDir,videofileName){ return multer({
 
 var uploadVoices = function(voiceDir,voicefileName){ return multer({
     storage: storage(voiceDir,voicefileName),
-    limits: 52428800,//上传结束时触发
+    limits: 1000000,//上传结束时触发
     onFileUploadComplete:function(file){
         console.log("upload voicefileName complete\n"+file.path);
     }
 }).single('file')};//这个‘file’跟客户端的filekey要一致才行
 
-
-/**
- * 将普通图片上传封装为一个函数，以供其他地方使用
- * url:/filedirectupload/photo
- * @param {file} req -普通图片文件
- * @param {json} res - 成功后返回{
-			fileType:'commentImg',
-			filename:'images/'+一个uuid的图片文件名+".jpg"
-			} 失败返回 null
- */
-var uploadCommonFile= function( req, res ){
+// 将文件上传封装为一个模块，以供其他地方使用 
+uploadPhoto.uploadCommonFile= function( req, res ){ 
 	var imgfileName=uuid.v1();
 	uploadImgs(commentImgDir,imgfileName)(req, res, function ( error ) 
 	{ if ( error ) { // //console.error(JSON.stringify(error));
@@ -97,17 +77,8 @@ var uploadCommonFile= function( req, res ){
 		}); 
 };
 
-
-/**
- * 将身份证上传封装为一个函数，以供其他地方使用
- * url:/filedirectupload/IDCard
- * @param {file} req -身份证图像文件
- * @param {json} res - 成功后返回{
-			fileType:'IDCard',
-			filename:'IDCard/'+一个uuid的身份证图片文件名+".jpg"
-			} 失败返回 null
- */
-var uploadIDcardsFile= function( req, res ){
+// 将身份证上传封装为一个模块，以供其他地方使用 
+uploadPhoto.uploadIDcardsFile= function( req, res ){ 
 	var imgfileName=uuid.v1();
 	uploadIDcards(IDcardImgDir,imgfileName)(req, res, function ( error ) 
 	{ if ( error ) { // //console.error(JSON.stringify(error));
@@ -124,17 +95,8 @@ var uploadIDcardsFile= function( req, res ){
 		}); 
 };
 
-
-/**
- * // 将视频上传封装为一个函数，以供其他地方使用
- * url:/filedirectupload/video
- * @param {file} req -视频文件
- * @param {json} res - 成功后返回{
-			fileType:'video',
-			filename:'video/'+一个uuid的视频文件名+".mp4"
-			} 失败返回 null
- */
-var uploadVideoFile= function( req, res ){
+// 将视频上传封装为一个模块，以供其他地方使用 
+uploadPhoto.uploadVideoFile= function( req, res ){ 
 	var videofileName=uuid.v1();
 	uploadVideo(videoDir,videofileName)(req, res, function ( error ) 
 	{ if ( error ) { // //console.error(JSON.stringify(error));
@@ -151,17 +113,8 @@ var uploadVideoFile= function( req, res ){
 		}); 
 };
 
-
-/**
- * 将声音上传封装为一个函数，以供其他地方使用
- * url:/filedirectupload/voice
- * @param {file} req -声音文件
- * @param {json} res - 成功后返回{
-			fileType:'voice',
-			filename:'voice/'+一个uuid的声音文件名+".m4a"
-			} 失败返回 null
- */
-var uploadVoicesFile= function( req, res ){
+// 将声音上传封装为一个模块，以供其他地方使用
+uploadPhoto.uploadVoicesFile= function( req, res ){
 	console.log("将声音上传封装为一个模块，以供其他地方使用");
     var voicefileName=uuid.v1();
     uploadVoices(voiceDir,voicefileName)(req, res, function ( error )
@@ -173,119 +126,33 @@ var uploadVoicesFile= function( req, res ){
             fileType:'voice',
             filename:'voices/'+voicefileName+".m4a"
         });
+
+        //res.end('File is uploaded');
+
     });
 };
-
-/**
- * 自动根据类型识别存放文件夹
- * @param {json} req - 请求参数：
- file64：图片，语音，视频64位后的编码
- type:上传文件类型（0:图片；1:语音；2:小视频）， url:/filedirectupload/uploadFile64
-
- * @param {json} res - 正确返回 {
-                        fileType:'commentImg',
-                        filename:'images/'+imgfileName+".jpg"
-                    }，{
-                        fileType:'voice',
-                        filename:'voices/'+voicefileName+".m4a"
-                    }，{
-                        fileType:'video',
-                        filename:'videos/'+videofileName+".mp4"
-                    }，错误返回{
-            err:'上传参数不对',
-            filename:'null'
-        }
- */
-var uploadFile64= function( req, res ){
-    // console.error(JSON.stringify(req));
-    console.log("接收到文件类型："+req.body.type+"<>");
-	if((req.body.type>-1) && req.body.file64){
-        console.log("开始存储文件类型："+req.body.type+"<>");
-        switch (req.body.type){
-            case 0://图片
-                var imgfileName=uuid.v1();
-                uploadImgs(commentImgDir,imgfileName)(req.body.file64, res, function ( error )
-                { if ( error ) { // //console.error(JSON.stringify(error));
-                    return res.end('Error uploading file.'); }
-                    //console.log('Success!'+commentImgDir+'/'+imgfileName+".jpg");
-                    res.send({
-                        fileType:'commentImg',
-                        filename:'images/'+imgfileName+".jpg"
-                    });
-                    //res.end('File is uploaded');
-                });
-                break;
-            case 1://语音
-				// console.log("将声音上传封装为一个模块，以供其他地方使用");
-                var voicefileName=uuid.v1();
-                uploadVoices(voiceDir,voicefileName)(req.body.file64, res, function ( error )
-                { if ( error ) { //
-                    return res.end('Error uploading voice file.'); }
-
-                    //console.log('视频上传Success!'+voice+'/'+voice+".mp4");
-                    res.send({
-                        fileType:'voice',
-                        filename:'voices/'+voicefileName+".m4a"
-                    });
-                });
-                break;
-            case 2://视频
-                var videofileName=uuid.v1();
-                uploadVideo(videoDir,videofileName)(req.body.file64, res, function ( error )
-                { if ( error ) { // //console.error(JSON.stringify(error));
-                    return res.end('Error uploading video file.'); }
-
-                    //console.log('视频上传Success!'+videoDir+'/'+videofileName+".mp4");
-                    res.send({
-                        fileType:'video',
-                        filename:'videos/'+videofileName+".mp4"
-                    });
-
-                    //res.end('File is uploaded');
-
-                });
-                break;
-            default:break;
-        }
-
-	}else {
-        console.log("文件类型等参数错误！");
-        res.send({
-            err:'上传参数不对',
-            filename:'null'
-        });
-	}
-
-};
-
 
 /* 上传普通图片*/
 uploadPhoto.post('/photo', function ( req, res ) {
       // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadCommonFile(req, res);
+	 		uploadPhoto.uploadCommonFile(req, res); 
 	 });
 	 
 /* 上传身份证图片*/
 uploadPhoto.post('/IDCard', function ( req, res ) {
       // //console.log('手机段身份证 post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadIDcardsFile(req, res);
+	 		uploadPhoto.uploadIDcardsFile(req, res); 
 	 });
 
 /* 上传音频文件*/
 uploadPhoto.post('/voice', function ( req, res ) {
     // //console.log('音频文件 post数据服务器端收到: ' + req+"<>"+res);
-    uploadVoicesFile(req, res);
+    uploadPhoto.uploadVoicesFile(req, res);
 });
 	 
 /* 上传小视频*/
 uploadPhoto.post('/video', function ( req, res ) {
       // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadVideoFile(req, res);
+	 		uploadPhoto.uploadVideoFile(req, res); 
 	 });
-
-/* 上传小视频*/
-uploadPhoto.post('/uploadFile64', function ( req, res ) {
-    // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
-    uploadFile64(req, res);
-});
 module.exports = uploadPhoto; 

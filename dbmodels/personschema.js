@@ -50,7 +50,7 @@ var PersonSchema = new Schema({
   residence: String,
   idNum: String,
   mobileUUid: String,
-  title:String,//指向persontitle表,//职务
+  title:String,// {department: String, post: String, job: String},//String,//职务
   mobile: Number,
   age: Number,
   create_date: {type: Date, default: Date.now},
@@ -72,7 +72,11 @@ var PersonSchema = new Schema({
   //状态
   status: {type: Number, default: 1},//1,正常;0离职;2请假;3旷工;4待审核   //测试用户 9,正常;8离职
   personlocations: [locationSchema],
-  pwd: String
+  pwd: String,
+  timeCard:[{ //考勤
+    time:Date,
+    record:String
+  }]
 });
 // var options={};
 // PersonSchema.plugin(deepPopulate, options );/* more on options below */

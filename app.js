@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 //ÕâÊÇ¸øsocketioÁôµÄ¼àÌý¶Ë¿Ú
 var server = require('http').createServer(app)
   , socketio = require('socket.io').listen(server);
-  
+
+require('events').EventEmitter.prototype._maxListeners = 100;
+
 server.listen(8012);
 
 
@@ -62,8 +64,8 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({ extended: false,limit: '50mb' }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -85,7 +87,7 @@ app.use('/panoimg', panoimgroute);
 app.use('/spotarea', spotarearoute);
 
 app.use('/mobilegridservice', mobilegridservice);
-app.use('/personadmin',personadminroute);
+app.use('/personadminroute',personadminroute);
 app.use('/map',maproute);
 
 app.use('/concreteeventroute', concreteeventroute);

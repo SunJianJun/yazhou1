@@ -7,6 +7,7 @@ var personrouter = express.Router();
 //获取数据模型
 var personDAO = require('../dbmodels/personDAO.js');
 var departmentDAO = require('../dbmodels/departmentDao.js');
+var persontitleDAO = require('../dbmodels/persontitleDao.js');
 
 
 /**
@@ -23,29 +24,28 @@ var sendpersonimport = function (req, res) {
         idNum = peo.idNum,
         departments = peo.departments;
     if (!name) {
-        res.send('名字不能为空')
+        res.send({error:'名字不能为空'})
     }
     if (!idNum) {
-        res.send('身份证不能为空')
+        res.send({error:'身份证不能为空'})
     } else {
         if (idNum.length != 18) {
-            res.send('身份证输入错误')
+            res.send({error:'身份证输入错误'})
         }
     }
     if (!departments) {
         //res.send('部门不能为空')
     } else {
         if (!departments.role) {
-            res.rend('人员权限不能为空')
+            res.rend({error:'人员权限不能为空'})
         }
     }
     peo.create_date = new Date();
     personDAO.save(peo, function (err, obj) {
         if (err) {
-            console.log(err)
+            res.rend({error:err})
         } else {
-            console.log('添加成功')
-            console.log(obj)
+            res.rend(obj)
         }
     })
 };
@@ -68,14 +68,15 @@ var sendpersonimport = function (req, res) {
 var sendpersonreGister = function (req, res) {
     var json = req.body;
     //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
+    console.log(json);
     if (!json) {
-
+        res.send({error:'输入信息为空'});
     } else {
         //console.log('调用了dopersonAdd方法');
         json.status = 1;
         personDAO.save(json, function (err, obj) {
             if (err) {
-                res.send(null);
+                res.send({error:'查询出错'});
             } else {
                 res.send(obj);
             }
@@ -95,13 +96,13 @@ var sendispersonAdd = function (req, res) {
         sex = json.sex;
     if (!idNum) {
         //res.send('无效身份证号')
-        console.log('无效身份证号')
+        res.send({error:'无效身份证号'});
     } else {
         personDAO.provingperson(idNum, name, sex, function (err, obj) {
             if (err) {
-                res.send(err);
+                res.send({error:null});
             } else {
-                //console.log(obj)
+                //res.send({success:obj}
                 res.send(obj)
             }
         })
@@ -141,14 +142,14 @@ var updatepersonstate = function (req, res) {
         person = json._id,
         status = json.status;
     if (!person && !status) {
-        res.send('信息不全，重新提交')
+        res.send({error:'信息不全，重新提交'})
     }
     personDAO.changePersonStatus(person, status, function (err, obj) {
         if (err) {
-            //console.log(null)
-            res.send(null);
+            //res.send({error:'提交失败}
+            res.send({error:null});
         } else {
-            //console.log(obj)
+            //res.send({success:obj}
             res.send(obj)
         }
     })
@@ -164,10 +165,8 @@ var getdepartmentTopeople = function (req, res) {
     //var docID=req;
     departmentDAO.getPersonsByDepartmentID(docID, function (err, obj) {
         if (err) {
-            console.log(null)
-            res.send(null)
+            res.send({error:null})
         } else {
-            console.log(obj)
             res.send(obj)
         }
     })
@@ -181,11 +180,11 @@ var getdepartmentTopeople = function (req, res) {
 var getpersonstate = function (req, res) {
     var status = req.body.status;
     if (!status) {
-        res.send('状态提交有误，请重新发送')
+        res.send({error:'状态提交有误，请重新发送'})
     }
     personDAO.getpersonstate(status, function (err, obj) {
         if (err) {
-            res.send(null)
+            res.send({error:null})
         } else {
             res.send(obj)
         }
@@ -205,29 +204,42 @@ var getdepartmentsstatus = function (req, res) {
     }
     departmentDAO.getpersonstate(status, function (err, obj) {
         if (err) {
-            res.send(null)
+            res.send({error:null})
         } else {
             res.send(obj)
         }
     })
 };
 /**
- * 根据职位获取人员
- * @param {json} req - 客户端提交json 例如{titleID:"123456"}
- * @param {json} res - 返回json：[{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'}}]
+ * 获取得到所有有效的部门
+ * @param {} req - 客户端发起请求，无需传参
+ * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息'}]
  */
-var getPersonsByTitle=function(req,res){
-    var title=req.body.titleID;
-    //var title=req;
-    personDAO.getPersonsByTitle(title,function(err,obj){
-        if(err){
-            console.log(null)
-        }else{
-            console.log(obj)
+var getAllDepartments = function (req, res) {
+    departmentDAO.getAllDepartments(function (err, obj) {
+        if (err) {
+            //console.log(err)
+            res.send({error:null})
+        } else {
+            //res.send({success:obj}
+            res.send(obj)
         }
     })
 };
-//getPersonsByTitle("5952112dea76066818fd6dd0")
+/**
+ * 得到所有的部门包含人员ID
+ * @param {} req - 客户端发起请求，无需传参
+ * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息',persons:[[{_id:''}]]
+ */
+var getAllDepartment=function(err,obj){
+    departmentDAO.getAllDepartment(function (err, obj) {
+        if (err) {
+            res.send({error:null})
+        } else {
+            res.send(obj)
+        }
+    })
+};
 /**
  * 部门新建
  * @param {json} req - 传入名称和上级部门id,客户端提交json 例如{name:'新建1',info:'新建描述',parent:'上级部门id',infoLink:'www.baidu.com'}
@@ -268,7 +280,7 @@ var sendnewdepartment = function (req, res) {
                             if(err){
                                 console.log(err)
                             }else{
-                                console.log(obj)
+                                res.send({success:obj})
                             }
                         })
                     }
@@ -280,7 +292,7 @@ var sendnewdepartment = function (req, res) {
         //console.log('调用了dodepartmentAdd方法');
         departmentDAO.save(json, function (err) {
             if (err) {
-                res.send({'部门保存出错err': err});
+                res.send({error:'部门保存出错err'});
             } else {
                 var newobid = department.get("_id");
                 // //console.log('新添加部门的id：'+newobid);
@@ -294,7 +306,7 @@ var sendnewdepartment = function (req, res) {
 }
 //sendnewdepartment({body: {name:'123',info:'ceshi'}})
 /**
- * 部门改名
+ * 部门改名-未实现
  * @param {json} req - 客户端提交json 例如{status:1}
  * @param {json} res - 返回json：例如{status:1}
  */
@@ -302,7 +314,7 @@ var updatedepartmentname = function (req, res) {
 
 }
 /**
- * 编辑部门信息，修改名称，描述，官方网站，部门内部的头衔
+ * 编辑部门信息，修改名称，描述，官方网站，部门内部的头衔-未实现
  * @param {json} req - 客户端提交json 例如{_id:'123456',name:'修改1',info:'修改部门的信息',infoLink:'www.baidu.com',status:1}
  * @param {json} res - 返回json：例如{status:1}
  */
@@ -310,14 +322,97 @@ var updatedepartmentinfo = function (req, res) {
 
 }
 /**
- * 部门状态管理，修改部门状态
+ * 部门状态管理，修改部门状态-未实现
  * @param {json} req - 客户端提交json 例如{_id:'123456',status:1}
  * @param {json} res - 返回json：例如{status:1}
  */
 var updatedepartmentstatus = function (req, res) {
 
+};
+
+/**
+ * 获取所有职务
+ * @param {} req -
+ * @param {json} res - 返回json：例如[ { name: '大队长', _id: 59520e5d7b6d7fa011adcc73 }]
+ */
+var getAllpersontitle=function(req,res){
+    persontitleDAO.getAllpersontitle(function(err,obj){
+    if(err){
+        console.log(err)
+    }else{
+        res.send({success:obj})
+    }
+    })
 }
+
+//getAllpersontitle()
+/**
+ * 根据职务筛选出人员
+ * @param {json} req - 客户端提交json 例如{_id:'职务ID'}
+ * @param {json} res - 返回json：例如[{ title: '5952112dea76066818fd6dd0',
+    create_date: 2017-06-09T09:41:00.400Z,
+    departments: [ [Object] ],
+    status: 1,
+    timeCard: [],
+    __v: 0,
+    birthday: '1983-02-28',
+    age: 34,
+    idNum: '460003198302283415',
+    mobile: 13518037530,
+    sex: '男',
+    name: '吴兴学',
+    _id: 593a6d2cf06286140edf82f1 }]
+ */
+var gettitleToperson=function(req,res){
+    var json=req.body;
+    var id=json._id;
+    personDAO.gettitleToperson(id,function(err,obj){
+        if(err){
+            res.send({error:'获取失败'})
+        }else{
+            res.send({success:obj})
+        }
+    })
+}
+//gettitleToperson({_id:'5952112dea76066818fd6dd0'})
+/**
+ * 修改或添加人员职务，职务是唯一的
+ * @param {json} req - 客户端提交json 例如{_id:'人员ID',title:'职务ID'}
+ * @param {json} res - 返回json：例如{success:'修改成功'}
+ */
+var sendpersontitle=function(req,res){
+    var json=req.body;
+    var id=json._id;
+    var title=json.title;
+    if(id&&title){res.send({error:'提交的参数有误'})}
+    personDAO.sendpersontitle(id,title,function(err,obj){
+        if(err){
+            res.send({error:'提交失败'})
+        }else{
+            res.send({success:'修改成功'})
+        }
+    })
+}
+//sendpersontitle({_id:'58e0c199e978587014e67a50',title:'111'})
 
 
 personrouter.post('/sendpersonimport', sendpersonimport);//提交
+personrouter.post('/sendpersonreGister', sendpersonreGister);//提交
+personrouter.post('/sendispersonAdd', sendispersonAdd);//提交
+personrouter.post('/sendWaitExamineperson', sendWaitExamineperson);//提交
+personrouter.post('/updatepersonstate', updatepersonstate);//提交
+personrouter.post('/getdepartmentTopeople',getdepartmentTopeople);//提交
+personrouter.post('/getpersonstate', getpersonstate);//提交
+personrouter.post('/sendnewdepartment',sendnewdepartment);//提交
+personrouter.post('/updatedepartmentname',updatedepartmentname);//提交
+personrouter.post('/updatedepartmentinfo',updatedepartmentinfo);//提交
+personrouter.post('/updatedepartmentstatus',updatedepartmentstatus);//提交
+personrouter.post('/getAllDepartments',getAllDepartments);//提交
+personrouter.post('/getAllDepartment',getAllDepartment);//提交
+personrouter.post('/getAllpersontitle',getAllpersontitle);//提交
+personrouter.post('/gettitleToperson',gettitleToperson);//提交
+personrouter.post('/sendpersontitle',sendpersontitle);//提交
+
+
+
 module.exports = personrouter;

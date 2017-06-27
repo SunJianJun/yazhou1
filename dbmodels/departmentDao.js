@@ -440,21 +440,21 @@ DepartmentDAO.prototype.getSubsByDepartmentID = function (id, callback) {
 //得到所有部门
 DepartmentDAO.prototype.getAllDepartment = function (callback) {
 
-  Departmentmodel.findAll(function (err, obj) {
+  Departmentmodel.find({},function (err, obj) {
 
     //console.info('查询出来的单位总数：'+obj);
-    var rootdpts = new Array();
-    if (obj.length && obj.length > 0) {
-      for (var index = 0; index < obj.length; index++) {
-        if (obj[index].level != 0) {
-
-        } else {
-          rootdpts.push(obj[index]);
-        }
-      }
-    }
+    //var rootdpts = new Array();
+    //if (obj.length && obj.length > 0) {
+    //  for (var index = 0; index < obj.length; index++) {
+    //    if (obj[index].level != 0) {
+    //
+    //    } else {
+    //      rootdpts.push(obj[index]);
+    //    }
+    //  }
+    //}
     //此时才能用Model操作，否则报错
-    callback(err, rootdpts);
+    callback(err, obj);
   });
 };
 

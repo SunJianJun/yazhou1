@@ -1,5 +1,6 @@
 ﻿var mongodb = require('./mongodb');
-var PersontitleSchema = require('./persontitleschema');//这里相当于PersontitleSchema的export，真正要引用PersontitleSchema，应该这样PersontitleSchema.PersontitleSchema
+var PersontitleSchema = require('./persontitleschema');
+var PersonDAO = require('./personDao')
 var db = mongodb.mongoose.connection;
 
 db.on('error', console.error.bind(console, '连接错误:'));
@@ -14,14 +15,6 @@ var Persontitle = function () {};
 
 //存储用户
 Persontitle.prototype.save = function (obj, callback) {
-  var callback = callback?callback : function (err, obj) {
-    //console.log('callback得到人员最新位置：'+obj.geolocation);
-    if(err){
-      console.log(err)
-    }else{
-      console.log(obj)
-    }
-  };
   var instance = new Persontitlemodel(obj);
   //console.log('param value:' + obj + '<>instance.save:' + instance);
   instance.save(function (err) {
@@ -30,37 +23,64 @@ Persontitle.prototype.save = function (obj, callback) {
   });
 };
 
+//获取某一状态的人员
+Persontitle.prototype.getpersonstate= function (status,callback) {
+  Persontitlemodel.find({status:status},{personlocations:0},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+//获取所有职务
+Persontitle.prototype.getAllpersontitle=function(callback){
+  Persontitlemodel.find({},'name',function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
+//根据部门查找人员
+//获取所有用户  批量修改status
+var getAllUser = function () {
+  Persontitlemodel.remove({status: 1}).exec(function (err, objs) {
+    console.log('-------------')
+    if (!err) {
+      // for(var i=0;i<objs.length;i++) {
+      //  Persontitlemodel.update({status:0},{$set:{'status':8}},function(err,res){
+      //    if(!err){
+      //      console.log('修改');
+      //      console.log(res);
+      //      //callback(err,res);
+      //    }
+      //    else {
+      //      console.log('没有数据');
+      //      //callback(err,0);
+      //    }
+      //  })
+      // }
+      //objs.forEach(function (value, key) {
+      //  console.log(value.name)
+      //})
+      //console.log(objs.length)
+      //
+      departmentModel.update({status:1},{persons:[1]},function(err,dep){
+        //console.log(dep[0].info)
+        console.log('删除完成')
+      })
+    }
+  })
+}
+//getAllUser();
 
 var daoObj = new Persontitle();
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'局长'//名称
-//})
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'副局长'//名称
-//})
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'雇员'//名称
-//})
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'副大队长'//名称
-//})
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'雇员'//名称
-//})
-//daoObj.save({
-//  departmentID:"58c3a5e9a63cf24c16a50b8c",//person 的 id
-//  parentTitle:'',//上级ID
-//  name:'中队长'//名称
+//Persontitle.save({
+//  departmentID:'123456',//person 的 id
+//  parentTitle:'456789',//上级ID
+//  name:'名称'//名称
 //})
 module.exports = daoObj;
