@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Documentation Module: 工作消息和群体通知模块</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Documentation</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-%25E4%25B8%25AA%25E4%25BA%25BA%25E4%25BF%25A1%25E6%2581%25AF%25E9%2585%258D%25E7%25BD%25AE%25E6%25A8%25A1%25E5%259D%2597.html">个人信息配置模块</a></li><li><a href="module-%25E5%259C%25B0%25E5%259B%25BE%25E5%258A%259F%25E8%2583%25BD%25E6%25A8%25A1%25E5%259D%2597.html">地图功能模块</a></li><li><a href="module-%25E5%25B7%25A5%25E4%25BD%259C%25E6%25B6%2588%25E6%2581%25AF%25E5%2592%258C%25E7%25BE%25A4%25E4%25BD%2593%25E9%2580%259A%25E7%259F%25A5%25E6%25A8%25A1%25E5%259D%2597.html">工作消息和群体通知模块</a></li><li><a href="module-%25E6%2596%2587%25E4%25BB%25B6%25E4%25B8%258A%25E4%25BC%25A0%25E6%25A8%25A1%25E5%259D%2597.html">文件上传模块</a></li><li><a href="module-%25E7%2599%25BB%25E5%25BD%2595%25E6%25B3%25A8%25E5%2586%258C%25E6%25A8%25A1%25E5%259D%2597.html">登录注册模块</a></li><li><a href="module-%25E7%25BD%2591%25E6%25A0%25BC%25E4%25B8%259A%25E5%258A%25A1%25E6%258E%25A5%25E5%258F%25A3.html">网格业务接口</a></li><li><a href="module-%25E8%2580%2581%25E7%259A%2584%25E4%25BA%25BA%25E5%2591%2598%25E7%25AE%25A1%25E7%2590%2586%25E6%25A8%25A1%25E5%259D%2597%2520url%25EF%25BC%259A_person.html">老的人员管理模块 url：/person</a></li><li><a href="module-%25E8%25BA%25AB%25E4%25BB%25BD%25E8%25AF%2581%25E8%25AF%2586%25E5%2588%25AB%25E6%25A8%25A1%25E5%259D%2597%2520%2520%2520url%25EF%25BC%259A_processID.html">身份证识别模块   url：/processID</a></li><li><a href="module-%25E9%2583%25A8%25E9%2597%25A8%25E4%25BA%25BA%25E5%2591%2598%25E7%25AE%25A1%25E7%2590%2586%25E6%25A8%25A1%25E5%259D%2597.html">部门人员管理模块</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	<h1 class="page-title">Module: 工作消息和群体通知模块</h1>
+<section>
+
+<header>
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="~getAllUnreadMessages"><span class="type-signature">&lt;inner> </span>getAllUnreadMessages(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>根据用户id得到所有未读信息</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>传来的参数是接受者的id{receiverID:&quot;58dd96c9ac015a0809000070&quot;}</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发回所有未读消息，如果没有就是null，如果有，类似{ create_date: 2017-04-02T11:04:34.638Z,
+  images: {},
+  location:
+   [ { positioningdate: 2017-04-02T11:04:34.639Z,
+       SRS: '4326',
+       _id: 58e0dac2e978587014e67f23,
+       geolocation: [Object] } ],
+  __v: 0,
+  status: 0,
+  receiver: 58dd96c9ac015a0809000070,
+  sender: 58c043cc40cbb100091c640d,
+  image: 'images/24368180-1794-11e7-a741-7d4b0ed433e3.jpg',
+  text: '',
+  _id: 58e0dac2e978587014e67f22 }</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~getMessagesInATimeSpanFromWho"><span class="type-signature">&lt;inner> </span>getMessagesInATimeSpanFromWho(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>得到一个时间段内某人发来的消息 或者 群体消息（群体消息部分未实现）</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>客户端提交的json{receiverID:&quot;sdfdsf&quot;,startTime:&quot;开始时间&quot;,lastTime:&quot;结束时间&quot;,&quot;senderID&quot;:&quot;发送者id&quot;，type：“broadcast|message”（跟发送者id不同时作用，可以只发送type为broadcast而不指定senderid，如果有明确的发送者id，且type未指定或者为‘message’时，就查询个人消息，否则就是群体消息）}</p>
+                <h6 class="method-params-label method-subparams-label">Properties</h6>
+                
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>body.receiverID</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>接受者id.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>body.senderID</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发送者id.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>body.type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发送类型.broadcast或者message，当为broadcast时，senderID会忽略，否则会用上</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>body.startTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">datetime</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>开始时间.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>body.lastTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">datetime</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>结束时间.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~getMyNewestMessageFromWho"><span class="type-signature">&lt;inner> </span>getMyNewestMessageFromWho(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>得到一个人发送来的最新未读消息</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>{receiverID:&quot;58c043cc40cbb100091c640d&quot;,senderID:&quot;58bff0836253fd4008b3d41b&quot;,isAbstract:false（是否需要摘要信息）// 如果是需要摘要信息，而且指定来源的消息数量》0// 如果不需要摘要信息，而且消息数量大于0}</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>如果是需要摘要的，就是这样{sender:senderID,count:消息数量,abstract:自动摘要,
+                    startTime:消息起始时间(&quot;yyyy-MM-dd hh:mm:ss&quot;),
+                    lastTime:消息结束时间(&quot;yyyy-MM-dd hh:mm:ss&quot;)}，如果不需要摘要就是消息的数组【{ create_date: 2017-04-02T11:04:34.638Z,
+                      images: {},
+                      location:
+                       [ { positioningdate: 2017-04-02T11:04:34.639Z,
+                           SRS: '4326',
+                           _id: 58e0dac2e978587014e67f23,
+                           geolocation: [Object] } ],
+                      __v: 0,
+                      status: 0,
+                      receiver: 58dd96c9ac015a0809000070,
+                      sender: 58c043cc40cbb100091c640d,
+                      image: 'images/24368180-1794-11e7-a741-7d4b0ed433e3.jpg',
+                      text: '',
+                      _id: 58e0dac2e978587014e67f22 }，。。。】</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~readtMessage"><span class="type-signature">&lt;inner> </span>readtMessage(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>读取了一个消息，将一个消息设置为已读，在查询未读消息的操作中就不会包括这个消息了</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>req.body.messID消息的唯一id</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>成功返回该消息id，失败返回null</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~sendAMessage"><span class="type-signature">&lt;inner> </span>sendAMessage(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>发送个人消息</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>json形式：(senderID:“发送者id&quot;,type:&quot;message&quot;(可以不写),receiverID:&quot;接受者id&quot;,messageObj：{
+text:&quot;文本内容&quot;,voice:&quot;语音消息&quot;,video:&quot;视频消息&quot;,image:&quot;图片消息&quot;（四种消息必有一种）}&quot;)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发送成功返回 消息本身，发送失败发回 null</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~sendBroadcast"><span class="type-signature">&lt;inner> </span>sendBroadcast(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>发送群体性消息，未实现</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>json形式：(senderID:“dfdf&quot;,type:&quot;broadcast&quot;,receiverType:&quot;department(按部门发送)|title（按头衔发送）|persons（选择一些人发送）&quot;,messageObj：{
+text:&quot;文本内容&quot;,voice:&quot;语音消息&quot;,video:&quot;视频消息&quot;,image:&quot;图片消息&quot;（四种消息必有一种）}，receiverInfo:&quot;(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)&quot;)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发送失败 null，发送成功， 消息本身</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
+	
+		on June 28th 2017, 3:23:16 pm
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>
