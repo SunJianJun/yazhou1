@@ -1132,12 +1132,12 @@ PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallbac
 
 var daoObj = new PersonDAO();
 
-var locationObj = {
-  positioningdate: new Date(),
-  SRS: '4321',
-  geolocation: [119, 37]
-};
-daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
+// var locationObj = {
+//   positioningdate: new Date(),
+//   SRS: '4321',
+//   geolocation: [119, 37]
+// };
+// daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 // 测试
 // daoObj.getPersonLatestPosition('58c043cc40cbb100091c640d');
 // daoObj.getWorkmatesByUserId('58c043cc40cbb100091c640d');

@@ -54,7 +54,6 @@ app.use(cors());
 app.listen(2000);
 
 //app.use(express.bodyParser({ keepExtensions: true, uploadDir: '/tmp' }));
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -73,6 +72,9 @@ app.use('/users', usersroute);
 //将所有不同种类的路由都在服务器注册
 app.use('/movie', movieroute);
 app.use('/person', personroute);
+
+// app.get('/person', personroute);
+
 app.use('/message', messageroute);
 app.use('/point', pointroute);
 app.use('/fileupload', fileuploaderroute);
