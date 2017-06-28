@@ -300,8 +300,8 @@ var getUserPicById = function(req, res) {
 
 /**
  * 通过url直接获取用户头像，get方法，./person/personPic?pid=111
- * @param req - 人员id pid
- * @param res - jpeg图片
+ * @param {String} req - 人员id pid
+ * @param {binary/image} res - jpeg图片
  */
 var personPic = function(req, response) {
     console.log('call personPic:'+req.query.pid);
