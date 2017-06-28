@@ -1,3 +1,0 @@
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://58.64.149.165/test');//gridman_db
-exports.mongoose = mongoose;
