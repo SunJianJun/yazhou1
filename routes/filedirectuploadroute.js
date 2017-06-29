@@ -20,19 +20,11 @@ var fs = require('fs');
 //uuid.v4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
 var multer = require('multer')
 //fileDir= './upload'
-<<<<<<< Updated upstream
 var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destination: function ( req, file, callback ) {
-    // ע�⣬�˴���uploadsĿ¼�Ǵ���Ŀ�ĸ�Ŀ¼��ʼѰ��
-    // ���û�еĻ�����Ҫ�ֶ��½����ļ��� './upload'
+    // 注意，此处的uploads目录是从项目的根目录开始寻找
+    // 如果没有的话，需要手动新建此文件夹 './upload'
     callback(null,fileDir ); },
     filename: function ( req, file, callback ) {
-=======
-var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destination: function ( req, file, callback ) { 
-	// 注意，此处的uploads目录是从项目的根目录开始寻找 
-	// 如果没有的话，需要手动新建此文件夹 './upload'
-	callback(null,fileDir ); }, 
-	filename: function ( req, file, callback ) {
->>>>>>> Stashed changes
 
         // multer不会自动添加文件后缀名，需要手动添加
         //下面的文件名是这样file-1476361627446.jpg
@@ -51,51 +43,27 @@ var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destinat
  */
 var uploadImgs = function(ImgDir,imgfileName){ return multer({
     storage: storage(ImgDir,imgfileName),
-<<<<<<< Updated upstream
-    limits: 52428800,//�ϴ�����ʱ����
+    limits: 52428800,//上传结束时触发
     onFileUploadComplete:function(file){
         //console.log("upload commentImg complete\n"+file.path);
     }
-}).single('file')};//�����file�����ͻ��˵�filekeyҪһ�²���
+}).single('file')};//这个‘file’跟客户端的filekey要一致才行
 
 var uploadIDcards = function(ImgDir,imgfileName){ return multer({
     storage: storage(ImgDir,imgfileName),
-    limits: 52428800,//�ϴ�����ʱ����
+    limits: 52428800,//上传结束时触发
     onFileUploadComplete:function(file){
         //console.log("upload IDcardImg complete\n"+file.path);
     }
-}).single('file')};//�����file�����ͻ��˵�filekeyҪһ�²���
+}).single('file')};//这个‘file’跟客户端的filekey要一致才行
 
 var uploadVideo = function(videoDir,videofileName){ return multer({
     storage: storage(videoDir,videofileName),
-    limits: 52428800,//�ϴ�����ʱ����
+    limits: 52428800,//上传结束时触发
     onFileUploadComplete:function(file){
         // console.log("upload videofileName complete\n"+file.path);
     }
-}).single('file')};//�����file�����ͻ��˵�filekeyҪһ�²���
-=======
-    limits: 52428800,//上传结束时触发
-		onFileUploadComplete:function(file){			
-			 //console.log("upload commentImg complete\n"+file.path);
-		}
 }).single('file')};//这个‘file’跟客户端的filekey要一致才行
-
-var uploadIDcards = function(ImgDir,imgfileName){ return multer({
-    storage: storage(ImgDir,imgfileName),
-    limits: 52428800,//上传结束时触发
-		onFileUploadComplete:function(file){			
-			 //console.log("upload IDcardImg complete\n"+file.path);
-		}
-}).single('file')};//这个‘file’跟客户端的filekey要一致才行
-
-var uploadVideo = function(videoDir,videofileName){ return multer({
-    storage: storage(videoDir,videofileName),
-    limits: 52428800,//上传结束时触发
-		onFileUploadComplete:function(file){			
-			 // console.log("upload videofileName complete\n"+file.path);
-		}
-}).single('file')};//这个‘file’跟客户端的filekey要一致才行
->>>>>>> Stashed changes
 
 
 var uploadVoices = function(voiceDir,voicefileName){ return multer({
@@ -141,25 +109,12 @@ var uploadCommonFile= function( req, res ){
 			} 失败返回 null
  */
 var uploadIDcardsFile= function( req, res ){
-<<<<<<< Updated upstream
     var imgfileName=uuid.v1();
     uploadIDcards(IDcardImgDir,imgfileName)(req, res, function ( error )
     { if ( error ) { // //console.error(JSON.stringify(error));
         return res.end('Error uploading file.'); }
-=======
-	var imgfileName=uuid.v1();
-	uploadIDcards(IDcardImgDir,imgfileName)(req, res, function ( error ) 
-	{ if ( error ) { // //console.error(JSON.stringify(error));
-		return res.end('Error uploading file.'); } 
-		
-		 //console.log('身份证上传Success!'+IDcardImgDir+'/'+imgfileName+".jpg");
-		res.send({
-			fileType:'IDCard',
-			filename:IDcardImgDir+'/'+imgfileName+".jpg"
-			}); 
->>>>>>> Stashed changes
 
-        //console.log('����֤�ϴ�Success!'+IDcardImgDir+'/'+imgfileName+".jpg");
+        //console.log('身份证上传Success!'+IDcardImgDir+'/'+imgfileName+".jpg");
         res.send({
             fileType:'IDCard',
             filename:IDcardImgDir+'/'+imgfileName+".jpg"
@@ -181,25 +136,12 @@ var uploadIDcardsFile= function( req, res ){
 			} 失败返回 null
  */
 var uploadVideoFile= function( req, res ){
-<<<<<<< Updated upstream
     var videofileName=uuid.v1();
     uploadVideo(videoDir,videofileName)(req, res, function ( error )
     { if ( error ) { // //console.error(JSON.stringify(error));
         return res.end('Error uploading video file.'); }
-=======
-	var videofileName=uuid.v1();
-	uploadVideo(videoDir,videofileName)(req, res, function ( error ) 
-	{ if ( error ) { // //console.error(JSON.stringify(error));
-		return res.end('Error uploading video file.'); } 
-		
-		 //console.log('视频上传Success!'+videoDir+'/'+videofileName+".mp4");
-		res.send({
-			fileType:'video',
-			filename:'videos/'+videofileName+".mp4"
-			}); 
->>>>>>> Stashed changes
 
-        //console.log('��Ƶ�ϴ�Success!'+videoDir+'/'+videofileName+".mp4");
+        //console.log('视频上传Success!'+videoDir+'/'+videofileName+".mp4");
         res.send({
             fileType:'video',
             filename:'videos/'+videofileName+".mp4"
@@ -221,11 +163,7 @@ var uploadVideoFile= function( req, res ){
 			} 失败返回 null
  */
 var uploadVoicesFile= function( req, res ){
-<<<<<<< Updated upstream
-    console.log("�������ϴ���װΪһ��ģ�飬�Թ������ط�ʹ��");
-=======
-	console.log("将声音上传封装为一个模块，以供其他地方使用");
->>>>>>> Stashed changes
+    console.log("将声音上传封装为一个模块，以供其他地方使用");
     var voicefileName=uuid.v1();
     uploadVoices(voiceDir,voicefileName)(req, res, function ( error )
     { if ( error ) { //
@@ -257,23 +195,15 @@ var uploadVoicesFile= function( req, res ){
                     }，错误返回{
             err:'上传参数不对',
             filename:'null'
-        } �����ļ��������᷵�� ��������
+        } 或者文件保存错误会返回 错误详情
  */
 var uploadFile64= function( req, res ){
     // console.error(JSON.stringify(req));
-<<<<<<< Updated upstream
-    console.log("���յ��ļ����ͣ�"+req.body.type+"<>");
-    if((req.body.type>-1) && req.body.file64){
-        console.log("��ʼ�洢�ļ����ͣ�"+req.body.type+"<>");
-        switch (req.body.type){
-            case '0'://ͼƬ
-=======
     console.log("接收到文件类型："+req.body.type+"<>");
-	if((req.body.type>-1) && req.body.file64){
+    if((req.body.type>-1) && req.body.file64){
         console.log("开始存储文件类型："+req.body.type+"<>");
-        switch (req.body.type){
-            case 0://图片
->>>>>>> Stashed changes
+        switch (req.body.type+""){
+            case '0'://图片
                 var imgfileName=uuid.v1();
                 var base64Data = req.body.file64.replace(/^data:image\/\w+;base64,/, "");
                 var dataBuffer = new Buffer(base64Data, 'base64');
@@ -294,13 +224,13 @@ var uploadFile64= function( req, res ){
                 });
 
                 break;
-<<<<<<< Updated upstream
-            case 1://����
-                // console.log("�������ϴ���װΪһ��ģ�飬�Թ������ط�ʹ��");
+            case '1'://语音
+                // console.log("将声音上传封装为一个模块，以供其他地方使用");
                 var voicefileName=uuid.v1();
-                var base64Data = req.body.file64.replace(/^data:audio\/\w+;base64,/, "");
+                var base64Data = req.body.file64.replace(/^data:audio\/\S+;base64,/, "");
+                //console.log("过滤后的声音b64："+base64Data);
                 var dataBuffer = new Buffer(base64Data, 'base64');
-                fs.writeFile(voiceDir+'/'+voicefileName+".m4a", dataBuffer, function(error) {
+                fs.writeFile(voiceDir+'/'+voicefileName+".wav", dataBuffer, function(error) {
                     if(error){
                         console.error(JSON.stringify(error));
                         return res.end({
@@ -309,34 +239,19 @@ var uploadFile64= function( req, res ){
                         } );
                         // return res.end('Error uploading voice file.');
                     }else{
-                        console.log('Success!'+voiceDir+'/'+voicefileName+".m4a");
+                        console.log('Success!'+voiceDir+'/'+voicefileName+".wav");
 
-                        //console.log('��Ƶ�ϴ�Success!'+voice+'/'+voice+".mp4");
+                        //console.log('视频上传Success!'+voice+'/'+voice+".mp4");
                         res.send({
                             fileType:'voice',
-                            filename:'voices/'+voicefileName+".m4a"
+                            filename:'voices/'+voicefileName+".wav"
                         });
                     }
-=======
-            case 1://语音
-				// console.log("将声音上传封装为一个模块，以供其他地方使用");
-                var voicefileName=uuid.v1();
-        				var base64Data = req.body.file64.replace(/^data:audio\/\w+;base64,/, "");
-                uploadVoices(voiceDir,voicefileName)(base64Data, res, function ( error )
-                { if ( error ) { //
-                    return res.end('Error uploading voice file.'); }
-
-                    //console.log('视频上传Success!'+voice+'/'+voice+".mp4");
-                    res.send({
-                        fileType:'voice',
-                        filename:'voices/'+voicefileName+".m4a"
-                    });
->>>>>>> Stashed changes
                 });
                 break;
-            case 2://视频
+            case '2'://视频
                 var videofileName=uuid.v1();
-                var base64Data = req.body.file64.replace(/^data:video\/\w+;base64,/, "");
+                var base64Data = req.body.file64.replace(/^data:video\/\S+;base64,/, "");
                 var dataBuffer = new Buffer(base64Data, 'base64');
                 fs.writeFile(videoDir+'/'+videofileName+".mp4", dataBuffer, function(error) {
                     if(error){
@@ -347,42 +262,26 @@ var uploadFile64= function( req, res ){
                         } );
                         // return res.end('Error uploading video file.');
                     }else{
-                        console.log('��Ƶ�ϴ�Success!'+videoDir+'/'+videofileName+".mp4");
+                        console.log('视频上传Success!'+videoDir+'/'+videofileName+".mp4");
                         res.send({
                             fileType:'video',
                             filename:'videos/'+videofileName+".mp4"
                         });
                     }
                 });
-                uploadVideo(videoDir,videofileName)(base64Data, res, function ( error )
-                { if ( error ) { // //
-                    console.error(JSON.stringify(error));
-                    return res.end('Error uploading video file.'); }
+                break;
+            default:
 
-<<<<<<< Updated upstream
-                    console.log('��Ƶ�ϴ�Success!'+videoDir+'/'+videofileName+".mp4");
-=======
-                    //console.log('视频上传Success!'+videoDir+'/'+videofileName+".mp4");
->>>>>>> Stashed changes
-                    res.send({
-                        fileType:'video',
-                        filename:'videos/'+videofileName+".mp4"
-                    });
-
-                    //res.end('File is uploaded');
-
+                console.error("不知道的处理文件类型:"+req.body.type+"");
+                return res.end({
+                    err:"不知道的处理文件类型"+req.body.type+"",
+                    filename:'null'
                 });
                 break;
-            default:break;
         }
 
-<<<<<<< Updated upstream
     }else {
-        console.log("�ļ����͵Ȳ�������");
-=======
-	}else {
         console.log("文件类型等参数错误！");
->>>>>>> Stashed changes
         res.send({
             err:'上传参数不对',
             filename:'null'
@@ -394,52 +293,31 @@ var uploadFile64= function( req, res ){
 
 /* 上传普通图片*/
 uploadPhoto.post('/photo', function ( req, res ) {
-<<<<<<< Updated upstream
-    // //console.log('�ֻ���file post���ݷ��������յ�: ' + req+"<>"+res);
+    // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
     uploadCommonFile(req, res);
 });
 
-/* �ϴ�����֤ͼƬ*/
-uploadPhoto.post('/IDCard', function ( req, res ) {
-    // //console.log('�ֻ�������֤ post���ݷ��������յ�: ' + req+"<>"+res);
-    uploadIDcardsFile(req, res);
-});
-=======
-      // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadCommonFile(req, res);
-	 });
-	 
 /* 上传身份证图片*/
 uploadPhoto.post('/IDCard', function ( req, res ) {
-      // //console.log('手机段身份证 post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadIDcardsFile(req, res);
-	 });
->>>>>>> Stashed changes
+    // //console.log('手机段身份证 post数据服务器端收到: ' + req+"<>"+res);
+    uploadIDcardsFile(req, res);
+});
 
 /* 上传音频文件*/
 uploadPhoto.post('/voice', function ( req, res ) {
     // //console.log('音频文件 post数据服务器端收到: ' + req+"<>"+res);
     uploadVoicesFile(req, res);
 });
-<<<<<<< Updated upstream
 
-/* �ϴ�С��Ƶ*/
-uploadPhoto.post('/video', function ( req, res ) {
-    // //console.log('�ֻ���file post���ݷ��������յ�: ' + req+"<>"+res);
-    uploadVideoFile(req, res);
-});
-=======
-	 
 /* 上传小视频*/
 uploadPhoto.post('/video', function ( req, res ) {
-      // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
-	 		uploadVideoFile(req, res);
-	 });
->>>>>>> Stashed changes
+    // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
+    uploadVideoFile(req, res);
+});
 
 /* 上传小视频*/
 uploadPhoto.post('/uploadFile64', function ( req, res ) {
     // //console.log('手机段file post数据服务器端收到: ' + req+"<>"+res);
     uploadFile64(req, res);
 });
-module.exports = uploadPhoto; 
+module.exports = uploadPhoto;
