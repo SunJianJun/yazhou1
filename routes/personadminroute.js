@@ -12,7 +12,7 @@ var persontitleDAO = require('../dbmodels/persontitleDao.js');
 
 /**
  * 人员录入，管理员录入人员
- * @param {json} req - 客户端提交json，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
+ * @param {json} req - 客户端提交json，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
  * @param {json} res - 返回，录入成功返回提示成功，失败返回空字符串
  */
 var sendpersonimport = function (req, res) {
@@ -57,17 +57,17 @@ var sendpersonimport = function (req, res) {
 //    "residence":'住址',
 //    "idNum":'123456123456',
 //    "departments":[{"type":'1231546413212',role:"权限"}],
-//    "title":{job:'职务'},
+//    "title":"职务ID"},
 //    "pwd" : "123456"})
 
 /**
  *使用身份信息注册一个人员
- * @param {json} req 传入人员json数据，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
+ * @param {json} req 传入人员json数据，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
  * @param {json} res 返回，注册成功返回提示成功，失败返回{error: '注册出错'}
  */
 var sendpersonreGister = function (req, res) {
   var json = req.body;
-  //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
+  //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
   console.log(json);
   if (!json) {
     res.send({error: '输入信息为空'});
@@ -115,13 +115,13 @@ var sendispersonAdd = function (req, res) {
 //sendispersonAdd({'name':'孙建军','idNum':'140702199602101759'})
 /**
  * 用身份证信息注册一个待审核人员
- * @param {json} req - 客户端提交json 例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
- * @param {json} res - 返回，注册成功返回提示<br/>成功{_id:'12345',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};<br/>失败返回{error:'添加失败'}
+ * @param {json} req - 客户端提交json 例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
+ * @param {json} res - 返回，注册成功返回提示<br/>成功{_id:'12345',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};<br/>失败返回{error:'添加失败'}
  */
 var sendWaitExamineperson = function (req, res) {
   //status 表示待审核人员
   var json = req.body;
-  //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'},"pwd" : "123456"};
+  //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
   if (!json) {
     res.send({error:'提交为空'})
   } else {
@@ -163,7 +163,7 @@ var updatepersonstate = function (req, res) {
 /**
  * 根据部门查找人员
  * @param {json} req - 客户端提交json 例如{department:"部门ID"}
- * @param {json} res - 返回json [{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'}}];
+ * @param {json} res - 返回json [{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"}}];
  */
 var getdepartmentTopeople = function (req, res) {
   var docID = req.body.department;
@@ -180,7 +180,7 @@ var getdepartmentTopeople = function (req, res) {
 /**
  * 根据人员状态，过滤人员,获取某一状态的人员
  * @param {json} req - 客户端提交json 例如{status:1}
- * @param {json} res - 返回json：[{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":{job:'职务'}}];
+ * @param {json} res - 返回json：[{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"}}];
  */
 var getpersonstate = function (req, res) {
   var status = req.body.status;
@@ -371,18 +371,24 @@ var updatedepartmentstatus = function (req, res) {
 };
 
 /**
- * 获取所有职务
- * @param {} req -
+ * 根据部门获取所有职务
+ * @param {json} req - 客户端提交json 例如{departmentID:'123456'}
  * @param {json} res - 返回json：例如[ { name: '大队长', _id: 59520e5d7b6d7fa011adcc73 }]
  */
-var getAllpersontitle = function (req, res) {
-  persontitleDAO.getAllpersontitle(function (err, obj) {
-    if (err) {
-      console.log(err)
-    } else {
-      res.send({success: obj})
-    }
-  })
+var getpersontitleTodepartment = function (req, res) {
+  var depar=req//req.body.departmentID;
+  if(!depar){
+    res.send({error:"部门id出错"})
+  }else {
+    persontitleDAO.getpersontitleTodepartment(depar,function (err, obj) {
+      if (err) {
+        //console.log(err)
+        res.send({error:"部门获取职务出错"})
+      } else {
+        res.send({success: obj})
+      }
+    })
+  }
 }
 /**
  * 在职务列表中添加一个职务
@@ -512,7 +518,7 @@ personrouter.post('/updatedepartmentinfo', updatedepartmentinfo);//提交
 personrouter.post('/updatedepartmentstatus', updatedepartmentstatus);//提交
 personrouter.post('/getAllDepartments', getAllDepartments);//提交
 personrouter.post('/getAllDepartment', getAllDepartment);//提交
-personrouter.post('/getAllpersontitle', getAllpersontitle);//提交
+personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//提交
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
 personrouter.post('/sendpersontitle', sendpersontitle);//提交
 personrouter.post('/getUserPicById', getUserPicById);

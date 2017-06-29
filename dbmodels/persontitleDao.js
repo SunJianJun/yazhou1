@@ -33,8 +33,8 @@ Persontitle.prototype.getpersonstate= function (status,callback) {
   })
 }
 //获取所有职务
-Persontitle.prototype.getAllpersontitle=function(callback){
-  Persontitlemodel.find({},'name',function(err,obj){
+Persontitle.prototype.getpersontitleTodepartment=function(deoartment,callback){
+  Persontitlemodel.find({departmentID:deoartment},'name',function(err,obj){
     if(err){
       callback(err)
     }else{
@@ -43,38 +43,7 @@ Persontitle.prototype.getAllpersontitle=function(callback){
   })
 }
 
-//根据部门查找人员
-//获取所有用户  批量修改status
-var getAllUser = function () {
-  Persontitlemodel.remove({status: 1}).exec(function (err, objs) {
-    console.log('-------------')
-    if (!err) {
-      // for(var i=0;i<objs.length;i++) {
-      //  Persontitlemodel.update({status:0},{$set:{'status':8}},function(err,res){
-      //    if(!err){
-      //      console.log('修改');
-      //      console.log(res);
-      //      //callback(err,res);
-      //    }
-      //    else {
-      //      console.log('没有数据');
-      //      //callback(err,0);
-      //    }
-      //  })
-      // }
-      //objs.forEach(function (value, key) {
-      //  console.log(value.name)
-      //})
-      //console.log(objs.length)
-      //
-      departmentModel.update({status:1},{persons:[1]},function(err,dep){
-        //console.log(dep[0].info)
-        console.log('删除完成')
-      })
-    }
-  })
-}
-//getAllUser();
+
 
 var daoObj = new Persontitle();
 //Persontitle.save({
