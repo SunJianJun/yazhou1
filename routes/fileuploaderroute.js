@@ -227,7 +227,8 @@ var uploadFile64= function( req, res ){
             case '1'://语音
                 // console.log("将声音上传封装为一个模块，以供其他地方使用");
                 var voicefileName=uuid.v1();
-                var base64Data = req.body.file64.replace(/^data:audio\/\w+;base64,/, "");
+                var base64Data = req.body.file64.replace(/^data:audio\/\S+;base64,/, "");
+                // console.log("过滤后的声音b64："+base64Data);
                 var dataBuffer = new Buffer(base64Data, 'base64');
                 fs.writeFile(voiceDir+'/'+voicefileName+".wav", dataBuffer, function(error) {
                     if(error){
@@ -250,7 +251,7 @@ var uploadFile64= function( req, res ){
                 break;
             case '2'://视频
                 var videofileName=uuid.v1();
-                var base64Data = req.body.file64.replace(/^data:video\/\w+;base64,/, "");
+                var base64Data = req.body.file64.replace(/^data:video\/\S+;base64,/, "");
                 var dataBuffer = new Buffer(base64Data, 'base64');
                 fs.writeFile(videoDir+'/'+videofileName+".mp4", dataBuffer, function(error) {
                     if(error){
@@ -269,7 +270,15 @@ var uploadFile64= function( req, res ){
                     }
                 });
                 break;
-            default:break;
+            default:
+
+                console.error("不知道的处理文件类型:"+req.body.type+"");
+                return res.end({
+                    err:"不知道的处理文件类型"+req.body.type+"",
+                    filename:'null'
+                });
+
+                break;
         }
 
     }else {
