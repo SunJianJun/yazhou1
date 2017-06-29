@@ -24,8 +24,8 @@ AbstractstepDAO.prototype.getpersonTiele=function (callback) {
   });
 };
 AbstractstepDAO.prototype.getstepsName=function(id,callback) {
-  console.log('查询数组')
-  console.log(id)
+  //console.log('查询数组')
+  //console.log(id)
   var query=Abstractstepmodel.find({'_id':{$in:id}},'type');
   var ops='type';
   query.sort({_id:1});
@@ -33,8 +33,8 @@ AbstractstepDAO.prototype.getstepsName=function(id,callback) {
     if(err){
 
     }else{
-      console.log('返回数组')
-      console.log(obj)
+      //console.log('返回数组')
+      //console.log(obj)
       callback(err, obj);
     }
   });

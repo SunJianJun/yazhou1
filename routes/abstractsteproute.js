@@ -53,8 +53,8 @@ var getstepsName = function (req, res) {
             idLoad();
         }
         else{
-            console.log('完成')
-            console.log(nameArr)
+            //console.log('完成')
+            //console.log(nameArr)
             res.send(nameArr);
         }
     }

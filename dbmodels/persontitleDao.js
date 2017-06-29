@@ -21,6 +21,15 @@ Persontitle.prototype.sendpersontitle = function (obj, callback) {
     callback(err, instance);
   });
 };
+Persontitle.prototype.sendpersonparent=function(id,parent,callback){
+  Persontitlemodel.update({_id:id},{parentTitle:parent},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 //获取某一状态的人员
 Persontitle.prototype.getpersonstate= function (status,callback) {

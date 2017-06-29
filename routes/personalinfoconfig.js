@@ -12,48 +12,120 @@ var attendanceRecordDao=require('../dbmodels/attendanceRecordDao.js');
 
 
 /**
- * 请假
- * @param {json} req - 传入绘制网格json数据，例如{}
- * @param {json} res - 返回成功后的json 例如：{}
+ * 人员请假
+ * @param {json} req - 传入人员请假json数据，例如{personID:'123456',startTime:date,endTime:Date,reason:'请假理由'}
+ * @param {json} res - 返回成功后的json 例如：{success:''}
  */
-var personjs=function(req,res){
-
+var sendpersonaskforleave=function(req,res){
     var datt=req.body;
-    if(!datt){return;}
-    spotareaDAO.sendASpotarea(datt,function( err,obj){
-        if(!err) {
-            console.log('sendASpotarea 查询所有发送的消息:'+obj._id);
+  var start=datt.startTime,end=datt.endTime,reason=datt.reason;
+  if(start&&end&&reason) {
+    var leave={};
+    leave.personID=datt.personID;
+    leave.askforleave={};
+    leave.askforleave.startDateTime=start;
+    leave.askforleave.endDateTime=end;
+    leave.askforleave.reason=reason;
+    //leave.abnormal = true;
+    leave.status=2;
+    //res.send(leave)
+    attendanceRecordDao.save(leave,function(err,obj){
+          if(err) {
+            res.send({error:'发生错误'});
+          } else{
             res.send(obj);
-        } else{
-            console.log('sendASpotarea 查询所有发送的消息为空:'+err);
-            res.send(null);
-        }}
-    );
-}
+          }
+      });
+  }else{
+    res.send({error:'参数错误'})
+  }
+};
+/**
+ * 添加正常考勤记录
+ * @param {json} req - 传入人员和时间json数据，例如{personID:'123456'}
+ * @param {json} res - 返回成功后的json 例如：{success:''}
+ */
+var sendpersoncheckdate=function(req,res){
+    var datt=req.body;
+  var id=datt.personID;
+  if(id) {
+    datt.checkdate=new Date().toLocaleDateString();
+    //console.log(datt)
+    attendanceRecordDao.save(datt, function (err, obj) {
+      if (err) {
+        res.send({error: '发生错误'});
+      } else {
+        res.send(obj);
+      }
+    });
+  }else{
+    res.send({error: '参数错误'});
+  }
+};
 /**
  * 换班
- * @param {json} req
- * @param {json} res
+ * @param {json} req - 传入人员和时间json数据，例如{personID:'123456',startTime:date,endTime:Date,shift:'换班人ID'}
+ * @param {json} res - 返回成功后的json 例如：{success:''}
  */
-var personjs=function(req,res){
-
+var sendpersonshift=function(req,res){
+    var datt=req.body;
+    if(!datt){return;}
+    var alternateattendanceRecord=datt.shift,
+        start=datt.startTime,
+        end=datt.endTime;
+  var leave={};
+  leave.shift={};
+  leave.personID=datt.personID;
+  leave.shift.startDateTime=start;
+  leave.shift.endDateTime=end;
+    attendanceRecordDao.save(leave,function(err,obj){
+          if(!err) {
+              res.send(obj);
+          } else{
+              res.send({error:null});
+          }
+      })
+};
+/**
+ * 脱岗 - 暂时不做
+ * @param {json} req - 传入人员和时间json数据，例如{personID:'123456',startTime:date,endTime:Date}
+ * @param {json} res - 返回成功后的json 例如：{success:''}
+ */
+var sendpersonleave=function(req,res){
+  res.send({success:'暂时不做，请重换接口'})
+    //attendanceRecordDao.sendperson()
+};
+/**
+ * 离职 - 暂时不做
+ * @param {json} req - 传入人员和时间json数据，例如{personID:'123456',startTime:date,endTime:Date}
+ * @param {json} res - 返回成功后的json 例如：{success:''}
+ */
+var personjsResignation=function(req,res){
+  res.send({success:'暂时不做，请重换接口'})
+  //attendanceRecordDao.sendpersoResignation()
 }
 /**
- * 脱岗
- * @param {json} req
- * @param {json} res
+ * 获取一个人的考勤记录
+ * @param {json} req - 传入人员和时间段json数据，例如{personID:'123456',startTime:date,endTime:Date}
+ * @param {json} res - 返回成功后的json 例如：[{}]
  */
-var personjs=function(req,res){
-
-}
-/**
- * 离职
- * @param {json} req
- * @param {json} res
- */
-var personjs=function(req,res){
-
-}
+var getpersontoid=function(req,res){
+  var datt=req.body;
+  var person=datt.personID,
+    start=datt.startTime,
+    end=datt.endTime;
+  if(person&&start&&end) {
+    attendanceRecordDao.getpersontoid(person, start, end, function (err, obj) {
+      if (!err) {
+        res.send(obj);
+      } else {
+        res.send({error:'获取错误'});
+      }
+    })
+  }else{
+    res.send({error:'参数错误'});
+  }
+};
 /**
  * 修改自己的个人密码，必须输入原密码
  * @param {json} req - 客户端提交json，没有id可以提交身份证号， 例如{_id:'用户id',idNum:'用户身份证',opwd:'原密码',npwd:'新密码'}
@@ -74,23 +146,27 @@ var updatepersonpassword=function(req,res){
     })
 }
 /**
- * 身份信息有误上报
+ * 身份信息有误上报 - 待完善
  * @param {json} req
  * @param {json} res
  */
-var personjs=function(req,res){
+var sendpersoninfoerr=function(req,res){
 
 }
 /**
- * 二维码扫描，登录桌面端
- * @param {json} req
- * @param {json} res
+ * 二维码扫描，登录桌面端 - 待完善
+ * @param {json} req - 客户端提交json，例如{_id:'用户id',idNum:'用户身份证'}
+ * @param {json} res - 手机自动填入登陆信息，登陆客户端界面
  */
-var personjs=function(req,res){
+var getpersontwocode=function(req,res){
 
 }
 
 
 
-personinfo.post('/sendASpotarea',personjs);//提交
+personinfo.post('/sendpersonaskforleave',sendpersonaskforleave);//提交
+personinfo.post('/sendpersoncheckdate',sendpersoncheckdate);
+personinfo.post('/sendpersonshift',sendpersonshift);
+personinfo.post('/getpersontoid',getpersontoid);
+
 module.exports = personinfo;

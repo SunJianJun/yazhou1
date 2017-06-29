@@ -12,9 +12,6 @@ require('events').EventEmitter.prototype._maxListeners = 100;
 
 server.listen(8012);
 
-
-require('events').EventEmitter.prototype._maxListeners = 100;
-
 //载入所有的http路由处理模块
 var routes = require('./routes/index');
 var usersroute = require('./routes/users');

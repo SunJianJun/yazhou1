@@ -13,39 +13,95 @@ var attendanceRecordDAO = function (){};
 
 attendanceRecordDAO.prototype.save = function (obj, callback) {
   // 终端打印如下信息
-  console.log('called attendanceRecord save');
   var instance = new attendanceRecordmodel(obj);
-  console.log('instance.save:' + instance.name);
   instance.save(function (err,obj) {
     if(err){
-      console.log('save attendanceRecord' + instance + ' fail:' + err);
-      //callback(err);
+      callback(err);
     }else{
-      console.log('添加记录')
+      callback(null,obj)
     }
   });
 };
 //请假
-attendanceRecordDAO.prototype.sendleave=function(callback){
-
+attendanceRecordDAO.prototype.sendpersonaskforleave=function(obj,callback){
+  var instance=new attendanceRecordmodel(obj);
+  instance.save(function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
 }
-attendanceRecordDAO.prototype.findByName = function (name, callback) {
-  attendanceRecordmodel.findOne({name: name}, function (err, obj) {
-    callback(err, obj);
+//正常上班记录
+attendanceRecordDAO.prototype.sendpersoncheckdate=function(obj,callback){
+  var instance=new attendanceRecordmodel(obj);
+  instance.save(function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
+//添加换班记录
+attendanceRecordDAO.prototype.sendpersonshift=function(ID,start,end,shift,callback){
+
+  var instance=new attendanceRecordmodel(obj);
+  instance.save(function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
+//人员脱岗记录
+attendanceRecordDAO.prototype.sendperson=function(obj,callback){
+  var instance=new attendanceRecordmodel(obj);
+  instance.save(function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
+
+//获取人员考勤记录
+attendanceRecordDAO.prototype.getpersontoid = function (ID,start,end, callback) {
+  //console.log(ID,start)
+  attendanceRecordmodel.find({person:ID,"$and":[{checkdate:{$gt:start}},{checkdate:{$lt:end}}]},function (err, obj) {
+    if(err){
+      callback(err);
+    }else{
+      callback(null, obj);
+    }
+  });
+};
+//获取人员考勤记录
+attendanceRecordDAO.prototype.findByName = function (ID, callback) {
+  attendanceRecordmodel.find({_id:ID}, function (err, obj) {
+    if(err){
+      callback(err, obj);
+    }else{
+      callback(err, obj);
+    }
   });
 };
 var daoObj=new attendanceRecordDAO();
-//daoObj.save({
-//  person:'123456',
-//  checkdate:new Date().toLocaleDateString(),
-//  leave:{reason:'无理由请假',startDateTimeTime:new Date(),endDateTime:new Date()},
-//  abnormal:false,
-//  status:1,
-//  times:1,//次条记录对应当天检查次数
-//  checkdescription:{//描述信息
-//    startDateTime:new Date(),
-//    endDateTime:new Date()}
-//})
+  daoObj.save({
+    person: '123456',
+    checkdate: new Date(),
+    askforleave: {reason: '无理由请假', startDateTimeTime: new Date(), endDateTime: new Date()},
+    abnormal: false,
+    times: 1,//次条记录对应当天检查次数
+    checkdescription: {//描述信息
+      startDateTime: new Date(),
+      endDateTime: new Date()
+    }
+  },function(err,obj){})
+
 
 
 module.exports = daoObj;

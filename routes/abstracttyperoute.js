@@ -95,13 +95,14 @@ var readtAbstracttype = function (req, res) {
   });
 };
 var getAllAbstracttype=function(req,res){
-  console.log('----------')
+  //console.log('----------')
 	abstracttypeDAO.getAllAbstracttype(function(err,obj){
 		if(!err){
-			 console.log(obj)
+			 //console.log(obj)
 			res.send(obj);
 		}else{
-			console.log(err)
+			//console.log(err)
+      res.send({error:null});
 		}
 	})
 }
@@ -110,9 +111,9 @@ var getoneeventtype = function (req, res) {
     abstracttypeDAO.getoneeventtype(type,function (err, obj) {
         if (!err) {
             res.send(obj);
-            console.log(obj);
+            //console.log(obj);
         } else {
-            console.log(err);
+            //console.log(err);
             res.send(null);
         }
     })

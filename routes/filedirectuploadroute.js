@@ -1,5 +1,5 @@
 /**
- * @module ÎÄ¼şÉÏ´«Ä£¿é
+ * @module æ–‡ä»¶ä¸Šä¼ æ¨¡å—
  */
 
 var express = require('express');
@@ -8,7 +8,7 @@ var uuid = require('node-uuid');
 var uploadPhoto = express.Router();
 var commentImgDir='./public/images';
 var IDcardImgDir='./IDCard';
-// $rootScope.applicationServer = 'http://localhost:2000/';//¼ÓÉÏ¿Í»§¶Ëapplicationserver ¾Í¿ÉÒÔÖ±½Ó·ÃÎÊ
+// $rootScope.applicationServer = 'http://localhost:2000/';//åŠ ä¸Šå®¢æˆ·ç«¯applicationserver å°±å¯ä»¥ç›´æ¥è®¿é—®
 var videoDir='./public/videos';
 var voiceDir='./public/voices';
 var fs = require('fs');
@@ -20,29 +20,38 @@ var fs = require('fs');
 //uuid.v4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
 var multer = require('multer')
 //fileDir= './upload'
+<<<<<<< Updated upstream
 var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destination: function ( req, file, callback ) {
     // ×¢Òâ£¬´Ë´¦µÄuploadsÄ¿Â¼ÊÇ´ÓÏîÄ¿µÄ¸ùÄ¿Â¼¿ªÊ¼Ñ°ÕÒ
     // Èç¹ûÃ»ÓĞµÄ»°£¬ĞèÒªÊÖ¶¯ĞÂ½¨´ËÎÄ¼ş¼Ğ './upload'
     callback(null,fileDir ); },
     filename: function ( req, file, callback ) {
+=======
+var storage =function(fileDir,imgfileName){ return multer.diskStorage({ destination: function ( req, file, callback ) { 
+	// æ³¨æ„ï¼Œæ­¤å¤„çš„uploadsç›®å½•æ˜¯ä»é¡¹ç›®çš„æ ¹ç›®å½•å¼€å§‹å¯»æ‰¾ 
+	// å¦‚æœæ²¡æœ‰çš„è¯ï¼Œéœ€è¦æ‰‹åŠ¨æ–°å»ºæ­¤æ–‡ä»¶å¤¹ './upload'
+	callback(null,fileDir ); }, 
+	filename: function ( req, file, callback ) {
+>>>>>>> Stashed changes
 
-        // multer²»»á×Ô¶¯Ìí¼ÓÎÄ¼şºó×ºÃû£¬ĞèÒªÊÖ¶¯Ìí¼Ó
-        //ÏÂÃæµÄÎÄ¼şÃûÊÇÕâÑùfile-1476361627446.jpg
+        // multerä¸ä¼šè‡ªåŠ¨æ·»åŠ æ–‡ä»¶åç¼€åï¼Œéœ€è¦æ‰‹åŠ¨æ·»åŠ 
+        //ä¸‹é¢çš„æ–‡ä»¶åæ˜¯è¿™æ ·file-1476361627446.jpg
         //callback(null, file.fieldname + '-' + Date.now() + '.' + file.mimetype.split('/')[1]);
-        //ÏÂÃæµÄÎÄ¼şÃûÊÇ¸ù¾İÊ±¼äÉú³ÉµÄuuidÎÄ¼şÃû£¬ÀàËÆ6c84fb90-12c4-11e1-840d-7b25c5ee775a.jpg
+        //ä¸‹é¢çš„æ–‡ä»¶åæ˜¯æ ¹æ®æ—¶é—´ç”Ÿæˆçš„uuidæ–‡ä»¶åï¼Œç±»ä¼¼6c84fb90-12c4-11e1-840d-7b25c5ee775a.jpg
         callback(null, imgfileName + '.' + file.mimetype.split('/')[1]);
     }
 })
 };
 /**
- * ÉÏ´«ÎÄ¼şµÄ»ù±¾º¯Êı
- * Ã»ÓĞ±©Â¶³ö¿É·ÃÎÊurl
- * @param ImgDir ÎÄ¼şÂ·¾¶
- * @param imgfileName ÎÄ¼şÃû
+ * ä¸Šä¼ æ–‡ä»¶çš„åŸºæœ¬å‡½æ•°
+ * æ²¡æœ‰æš´éœ²å‡ºå¯è®¿é—®url
+ * @param ImgDir æ–‡ä»¶è·¯å¾„
+ * @param imgfileName æ–‡ä»¶å
  * @returns {*}
  */
 var uploadImgs = function(ImgDir,imgfileName){ return multer({
     storage: storage(ImgDir,imgfileName),
+<<<<<<< Updated upstream
     limits: 52428800,//ÉÏ´«½áÊøÊ±´¥·¢
     onFileUploadComplete:function(file){
         //console.log("upload commentImg complete\n"+file.path);
@@ -64,25 +73,48 @@ var uploadVideo = function(videoDir,videofileName){ return multer({
         // console.log("upload videofileName complete\n"+file.path);
     }
 }).single('file')};//Õâ¸ö¡®file¡¯¸ú¿Í»§¶ËµÄfilekeyÒªÒ»ÖÂ²ÅĞĞ
+=======
+    limits: 52428800,//ä¸Šä¼ ç»“æŸæ—¶è§¦å‘
+		onFileUploadComplete:function(file){			
+			 //console.log("upload commentImg complete\n"+file.path);
+		}
+}).single('file')};//è¿™ä¸ªâ€˜fileâ€™è·Ÿå®¢æˆ·ç«¯çš„filekeyè¦ä¸€è‡´æ‰è¡Œ
+
+var uploadIDcards = function(ImgDir,imgfileName){ return multer({
+    storage: storage(ImgDir,imgfileName),
+    limits: 52428800,//ä¸Šä¼ ç»“æŸæ—¶è§¦å‘
+		onFileUploadComplete:function(file){			
+			 //console.log("upload IDcardImg complete\n"+file.path);
+		}
+}).single('file')};//è¿™ä¸ªâ€˜fileâ€™è·Ÿå®¢æˆ·ç«¯çš„filekeyè¦ä¸€è‡´æ‰è¡Œ
+
+var uploadVideo = function(videoDir,videofileName){ return multer({
+    storage: storage(videoDir,videofileName),
+    limits: 52428800,//ä¸Šä¼ ç»“æŸæ—¶è§¦å‘
+		onFileUploadComplete:function(file){			
+			 // console.log("upload videofileName complete\n"+file.path);
+		}
+}).single('file')};//è¿™ä¸ªâ€˜fileâ€™è·Ÿå®¢æˆ·ç«¯çš„filekeyè¦ä¸€è‡´æ‰è¡Œ
+>>>>>>> Stashed changes
 
 
 var uploadVoices = function(voiceDir,voicefileName){ return multer({
     storage: storage(voiceDir,voicefileName),
-    limits: 52428800,//ÉÏ´«½áÊøÊ±´¥·¢
+    limits: 52428800,//ä¸Šä¼ ç»“æŸæ—¶è§¦å‘
     onFileUploadComplete:function(file){
         console.log("upload voicefileName complete\n"+file.path);
     }
-}).single('file')};//Õâ¸ö¡®file¡¯¸ú¿Í»§¶ËµÄfilekeyÒªÒ»ÖÂ²ÅĞĞ
+}).single('file')};//è¿™ä¸ªâ€˜fileâ€™è·Ÿå®¢æˆ·ç«¯çš„filekeyè¦ä¸€è‡´æ‰è¡Œ
 
 
 /**
- * ½«ÆÕÍ¨Í¼Æ¬ÉÏ´«·â×°ÎªÒ»¸öº¯Êı£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ
+ * å°†æ™®é€šå›¾ç‰‡ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªå‡½æ•°ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨
  * url:/filedirectupload/photo
- * @param {file} req -ÆÕÍ¨Í¼Æ¬ÎÄ¼ş
- * @param {json} res - ³É¹¦ºó·µ»Ø{
+ * @param {file} req -æ™®é€šå›¾ç‰‡æ–‡ä»¶
+ * @param {json} res - æˆåŠŸåè¿”å›{
 			fileType:'commentImg',
-			filename:'images/'+Ò»¸öuuidµÄÍ¼Æ¬ÎÄ¼şÃû+".jpg"
-			} Ê§°Ü·µ»Ø null
+			filename:'images/'+ä¸€ä¸ªuuidçš„å›¾ç‰‡æ–‡ä»¶å+".jpg"
+			} å¤±è´¥è¿”å› null
  */
 var uploadCommonFile= function( req, res ){
     var imgfileName=uuid.v1();
@@ -100,19 +132,32 @@ var uploadCommonFile= function( req, res ){
 
 
 /**
- * ½«Éí·İÖ¤ÉÏ´«·â×°ÎªÒ»¸öº¯Êı£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ
+ * å°†èº«ä»½è¯ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªå‡½æ•°ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨
  * url:/filedirectupload/IDCard
- * @param {file} req -Éí·İÖ¤Í¼ÏñÎÄ¼ş
- * @param {json} res - ³É¹¦ºó·µ»Ø{
+ * @param {file} req -èº«ä»½è¯å›¾åƒæ–‡ä»¶
+ * @param {json} res - æˆåŠŸåè¿”å›{
 			fileType:'IDCard',
-			filename:'IDCard/'+Ò»¸öuuidµÄÉí·İÖ¤Í¼Æ¬ÎÄ¼şÃû+".jpg"
-			} Ê§°Ü·µ»Ø null
+			filename:'IDCard/'+ä¸€ä¸ªuuidçš„èº«ä»½è¯å›¾ç‰‡æ–‡ä»¶å+".jpg"
+			} å¤±è´¥è¿”å› null
  */
 var uploadIDcardsFile= function( req, res ){
+<<<<<<< Updated upstream
     var imgfileName=uuid.v1();
     uploadIDcards(IDcardImgDir,imgfileName)(req, res, function ( error )
     { if ( error ) { // //console.error(JSON.stringify(error));
         return res.end('Error uploading file.'); }
+=======
+	var imgfileName=uuid.v1();
+	uploadIDcards(IDcardImgDir,imgfileName)(req, res, function ( error ) 
+	{ if ( error ) { // //console.error(JSON.stringify(error));
+		return res.end('Error uploading file.'); } 
+		
+		 //console.log('èº«ä»½è¯ä¸Šä¼ Success!'+IDcardImgDir+'/'+imgfileName+".jpg");
+		res.send({
+			fileType:'IDCard',
+			filename:IDcardImgDir+'/'+imgfileName+".jpg"
+			}); 
+>>>>>>> Stashed changes
 
         //console.log('Éí·İÖ¤ÉÏ´«Success!'+IDcardImgDir+'/'+imgfileName+".jpg");
         res.send({
@@ -127,19 +172,32 @@ var uploadIDcardsFile= function( req, res ){
 
 
 /**
- * // ½«ÊÓÆµÉÏ´«·â×°ÎªÒ»¸öº¯Êı£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ
+ * // å°†è§†é¢‘ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªå‡½æ•°ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨
  * url:/filedirectupload/video
- * @param {file} req -ÊÓÆµÎÄ¼ş
- * @param {json} res - ³É¹¦ºó·µ»Ø{
+ * @param {file} req -è§†é¢‘æ–‡ä»¶
+ * @param {json} res - æˆåŠŸåè¿”å›{
 			fileType:'video',
-			filename:'video/'+Ò»¸öuuidµÄÊÓÆµÎÄ¼şÃû+".mp4"
-			} Ê§°Ü·µ»Ø null
+			filename:'video/'+ä¸€ä¸ªuuidçš„è§†é¢‘æ–‡ä»¶å+".mp4"
+			} å¤±è´¥è¿”å› null
  */
 var uploadVideoFile= function( req, res ){
+<<<<<<< Updated upstream
     var videofileName=uuid.v1();
     uploadVideo(videoDir,videofileName)(req, res, function ( error )
     { if ( error ) { // //console.error(JSON.stringify(error));
         return res.end('Error uploading video file.'); }
+=======
+	var videofileName=uuid.v1();
+	uploadVideo(videoDir,videofileName)(req, res, function ( error ) 
+	{ if ( error ) { // //console.error(JSON.stringify(error));
+		return res.end('Error uploading video file.'); } 
+		
+		 //console.log('è§†é¢‘ä¸Šä¼ Success!'+videoDir+'/'+videofileName+".mp4");
+		res.send({
+			fileType:'video',
+			filename:'videos/'+videofileName+".mp4"
+			}); 
+>>>>>>> Stashed changes
 
         //console.log('ÊÓÆµÉÏ´«Success!'+videoDir+'/'+videofileName+".mp4");
         res.send({
@@ -154,22 +212,26 @@ var uploadVideoFile= function( req, res ){
 
 
 /**
- * ½«ÉùÒôÉÏ´«·â×°ÎªÒ»¸öº¯Êı£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ
+ * å°†å£°éŸ³ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªå‡½æ•°ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨
  * url:/filedirectupload/voice
- * @param {file} req -ÉùÒôÎÄ¼ş
- * @param {json} res - ³É¹¦ºó·µ»Ø{
+ * @param {file} req -å£°éŸ³æ–‡ä»¶
+ * @param {json} res - æˆåŠŸåè¿”å›{
 			fileType:'voice',
-			filename:'voice/'+Ò»¸öuuidµÄÉùÒôÎÄ¼şÃû+".m4a"
-			} Ê§°Ü·µ»Ø null
+			filename:'voice/'+ä¸€ä¸ªuuidçš„å£°éŸ³æ–‡ä»¶å+".m4a"
+			} å¤±è´¥è¿”å› null
  */
 var uploadVoicesFile= function( req, res ){
+<<<<<<< Updated upstream
     console.log("½«ÉùÒôÉÏ´«·â×°ÎªÒ»¸öÄ£¿é£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ");
+=======
+	console.log("å°†å£°éŸ³ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªæ¨¡å—ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨");
+>>>>>>> Stashed changes
     var voicefileName=uuid.v1();
     uploadVoices(voiceDir,voicefileName)(req, res, function ( error )
     { if ( error ) { //
         return res.end('Error uploading voice file.'); }
 
-        //console.log('ÊÓÆµÉÏ´«Success!'+voice+'/'+voice+".mp4");
+        //console.log('è§†é¢‘ä¸Šä¼ Success!'+voice+'/'+voice+".mp4");
         res.send({
             fileType:'voice',
             filename:'voices/'+voicefileName+".m4a"
@@ -178,32 +240,40 @@ var uploadVoicesFile= function( req, res ){
 };
 
 /**
- * ×Ô¶¯¸ù¾İÀàĞÍÊ¶±ğ´æ·ÅÎÄ¼ş¼Ğ
- * @param {json} req - ÇëÇó²ÎÊı£º
- file64£ºÍ¼Æ¬£¬ÓïÒô£¬ÊÓÆµ64Î»ºóµÄ±àÂë
- type:ÉÏ´«ÎÄ¼şÀàĞÍ£¨0:Í¼Æ¬£»1:ÓïÒô£»2:Ğ¡ÊÓÆµ£©£¬ url:/filedirectupload/uploadFile64
+ * è‡ªåŠ¨æ ¹æ®ç±»å‹è¯†åˆ«å­˜æ”¾æ–‡ä»¶å¤¹
+ * @param {json} req - è¯·æ±‚å‚æ•°ï¼š
+ file64ï¼šå›¾ç‰‡ï¼Œè¯­éŸ³ï¼Œè§†é¢‘64ä½åçš„ç¼–ç 
+ type:ä¸Šä¼ æ–‡ä»¶ç±»å‹ï¼ˆ0:å›¾ç‰‡ï¼›1:è¯­éŸ³ï¼›2:å°è§†é¢‘ï¼‰ï¼Œ url:/filedirectupload/uploadFile64
 
- * @param {json} res - ÕıÈ··µ»Ø {
+ * @param {json} res - æ­£ç¡®è¿”å› {
                         fileType:'commentImg',
                         filename:'images/'+imgfileName+".jpg"
-                    }£¬{
+                    }ï¼Œ{
                         fileType:'voice',
                         filename:'voices/'+voicefileName+".m4a"
-                    }£¬{
+                    }ï¼Œ{
                         fileType:'video',
                         filename:'videos/'+videofileName+".mp4"
-                    }£¬´íÎó·µ»Ø{
-            err:'ÉÏ´«²ÎÊı²»¶Ô',
+                    }ï¼Œé”™è¯¯è¿”å›{
+            err:'ä¸Šä¼ å‚æ•°ä¸å¯¹',
             filename:'null'
         } »òÕßÎÄ¼ş±£´æ´íÎó»á·µ»Ø ´íÎóÏêÇé
  */
 var uploadFile64= function( req, res ){
     // console.error(JSON.stringify(req));
+<<<<<<< Updated upstream
     console.log("½ÓÊÕµ½ÎÄ¼şÀàĞÍ£º"+req.body.type+"<>");
     if((req.body.type>-1) && req.body.file64){
         console.log("¿ªÊ¼´æ´¢ÎÄ¼şÀàĞÍ£º"+req.body.type+"<>");
         switch (req.body.type){
             case '0'://Í¼Æ¬
+=======
+    console.log("æ¥æ”¶åˆ°æ–‡ä»¶ç±»å‹ï¼š"+req.body.type+"<>");
+	if((req.body.type>-1) && req.body.file64){
+        console.log("å¼€å§‹å­˜å‚¨æ–‡ä»¶ç±»å‹ï¼š"+req.body.type+"<>");
+        switch (req.body.type){
+            case 0://å›¾ç‰‡
+>>>>>>> Stashed changes
                 var imgfileName=uuid.v1();
                 var base64Data = req.body.file64.replace(/^data:image\/\w+;base64,/, "");
                 var dataBuffer = new Buffer(base64Data, 'base64');
@@ -224,6 +294,7 @@ var uploadFile64= function( req, res ){
                 });
 
                 break;
+<<<<<<< Updated upstream
             case 1://ÓïÒô
                 // console.log("½«ÉùÒôÉÏ´«·â×°ÎªÒ»¸öÄ£¿é£¬ÒÔ¹©ÆäËûµØ·½Ê¹ÓÃ");
                 var voicefileName=uuid.v1();
@@ -246,9 +317,24 @@ var uploadFile64= function( req, res ){
                             filename:'voices/'+voicefileName+".m4a"
                         });
                     }
+=======
+            case 1://è¯­éŸ³
+				// console.log("å°†å£°éŸ³ä¸Šä¼ å°è£…ä¸ºä¸€ä¸ªæ¨¡å—ï¼Œä»¥ä¾›å…¶ä»–åœ°æ–¹ä½¿ç”¨");
+                var voicefileName=uuid.v1();
+        				var base64Data = req.body.file64.replace(/^data:audio\/\w+;base64,/, "");
+                uploadVoices(voiceDir,voicefileName)(base64Data, res, function ( error )
+                { if ( error ) { //
+                    return res.end('Error uploading voice file.'); }
+
+                    //console.log('è§†é¢‘ä¸Šä¼ Success!'+voice+'/'+voice+".mp4");
+                    res.send({
+                        fileType:'voice',
+                        filename:'voices/'+voicefileName+".m4a"
+                    });
+>>>>>>> Stashed changes
                 });
                 break;
-            case 2://ÊÓÆµ
+            case 2://è§†é¢‘
                 var videofileName=uuid.v1();
                 var base64Data = req.body.file64.replace(/^data:video\/\w+;base64,/, "");
                 var dataBuffer = new Buffer(base64Data, 'base64');
@@ -273,7 +359,11 @@ var uploadFile64= function( req, res ){
                     console.error(JSON.stringify(error));
                     return res.end('Error uploading video file.'); }
 
+<<<<<<< Updated upstream
                     console.log('ÊÓÆµÉÏ´«Success!'+videoDir+'/'+videofileName+".mp4");
+=======
+                    //console.log('è§†é¢‘ä¸Šä¼ Success!'+videoDir+'/'+videofileName+".mp4");
+>>>>>>> Stashed changes
                     res.send({
                         fileType:'video',
                         filename:'videos/'+videofileName+".mp4"
@@ -286,10 +376,15 @@ var uploadFile64= function( req, res ){
             default:break;
         }
 
+<<<<<<< Updated upstream
     }else {
         console.log("ÎÄ¼şÀàĞÍµÈ²ÎÊı´íÎó£¡");
+=======
+	}else {
+        console.log("æ–‡ä»¶ç±»å‹ç­‰å‚æ•°é”™è¯¯ï¼");
+>>>>>>> Stashed changes
         res.send({
-            err:'ÉÏ´«²ÎÊı²»¶Ô',
+            err:'ä¸Šä¼ å‚æ•°ä¸å¯¹',
             filename:'null'
         });
     }
@@ -297,8 +392,9 @@ var uploadFile64= function( req, res ){
 };
 
 
-/* ÉÏ´«ÆÕÍ¨Í¼Æ¬*/
+/* ä¸Šä¼ æ™®é€šå›¾ç‰‡*/
 uploadPhoto.post('/photo', function ( req, res ) {
+<<<<<<< Updated upstream
     // //console.log('ÊÖ»ú¶Îfile postÊı¾İ·şÎñÆ÷¶ËÊÕµ½: ' + req+"<>"+res);
     uploadCommonFile(req, res);
 });
@@ -308,22 +404,42 @@ uploadPhoto.post('/IDCard', function ( req, res ) {
     // //console.log('ÊÖ»ú¶ÎÉí·İÖ¤ postÊı¾İ·şÎñÆ÷¶ËÊÕµ½: ' + req+"<>"+res);
     uploadIDcardsFile(req, res);
 });
+=======
+      // //console.log('æ‰‹æœºæ®µfile postæ•°æ®æœåŠ¡å™¨ç«¯æ”¶åˆ°: ' + req+"<>"+res);
+	 		uploadCommonFile(req, res);
+	 });
+	 
+/* ä¸Šä¼ èº«ä»½è¯å›¾ç‰‡*/
+uploadPhoto.post('/IDCard', function ( req, res ) {
+      // //console.log('æ‰‹æœºæ®µèº«ä»½è¯ postæ•°æ®æœåŠ¡å™¨ç«¯æ”¶åˆ°: ' + req+"<>"+res);
+	 		uploadIDcardsFile(req, res);
+	 });
+>>>>>>> Stashed changes
 
-/* ÉÏ´«ÒôÆµÎÄ¼ş*/
+/* ä¸Šä¼ éŸ³é¢‘æ–‡ä»¶*/
 uploadPhoto.post('/voice', function ( req, res ) {
-    // //console.log('ÒôÆµÎÄ¼ş postÊı¾İ·şÎñÆ÷¶ËÊÕµ½: ' + req+"<>"+res);
+    // //console.log('éŸ³é¢‘æ–‡ä»¶ postæ•°æ®æœåŠ¡å™¨ç«¯æ”¶åˆ°: ' + req+"<>"+res);
     uploadVoicesFile(req, res);
 });
+<<<<<<< Updated upstream
 
 /* ÉÏ´«Ğ¡ÊÓÆµ*/
 uploadPhoto.post('/video', function ( req, res ) {
     // //console.log('ÊÖ»ú¶Îfile postÊı¾İ·şÎñÆ÷¶ËÊÕµ½: ' + req+"<>"+res);
     uploadVideoFile(req, res);
 });
+=======
+	 
+/* ä¸Šä¼ å°è§†é¢‘*/
+uploadPhoto.post('/video', function ( req, res ) {
+      // //console.log('æ‰‹æœºæ®µfile postæ•°æ®æœåŠ¡å™¨ç«¯æ”¶åˆ°: ' + req+"<>"+res);
+	 		uploadVideoFile(req, res);
+	 });
+>>>>>>> Stashed changes
 
-/* ÉÏ´«Ğ¡ÊÓÆµ*/
+/* ä¸Šä¼ å°è§†é¢‘*/
 uploadPhoto.post('/uploadFile64', function ( req, res ) {
-    // //console.log('ÊÖ»ú¶Îfile postÊı¾İ·şÎñÆ÷¶ËÊÕµ½: ' + req+"<>"+res);
+    // //console.log('æ‰‹æœºæ®µfile postæ•°æ®æœåŠ¡å™¨ç«¯æ”¶åˆ°: ' + req+"<>"+res);
     uploadFile64(req, res);
 });
 module.exports = uploadPhoto; 
