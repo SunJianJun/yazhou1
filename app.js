@@ -13,7 +13,6 @@ require('events').EventEmitter.prototype._maxListeners = 100;
 server.listen(8012);
 
 //载入所有的http路由处理模块
-var checkAttendance = require('./dbmodels/checkAttendance.js');
 var routes = require('./routes/index');
 var usersroute = require('./routes/users');
 //ÕâÐ©¶¼ÊÇÊý¾ÝÂ·ÓÉ
@@ -22,13 +21,14 @@ var personroute = require('./routes/personroute');
 var messageroute = require('./routes/messageroute');
 var pointroute = require('./routes/pointroute');
 var fileuploaderroute = require('./routes/fileuploaderroute');
-var fileupdirectiveloaderroute = require('./routes/filedirectuploadroute');
+//var fileupdirectiveloaderroute = require('./routes/filedirectuploadroute');
 var processIDroute = require('./routes/processIDcardroute');
 var heritagepointroute = require('./routes/heritagepointroute');
 var panoimgroute = require('./routes/panoimgroute');/**/
 var departmentroute=require('./routes/departmentroute');
 var gridarearoute = require('./routes/gridarearoute');
 var spotarearoute=require('./routes/spotarearoute');
+var checkAttendance = require('./dbmodels/checkAttendance.js');
 
 var mobilegridservice=require('./routes/mobilegridservice');//网格业务接口
 var personadminroute=require('./routes/personadminroute'); //部门人员管理接口
@@ -76,7 +76,7 @@ app.use('/person', personroute);
 app.use('/message', messageroute);
 app.use('/point', pointroute);
 app.use('/fileupload', fileuploaderroute);
-app.use('/filedirectupload', fileupdirectiveloaderroute);
+//app.use('/filedirectupload', fileupdirectiveloaderroute);
 app.use('/processID', processIDroute);
 app.use('/heritagepoint', heritagepointroute);
 app.use('/gridarea', gridarearoute);

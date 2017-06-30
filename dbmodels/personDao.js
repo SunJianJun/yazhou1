@@ -209,75 +209,87 @@ PersonDAO.prototype.addDepartent = function (obj, callback) {
     }
   })
 }
-var percount= 0,partentcount=0;//计算导入数量
+
 //person人员绑定到 department
 //目标简单，参数简单，条件判断完善，信息输出完善
 PersonDAO.prototype.addPersonTodepartent = function (personID, departmentID, callback) {//departmentID, personObj, callback) {
-
   var departmentID = departmentID;
   var personID = personID;
-  Personmodel.find({_id: personID}, function (err, obj) {
-    if (err) {} else {
-      if (obj && obj.length) {
-        var person = obj[0];
-        departmentModel.find({_id: departmentID}, function (err, obj) {
-          if (err) {
-            callback(err,null)
-          } else {
-            if (obj.length) {
-              var department = obj[0];
-              var returnCon=0;
-              var personDepartment = person.departments;//人员中的部门
-              var departmentPersons = department.persons;//部门中的人员
-              //此时，人员和部门可以肯定存在
-              //1、人员添加部门
-              var isbe = false;
-              for (var j = 0; j < personDepartment.length; j++) {
-                //console.log(personDepartment[j].department + '< >' + departmentID)
-                if (personDepartment[j].department == departmentID) {
-                  isbe = false;
-                } else {
-                  isbe = true;
+  if(personID&&departmentID) {
+    Personmodel.find({_id: personID},{personlocations: 0,images:0}, function (err, obj) {
+      if (err) {
+      } else {
+        if (obj && obj.length) {
+          var person = obj[0];
+          departmentModel.findOne({_id: departmentID}, function (err, obj) {
+            if (err) {
+              callback(err, null)
+            } else {
+              if (obj) {
+                var department = obj;
+                var returnCon = 0;
+                var personDepartment = person.departments;//人员中的部门
+                var departmentPersons = department.persons;//部门中的人员
+                //此时，人员和部门可以肯定存在
+                //1、人员添加部门
+                var isbe = false;
+                for (var j = 0; j < personDepartment.length; j++) {
+                  //console.log(personDepartment[j].department + '< >' + departmentID)
+                  if (personDepartment[j].department == departmentID) {
+                    isbe = false;
+                  } else {
+                    isbe = true;
+                  }
+                }
+                //人员中有部门 进入if
+                if (isbe) {
+                  console.log('人员中没有部门')
+                  personDepartment.push({department: departmentID, role: 'worker'});
+                  Personmodel.update({_id: personID}, {departments: personDepartment}, function (err, perobj) {
+                    if (err) {
+                      callback(err, null)
+                    } else {
+                      //callback(null, '人员中没有部门，已添加')
+                      //2、部门添加人员
+                      if (perobj && perobj.length) {
+                        console.log('人员中添加部门');
+                      }
+                      for (var i = 0; i < departmentPersons.length; i++) { //如果department中有此人员，则退出
+                        //console.log('测试人员重复+++'+departmentPersons[i].person+' * '+personID)
+                        if (departmentPersons[i].person + '' == personID + '') {
+                          callback(null, 'department中有此人员，跳出没有添加！')
+                        }
+                      }
+                      departmentPersons.push({person: personID, role: 'worker'});
+                      departmentModel.update({_id: departmentID}, {persons: departmentPersons}, function (err, deparobj) {
+                        if (err) {
+                          callback(err);
+                        } else {
+                          callback(null, '部门中没有人员，已添加 ')
+                        }
+                      })
+                    }
+                  })
+                }else{//人员中没有部门
+                  //可以在判断一下部门中有没有此人员
+                  departmentPersons.push({person: personID, role: 'worker'});
+                  departmentModel.update({_id: departmentID}, {persons: departmentPersons}, function (err, deparobj) {
+                    if (err) {
+                      callback(err);
+                    } else {
+                      callback(null, '部门中没有人员，已添加 ')
+                    }
+                  })
                 }
               }
-              if (personDepartment.length == 0||isbe){
-                personDepartment.push({department: departmentID, role: 'worker'});
-                Personmodel.update({_id: personID}, {departments: personDepartment}, function (err, perobj) {
-                  if (err) {
-                    callback(err,null)
-                  } else {
-                    //callback(null, '人员中没有部门，已添加')
-                    //2、部门添加人员
-                    if(perobj&&perobj.length){
-                      percount++;
-                      console.log('人员中添加部门'+percount);
-                    }
-                    for (var i = 0; i < departmentPersons.length; i++) { //如果department中有此人员，则退出
-                      //console.log('测试人员重复+++'+departmentPersons[i].person+' * '+personID)
-                      if (departmentPersons[i].person+'' == personID+'') {
-                        callback(null, 'department中有此人员，跳出没有添加！'+partentcount)
-                      }
-                    }
-                    departmentPersons.push({person: personID, role: 'worker'});
-                    departmentModel.update({_id: departmentID}, {persons: departmentPersons}, function (err, deparobj) {
-                      if (err) {
-
-                      } else {
-                        partentcount++;
-                        callback(null, '部门中没有人员，已添加 '+partentcount)
-
-                      }
-                    })
-
-                  }
-                })
-              }
             }
-          }
-        })
+          })
+        }
       }
-    }
-  })
+    })
+  }else{
+    callback('参数错误')
+  }
 }
 
 //department 人员绑定 person  解除绑定
@@ -332,7 +344,6 @@ PersonDAO.prototype.offdepartentToPerson = function (personID, departmentID, cal
             }
           }
         })
-
       }
     }
   })
@@ -1178,36 +1189,84 @@ PersonDAO.prototype.sendpersontitle=function(id,title,callback){
     }
   })
 }
+//修改人员密码
+PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callback) {
+  //console.log(ID,start)
+  Personmodel.findOne({_id:id},{personlocations:0},function (err, obj) {
+    if (err) {
+      callback(err);
+    } else {
+      console.log(obj)
+      if(obj.pwd){
+        if(obj.pwd==opwd){//可以修改
+          Personmodel.update({_id:id},{pwd:npwd},function(err,nobj){
+            callback(err,nobj)
+          })
+        }else{//原密码输入错误
+          callback('原密码错误')
+        }
+      }else{//之前没设置密码，直接修改
+        Personmodel.update({_id:id},{pwd:npwd},function(err,nobj){
+          callback(err,nobj)
+        })
+      }
+    }
+  });
+};
+
+//获取考勤人员位置和时间信息
+PersonDAO.prototype.getpersondaycheck=function(callback){
+  var date=new Date();
+  new Date(date.setDate(date.getDate()-1));
+  console.log(date);
+  //Personmodel.find(
+  //  {name:'孙建军',
+  //    personlocations: {
+  //      $elemMatch: {
+  //        positioningdate: {
+  //          "$gt": date
+  //          //"$lte": new Date()
+  //        }
+  //      }
+  //  }
+  //},function(err,obj){
+  //  if(err){
+  //    callback(err);
+  //  }else{
+  //    callback(null,obj)
+  //  }
+  //})
+  Personmodel.aggregate()
+    .unwind("personlocations")
+    .match({
+      "personlocations.positioningdate": {
+        "$gte":date,
+        "$lt":new Date()
+      }
+    }
+  ).group(
+    {
+      "_id": "$_id",
+      "personlocations": {$push: "$personlocations"}
+    }
+  ).exec(function(err,obj){
+      if(!err){
+        //for(var i=0;i<obj.length;i++){
+
+          callback(err,obj)
+        //}
+      }
+    })
+}
 //根据部门查找人员
 //获取所有用户  批量修改status
-var getAllUser = function () {
-  Personmodel.remove({status: 1}).exec(function (err, objs) {
-    console.log('-------------')
+PersonDAO.prototype.getAllUser = function (callback) {
+  Personmodel.find({},{personlocations:0,images:0}).exec(function (err, obj) {
     if (!err) {
-      // for(var i=0;i<objs.length;i++) {
-      //  Personmodel.update({status:0},{$set:{'status':8}},function(err,res){
-      //    if(!err){
-      //      console.log('修改');
-      //      console.log(res);
-      //      //callback(err,res);
-      //    }
-      //    else {
-      //      console.log('没有数据');
-      //      //callback(err,0);
-      //    }
-      //  })
-      // }
-      //objs.forEach(function (value, key) {
-      //  console.log(value.name)
-      //})
-      //console.log(objs.length)
-      //
-      departmentModel.update({status:1},{persons:[1]},function(err,dep){
-        //console.log(dep[0].info)
-        console.log('删除完成')
-      })
+      callback(err,obj)
+      }
     }
-  })
+  )
 }
 //getAllUser();
 

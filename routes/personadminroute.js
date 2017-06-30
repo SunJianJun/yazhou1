@@ -68,17 +68,24 @@ var sendpersonimport = function (req, res) {
 var sendpersonreGister = function (req, res) {
   var json = req.body;
   //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
-  console.log(json);
+  //console.log(json);
   if (!json) {
     res.send({error: '输入信息为空'});
   } else {
-    //console.log('调用了dopersonAdd方法');
+    console.log('调用了dopersonAdd方法');
     json.status = 1;
+    var dep=json.departments[0];
     personDAO.save(json, function (err, obj) {
       if (err) {
         res.send({error: '注册出错'});
       } else {
-        res.send({success:obj});
+        personDAO.addPersonTodepartent(obj._id,dep.department,function(err,obj){
+          if(err){
+            res.send({error:err})
+          }else{
+            res.send({success:obj});
+          }
+        })
       }
     });
   }
@@ -161,7 +168,7 @@ var updatepersonstate = function (req, res) {
 };
 //updatepersonstate({_id:"58e0c199e978587014e67a50",status:9})
 /**
- * 根据部门查找人员
+ * 获取部门的所有人员
  * @param {json} req - 客户端提交json 例如{department:"部门ID"}
  * @param {json} res - 返回json [{_id:'人员ID',"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',images:'',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"}}];
  */

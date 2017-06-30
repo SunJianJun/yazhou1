@@ -89,7 +89,7 @@ DepartmentDAO.prototype.addparentpath=function(_id,path,callback){
     }
   })
 }
-
+/*
 DepartmentDAO.prototype.analysisXml = function (xml) {
   fs.readFile(xml, function (err, data) {
     if (err) {
@@ -235,7 +235,6 @@ DepartmentDAO.prototype.analysisXml = function (xml) {
     //addpersonfun(data)
   };
 };
-//DepartmentDAO.prototype.analysisXml('allperson.xml');
 DepartmentDAO.prototype.addperson = function (info, obj, callback) {
 
   //for(var i=0;i<obj.length;i++) {
@@ -263,7 +262,8 @@ DepartmentDAO.prototype.addperson = function (info, obj, callback) {
       }
     })
 }
-
+//DepartmentDAO.prototype.analysisXml('allperson.xml');
+*/
 //根据名字找单位
 DepartmentDAO.prototype.findByName = function (name, callback) {
   Departmentmodel.findOne({name: name}, function (err, obj) {
@@ -845,7 +845,7 @@ DepartmentDAO.prototype.updateById = function (Department, callback) {
   });
   //此时才能用Model操作，否则报错
 };
-
+//查找手机号
 DepartmentDAO.prototype.findByMobile = function (mobile, callback) {
 
   console.log('called Department findOne by mobile' + mobile);
@@ -854,6 +854,7 @@ DepartmentDAO.prototype.findByMobile = function (mobile, callback) {
     console.log(' Department findout:' + obj);
   });
 };
+//获取部门的网格区域
 DepartmentDAO.prototype.getDepartmentgird=function(callback){
 
 }
