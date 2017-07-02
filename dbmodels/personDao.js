@@ -1215,33 +1215,17 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
 };
 
 //获取考勤人员位置和时间信息
-PersonDAO.prototype.getpersondaycheck=function(callback){
-  var date=new Date();
-  new Date(date.setDate(date.getDate()-1));
-  console.log(date);
-  //Personmodel.find(
-  //  {name:'孙建军',
-  //    personlocations: {
-  //      $elemMatch: {
-  //        positioningdate: {
-  //          "$gt": date
-  //          //"$lte": new Date()
-  //        }
-  //      }
-  //  }
-  //},function(err,obj){
-  //  if(err){
-  //    callback(err);
-  //  }else{
-  //    callback(null,obj)
-  //  }
-  //})
+PersonDAO.prototype.getpersondaycheck=function(startDate,endDate,callback){
+  //var date=new Date();
+  //new Date(date.setDate(date.getDate()-1));
+  //console.log(date,new Date())
+  //console.log(startDate,endDate)
   Personmodel.aggregate()
     .unwind("personlocations")
     .match({
       "personlocations.positioningdate": {
-        "$gte":date,
-        "$lt":new Date()
+        "$gte":startDate,
+        "$lt":endDate
       }
     }
   ).group(
@@ -1268,7 +1252,6 @@ PersonDAO.prototype.getAllUser = function (callback) {
     }
   )
 }
-//getAllUser();
 
 var daoObj = new PersonDAO();
 //

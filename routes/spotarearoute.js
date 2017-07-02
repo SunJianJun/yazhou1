@@ -20,6 +20,7 @@ var getNewestSpotarea = function(req, res) {
             res.send(null);
         }});
 };
+
 var spotareaAdd = function(req, res) {
 
 };
@@ -123,16 +124,27 @@ var updateASpotarea=function(req,res){
         }
     })
 }
-//updateASpotarea({"_id":"5950ba7d2cbfdd5c3a9b0b85",name:"默认11",geometry:{coordinates:[116.469039,
-//    39.891024,
-//    116.469039,
-//    39.881024,
-//    116.485039,
-//    39.881024,
-//    116.485039,
-//    39.891024],type:"Polygon"}},function(e){
-//    console.log(e)
-//})
+//查找人员所安排的区域
+var getASpotareatoperson=function(req,res){
+    //var id=req.body._id;
+    var _id=req;
+    spotareaDAO.getASpotareatoperson(_id,function(err,obj){
+        if(err){
+            //res.send(null)
+            console.log(null)
+        }else{
+            //res.send(obj)
+            console.log(obj)
+            //for(var a=0;a<obj.length;a++){
+            //    console.log(obj[a].person)
+            //}
+            //res(obj)
+        }
+    })
+}
+//getASpotareatoperson('58e0c199e978587014e67a50')
+
+
 
 
 spotarearouter.post('/sendASpotarea',sendASpotarea);//增加
@@ -140,5 +152,6 @@ spotarearouter.post('/sendPersontarea',sendPersontarea);//绑定人员
 spotarearouter.post('/getNewestSpotarea',getNewestSpotarea);//编辑查询
 spotarearouter.post('/getSpotareasInATimeSpanFromWho',getSpotareasInATimeSpanFromWho);//编辑查询
 spotarearouter.post('/spotareaDelete',spotareaDelete);//查找  
-spotarearouter.post('/spotareapeopleDelete',spotareapeopleDelete);//查找  
+spotarearouter.post('/spotareapeopleDelete',spotareapeopleDelete);//查找
+spotarearouter.post('/getASpotareatoperson',getASpotareatoperson);
 module.exports = spotarearouter;
