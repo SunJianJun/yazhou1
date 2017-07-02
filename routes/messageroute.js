@@ -8,6 +8,7 @@ var messagerouter = express.Router();
 //获取数据模型
 var personDAO = require('../dbmodels/personDAO.js');
 var departmentDAO=require('../dbmodels/departmentDAO.js');
+var attendanceRecordDao=require('../dbmodels/attendanceRecordDao.js');
 
 var message = require('../dbmodels/messageschema.js');
 	 //console.log('message数据模型是否存在：'+message);
@@ -210,7 +211,15 @@ var sendBroadcast = function(req, res) {
 /**
  * 发送异常性消息（主要是考勤中的请假和换班消息）
  * @param {json} req - json形式：(senderID:“dfdf",type:"takeoff|shift",receiverType:"title（按头衔发送）|person（选择一个人发送）",messageObj：{
- * text:"文本内容",startTime:"语音消息",video:"视频消息",image:"图片消息"（四种消息必有一种）}，receiverInfo:"(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)")
+ * text:"文本内容",startTime:"语音消息",video:"视频消息",image:"图片消息"（四种消息必有一种）
+//异常状态也是一种消息
+abnormaldecision :String,//approve；reject,
+abnormalID:String,//唯一标示异常值的id，如果给多人发，通过这个就可以把多条信息全部设为已读
+//请假事由 由message.text兼任
+abnormalStartTime:{ type: Date, default: Date.now},
+abnormalEndTime:{ type: Date, default: Date.now},
+abnormalShiftPersonId:String,//换班人员id
+    abnormald:String,//一个异常具有唯一的id，这个id表示这个异常是同一个，用于如果请假申请发给同一级的多人时}，receiverInfo:"(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)")
  * @param {json} res - 发送失败 null，发送成功， 消息本身
  */
 var sendAbnormalMessage = function(req, res) {
@@ -224,7 +233,7 @@ var sendAbnormalMessage = function(req, res) {
     var receiverType=req.body.receiverType;
     var receiverInfo=req.body.receiverInfo;
     //如果没有类型，或者类型不是广播，就返回
-    if(!req.body.type || req.body.type!="broadcast" || !messType || !receiverType || !receiverInfo){
+    if(!req.body.type || (req.body.type!="takeoff" || req.body.type!="shift" )|| !messType || !receiverType || !receiverInfo){
         // //console.log("客户端发来的json有空值");
         res.send({error:"客户端发来的json有空值"});
         return;
@@ -232,30 +241,6 @@ var sendAbnormalMessage = function(req, res) {
     // //console.log('senderID:'+senderID);
     var recieverIds=[];
     switch (receiverType){
-        case "department":
-            if(receiverInfo && receiverInfo.length>0)
-            //receiverInfo这是departmentid的数组
-            {
-                departmentDAO.getAllpersonsByDepartIds(receiverInfo,function (err,persons) {
-                    if(!err){
-                        if(persons && persons.length){
-                            var output=new  Array();
-                            for (var index = 0; index < persons.length; index++) {
-                                messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
-                                    if(!err) {
-                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
-                                        output.push(obj);
-                                    } else{
-                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
-                                        output.push({error:err});
-                                    }});
-                            }
-                            res.send(output);
-                        }
-                    }
-                });
-            }
-            break;
         case "title":
             if(receiverInfo && receiverInfo.length>0)
             //receiverInfo这是title id的数组
@@ -280,22 +265,18 @@ var sendAbnormalMessage = function(req, res) {
                 });
             }
             break;
-        case "persons":
-            if(receiverInfo && receiverInfo.length>0)
+        case "person":
+            if(receiverInfo)
             //receiverInfo这是person id的数组
             {
-                var persons=receiverInfo;
-                for (var index = 0; index < persons.length; index++) {
-                    messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                    messageDAO.sendBroadcast(req.body.messageObj,senderID,receiverInfo,function( err,obj){
                         if(!err) {
                             // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
-                            output.push(obj);
+                            res.send(obj);
                         } else{
                             // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
-                            output.push({error:err});
+                            res.send({error:err});
                         }});
-                }
-                res.send(output);
             }
             break;
         default:
@@ -308,7 +289,7 @@ var sendAbnormalMessage = function(req, res) {
 /**
  *读取了一个异常消息，将一个异常消息设置为已读，并且有同意和驳回两种选项
  * @param {string} req - req.body.messID消息的唯一id，req.body.decision ：approve；reject 同意，驳回,curUserID 当前用户id
- * @param {string} res - 成功返回该消息id，失败返回null
+ * @param {string} res - 成功返回该消息id，失败返回null.对于请假消息，同意之后会在考勤状态表中生成一条请假状态，这样在计算考勤的时候，就不会被计入了
  */
 var readtAbnormalMessage = function(req, res) {
     // //console.log('call readtMessage');
@@ -321,43 +302,36 @@ var readtAbnormalMessage = function(req, res) {
     // //console.log('messID:'+messID);
     messageDAO.readtAbnormalMessage(messID,curUserID,decision,function( err,obj){
         if(!err) {
+            if(!(obj && obj.length))
+            {res.send({error:"查无此消息！"});return;}
+
+            var abnormalAttendenceObj={};
             // //console.log('readtMessage 查询所有'+messID+'发送的消息:'+obj);
             if(decision=="approve"){
-                var abnormalAttendenceObj={};
-                abnormalAttendenceObj.person=obj.sender;
-                abnormalAttendenceObj.askforleave
-                attendanceRecordDAO.sendpersonaskforleave()
-                /*
-                 person: String,//person 的 id
-                 checkdate:Date,//正常记录，到天，只比较天
+                if(obj[0].type=="takeoff" ){
+                    abnormalAttendenceObj.person=obj[0].sender;
+                    abnormalAttendenceObj.askforleave.reason=obj[0].text;
+                    abnormalAttendenceObj.askforleave.startDateTime=obj[0].abnormalStartTime;
+                    abnormalAttendenceObj.askforleave.endDateTime=obj[0].abnormalEndTime;
+                    abnormalAttendenceObj.abnormal=true;
 
-                askforleave: { //请假
-                    reason: String,//请假理由
-                        startDateTime: Date,
-                        endDateTime: Date
-                },//[startDateTime,endDateTime],//比如6月25请假
-                shift: {//换班
-                    startDateTime: Date,
-                        endDateTime: Date,
-                        alternateattendanceRecord: String//换班人
-                },
-                abnormal: Boolean,// default false
-                */
+                }
+                else if(obj.type=="shift" ){
+                    abnormalAttendenceObj.shift.startDateTime=obj[0].abnormalStartTime;
+                    abnormalAttendenceObj.shift.endDateTime=obj[0].abnormalEndTime;
+                    abnormalAttendenceObj.shift.alternateattendanceRecord=obj[0].receiver;
+                    abnormalAttendenceObj.abnormal=true;
 
-                // default false
-                // attendanceRecordDAO.prototype.sendpersonaskforleave = function (obj, callback) {
-                //     var instance = new attendanceRecordmodel(obj);
-                //     instance.save(function (err, obj) {
-                //         if (err) {
-                //             callback(err)
-                //         } else {
-                //             callback(null, obj)
-                //         }
-                //     })
-                // }
-
+                }
+                attendanceRecordDao.sendpersonaskforleave(abnormalAttendenceObj,function( err,obj){
+                    if(!err) {
+                        res.send(obj);}
+                    else{
+                        res.send({error:err});
+                    }
+                });
             }
-            res.send(messID);
+
         } else{
             // //console.log('readtMessage 查询所有'+messID+'发送的消息为空:'+err);
             res.send({error:err});

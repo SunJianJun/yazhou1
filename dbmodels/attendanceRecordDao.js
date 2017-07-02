@@ -31,7 +31,7 @@ attendanceRecordDAO.prototype.sendpersonaskforleave = function (obj, callback) {
     if (err) {
       callback(err)
     } else {
-      callback(null, obj)
+      callback({error:"保存请假状态出错!"}, obj)
     }
   })
 }

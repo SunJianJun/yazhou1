@@ -347,8 +347,8 @@ MessageDAO.prototype.readtMessage = function(mid,curUserID, outcallback) {
     });
 };
 
-
-MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision, outcallback) {
+//是根据唯一的AbnormalId来更新消息
+MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abnormald, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
@@ -362,23 +362,9 @@ MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision, out
             }
         };
 
-    Messagemodel.findOne({_id:mid}, function(err, obj){
-        if(!err && obj){
-            if(curUserID && obj.receiver==curUserID){
-                Messagemodel.update({_id:mid},{status:1,"decision":decision},function(err,uobj){
-                    callback(err, uobj);
-                });
-            }else if(curUserID==""){
-                Messagemodel.update({_id:mid},{status:1,"decision":decision},function(err,uobj){
-                    callback(err, uobj);
-                });
-
-            }
-        }
-        else {
-            callback(err,null);
-        }
-    });
+        Messagemodel.update({ $and: [{"abnormald":abnormald},{status:0}]},{status:1,"decision":decision},function(err,uobj){
+            callback(err, uobj);
+        });
 };
 
 
