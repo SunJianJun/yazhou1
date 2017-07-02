@@ -1,4 +1,5 @@
 var mongodb = require('./mongodb');
+var mongoose = require('mongoose');
 var SpotareaSchema = require('./spotareaschema');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var db = mongodb.mongoose.connection; 
@@ -126,6 +127,7 @@ SpotareaDAO.prototype.getNewestSpotarea = function(outcallback) {
         }
     });
 };
+
 
 SpotareaDAO.prototype.spotareaDelete=function(name,outcallback){
     var callback=outcallback?outcallback:function (err,obj) {
@@ -327,7 +329,42 @@ SpotareaDAO.prototype.updateASpotarea=function(uid,uname,ucoordinates,callback){
         }
     })
 }
-
+//获取人员被安排巡逻的区域和时间
+SpotareaDAO.prototype.getASpotareatoperson=function(id,callback){
+    //Spotareamodel.find({},{persons: {
+    //    $elemMatch: {
+    //        personID:id
+    //    }
+    //}
+    //}
+    //).exec(function(err,obj){
+    //    if(err){
+    //        callback(err)
+    //    }else{
+    //        callback(null,obj)
+    //    }
+    //})
+    //var id=mongoose.Types.ObjectId(id)
+    var id=id.toString()//防止传的是对象字符串，需要转换一下
+    Spotareamodel.aggregate()
+        .unwind("persons")
+        .match({
+                "persons.personID":id
+            }
+        )
+        .group({
+                "_id": "$_id",
+                "geometry":{$push:"$geometry"},
+                "person": {$push: "$persons"}
+            })
+        .exec(function(err,obj){
+        if(err){
+            callback(err)
+        }else{
+            callback(null,obj)
+        }
+    })
+}
 
 var spotareaObj=new SpotareaDAO();
 // spotareaObj.sendASpotarea({

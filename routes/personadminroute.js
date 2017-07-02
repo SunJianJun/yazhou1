@@ -62,7 +62,7 @@ var sendpersonimport = function (req, res) {
 
 /**
  *使用身份信息注册一个人员
- * @param {json} req 传入人员json数据，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
+ * @param {json} req 传入人员json数据，例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456",IMid:'极光ID'};
  * @param {json} res 返回，注册成功返回提示成功，失败返回{error: '注册出错'}
  */
 var sendpersonreGister = function (req, res) {

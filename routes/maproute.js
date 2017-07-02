@@ -1,5 +1,5 @@
 /**
- * @module 地图功能模块 url: /maproute
+ * @module 地图功能模块 url: /map
  */
 var express = require('express');
 var map = express.Router();
@@ -71,12 +71,13 @@ var updatespotarea=function(req,res){
     })
 };
 /**
- * 地图显示配置
+ * 地图显示配置-未完成
  * 选择显示同事，代办案件，网格区域，摄像头
  * @param {json} req - 客户端提交JSON 例如{“person“:true,"case":false,"area":true,"camera":false}
  * @param {json} res - 返回json ，例如[{_id:"12345612",name:"南六环",persons:[{_id:"123456",name:"张三"},geometry:{coordinates:["116.430587","39.909989”,"116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"]}}]<br/>case:true,加入{_id:"案件ID",name:"无照经营"}
  */
 var getmapdisplaysetting=function(req,res){
+    res.send('没有数据')
 
 };
 /**
@@ -109,21 +110,31 @@ var getspotarea=function(req,res){
     });
 }
 /**
- * 获取同部门人员的信息
+ * 获取同部门人员的信息--未完成
  * @param {json} req - 客户端提交JSON 例如{_id:"当前人员ID"}
  * @param {json} res - 返回json ，例如[{_id:"同事ID",name:"张三",position:["116.446587","39.899989"],status:1}]
  */
 var getworkmateinfo=function(req,res){
-
+    console.log('没有数据')
+    res.send('没有数据')
 }
 /**
- * 获取摄像头位置
+ * 获取摄像头位置--未完成
  * @param {} req - 请求地址，无需传参
  * @param {json} res - 返回json ，例如[{location：[109，38]，videoUrl：video.sohu.com，name：“保平村路口”，type："球形摄像头"，protocol：“rstp”}]
  */
 var getcameraposition=function(req,res){
+    res.send('没有数据')
 
 };
 
 map.post('/sendASpotarea',sendASpotarea);//提交
+map.post('/addperson',addperson);
+map.post('/updatespotarea',updatespotarea);
+map.post('/getmapdisplaysetting',getmapdisplaysetting);
+map.post('/geteventposition',geteventposition);
+map.post('/getspotarea',getspotarea);
+map.post('/getworkmateinfo',getworkmateinfo);
+map.post('/getcameraposition',getcameraposition);
+
 module.exports = map;

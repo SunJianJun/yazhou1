@@ -72,7 +72,7 @@ attendanceRecordDAO.prototype.sendperson = function (obj, callback) {
 
 //获取一个人员考勤记录
 attendanceRecordDAO.prototype.getpersonrecordtoid = function (ID, start, end, callback) {
-  //console.log(ID,start)
+  //console.log(ID,start,end)
   attendanceRecordmodel.find({
     person: ID,
     "$and": [{checkdate: {$gt: start}}, {checkdate: {$lt: end}}]

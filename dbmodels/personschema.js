@@ -58,6 +58,7 @@ var PersonSchema = new Schema({
     coverSmall: String,
     coverBig: String
   },
+  IMid:String,
 //所在部门
   departments: [{
     role: String, //权限 worker
