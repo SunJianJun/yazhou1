@@ -802,6 +802,58 @@ DepartmentDAO.prototype.getAllpersonsByDepartIdOneStep = function (curDepartId, 
 
 };
 
+// 不递归，得到一组部门的下一级部门和人员，单异步操作,curDepartIds是部门id数组
+DepartmentDAO.prototype.getAllpersonsByDepartIds = function (curDepartIds, outcallback) {
+    //console.log('得到一个部门的下一级部门和人员，单异步操作called DepartmentDAO getAllchildrenDepartmentsByDobj userId:'+curDepartId);
+    var callback = outcallback ? outcallback : function (err, obj) {
+            if (err) {
+                //console.log('callback getAllpersonsByDepartIdOneStep 出错：'+'<>'+err);
+            } else {
+                if (obj) {
+                    if (obj.Departments) {
+                        for (var index = 0; index < obj.Departments.length; index++) {
+                            // console.log('callback getAllpersonsByDepartIdOneStep 成功：'+'<>'+obj.Departments[index].name);
+                        }
+
+                    }
+                    if (obj.persons) {
+                        // console.log('callback getAllpersonsByDepartIdOneStep persons成功：'+'<>'+obj.persons);
+                    }
+                }
+            }
+        };
+    var opts = [{
+        path: 'persons.person'
+        ,
+        //上下两种写法效果一样，都可以将关联查询的字段进行筛选
+        // ,
+        // select : '-personlocations'images:0,
+        match: {status: {$gt: 0}}
+        ,
+        select: {personlocations: 0, departments: 0, images: 0}
+    }];
+    Departmentmodel.find({id:{$in:[curDepartIds]}}).populate(opts).exec(
+        function (err, departs) {
+            if (!err) {
+                if (departs.length > 0)
+                  var personsArray=new Array();
+                    for (var index = 0; index < departs.length; index++) {
+                        // console.log('callback getAllpersonsByDepartIdOneStep 成功：'+'<>'+obj.Departments[index].name);
+                        personsArray.push(departs[index].persons.person);
+                    };
+                    callback(err, personsArray);
+                else
+                    callback(err, [departs[0].persons.person]);
+            }
+            else {
+
+                callback(err, null);
+            }
+        }
+    );
+
+};
+
 
 // 得到一个用户所有涉及的部门，单异步操作
 DepartmentDAO.prototype.getAllInvolvedDepartmentsByUserid = function (userId, outcallback) {

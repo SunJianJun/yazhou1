@@ -5,12 +5,20 @@ var locationSchema=locationModuler.LocationSchema;
 
 var MessageSchema = new Schema({
 text : String,
-type:String,//broadcast 或者 message(默认)
+type:String,//broadcast 或者 message(默认) 或者abnormal
 create_date : { type: Date, default: Date.now},
 images :{
 coverSmall:String,
 coverBig:String,
 },
+    //异常状态也是一种消息
+    decision :String,//approve；reject,
+    abnormalID:String,//唯一标示异常值的id，如果给多人发，通过这个就可以把多条信息全部设为已读
+    abnormalTakeoffString:String,//请假事由
+    abnormalStartTime:{ type: Date, default: Date.now},
+    abnormalEndTime:{ type: Date, default: Date.now},
+    abnormalShiftPersonId:String,//换班人员id
+
 image:String,
 voice :String,
 video:String,

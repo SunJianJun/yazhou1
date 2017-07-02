@@ -1179,6 +1179,18 @@ PersonDAO.prototype.gettitleToperson=function(title,callback){
     }
   })
 }
+
+//根据职务数组获取人员
+PersonDAO.prototype.gettitleIdsToperson=function(titles,callback){
+    Personmodel.find({title:{$in:[title]}},{personlocations:0,images:0},function(err,obj){
+        if(err){
+            callback(err)
+        }else{
+            callback(null,obj)
+        }
+    })
+}
+
 //添加人员职务
 PersonDAO.prototype.sendpersontitle=function(id,title,callback){
   Personmodel.update({_id:id},{title:title},function(err,obj){

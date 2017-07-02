@@ -7,6 +7,7 @@ var messagerouter = express.Router();
 
 //获取数据模型
 var personDAO = require('../dbmodels/personDAO.js');
+var departmentDAO=require('../dbmodels/departmentDAO.js');
 
 var message = require('../dbmodels/messageschema.js');
 	 //console.log('message数据模型是否存在：'+message);
@@ -106,15 +107,16 @@ var sendAMessage = function(req, res) {
             res.send(null);
         }});
 };
+
 /**
- * 发送群体性消息，未实现
+ * 发送群体性消息
  * @param {json} req - json形式：(senderID:“dfdf",type:"broadcast",receiverType:"department(按部门发送)|title（按头衔发送）|persons（选择一些人发送）",messageObj：{
  * text:"文本内容",voice:"语音消息",video:"视频消息",image:"图片消息"（四种消息必有一种）}，receiverInfo:"(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)")
  * @param {json} res - 发送失败 null，发送成功， 消息本身
  */
 var sendBroadcast = function(req, res) {
     //实现后删掉这一行
-    res.send(null);
+    // res.send(null);
 
     // //console.log('call sendAMessage');
     //for(var i in req.body){ //console.log("sendAMessage 请求内容body子项："+i+"<>\n")};
@@ -123,52 +125,247 @@ var sendBroadcast = function(req, res) {
     var receiverType=req.body.receiverType;
     var receiverInfo=req.body.receiverInfo;
     //如果没有类型，或者类型不是广播，就返回
-    if(!req.body.type && req.body.type!="broadcast" && messType && receiverType && receiverInfo){
+    if(!req.body.type || req.body.type!="broadcast" || !messType || !receiverType || !receiverInfo){
         // //console.log("客户端发来的json有空值");
-        res.send(null);
+        res.send({error:"客户端发来的json有空值"});
         return;
     };
         // //console.log('senderID:'+senderID);
     var recieverIds=[];
     switch (receiverType){
         case "department":
-            if(receiverInfo.length && receiverInfo.length>0)
-            //这是departmentid的数组
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是departmentid的数组
             {
-                for(var index=0;index<receiverInfo;index++)
-                {
-                    personDAO.getPersonsByDepartment(receiverInfo);
-                }
-            }else //只有1个id
-            {
-                personDAO.getPersonsByDepartment(receiverInfo);
+                    departmentDAO.getAllpersonsByDepartIds(receiverInfo,function (err,persons) {
+                        if(!err){
+                            if(persons && persons.length){
+                                var output=new  Array();
+                                for (var index = 0; index < persons.length; index++) {
+                                messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                                    if(!err) {
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                                        output.push(obj);
+                                    } else{
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                                        output.push({error:err});
+                                    }});
+                                 }
+                                 res.send(output);
+                            }
+                        }
+                    });
             }
             break;
         case "title":
-            personDAO.getPersonsByTitle
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是title id的数组
+            {
+                personDAO.gettitleIdsToperson(receiverInfo,function (err,persons) {
+                    if(!err){
+                        if(persons && persons.length){
+                            var output=new  Array();
+                            for (var index = 0; index < persons.length; index++) {
+                                messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                                    if(!err) {
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                                        output.push(obj);
+                                    } else{
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                                        output.push({error:err});
+                                    }});
+                            }
+                            res.send(output);
+                        }
+                    }
+                });
+            }
             break;
         case "persons":
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是person id的数组
+            {
+                var persons=receiverInfo;
+                for (var index = 0; index < persons.length; index++) {
+                    messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                        if(!err) {
+                            // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                            output.push(obj);
+                        } else{
+                            // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                            output.push({error:err});
+                        }});
+                }
+                res.send(output);
+            }
             break;
         default:
             break;
     }
-        //未实现
-        messageDAO.sendBroadcast(req.body.messageObj,senderID,receiverType,receiverInfo,messType,function( err,obj){
-            if(!err) {
-                // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
-                res.send(obj);
-            } else{
-                // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
-                res.send(null);
-            }});
+
     };
 
 
 
+/**
+ * 发送异常性消息（主要是考勤中的请假和换班消息）
+ * @param {json} req - json形式：(senderID:“dfdf",type:"takeoff|shift",receiverType:"title（按头衔发送）|person（选择一个人发送）",messageObj：{
+ * text:"文本内容",startTime:"语音消息",video:"视频消息",image:"图片消息"（四种消息必有一种）}，receiverInfo:"(如果是部门，就是部门id数组，如果是title，就是title的id数组，如果是人员，就是人员的id数组)")
+ * @param {json} res - 发送失败 null，发送成功， 消息本身
+ */
+var sendAbnormalMessage = function(req, res) {
+    //实现后删掉这一行
+    // res.send(null);
+
+    // //console.log('call sendAMessage');
+    //for(var i in req.body){ //console.log("sendAMessage 请求内容body子项："+i+"<>\n")};
+    var senderID=req.body.senderID;
+    var messType=req.body.type;
+    var receiverType=req.body.receiverType;
+    var receiverInfo=req.body.receiverInfo;
+    //如果没有类型，或者类型不是广播，就返回
+    if(!req.body.type || req.body.type!="broadcast" || !messType || !receiverType || !receiverInfo){
+        // //console.log("客户端发来的json有空值");
+        res.send({error:"客户端发来的json有空值"});
+        return;
+    };
+    // //console.log('senderID:'+senderID);
+    var recieverIds=[];
+    switch (receiverType){
+        case "department":
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是departmentid的数组
+            {
+                departmentDAO.getAllpersonsByDepartIds(receiverInfo,function (err,persons) {
+                    if(!err){
+                        if(persons && persons.length){
+                            var output=new  Array();
+                            for (var index = 0; index < persons.length; index++) {
+                                messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                                    if(!err) {
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                                        output.push(obj);
+                                    } else{
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                                        output.push({error:err});
+                                    }});
+                            }
+                            res.send(output);
+                        }
+                    }
+                });
+            }
+            break;
+        case "title":
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是title id的数组
+            {
+                personDAO.gettitleIdsToperson(receiverInfo,function (err,persons) {
+                    if(!err){
+                        if(persons && persons.length){
+                            var output=new  Array();
+                            for (var index = 0; index < persons.length; index++) {
+                                messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                                    if(!err) {
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                                        output.push(obj);
+                                    } else{
+                                        // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                                        output.push({error:err});
+                                    }});
+                            }
+                            res.send(output);
+                        }
+                    }
+                });
+            }
+            break;
+        case "persons":
+            if(receiverInfo && receiverInfo.length>0)
+            //receiverInfo这是person id的数组
+            {
+                var persons=receiverInfo;
+                for (var index = 0; index < persons.length; index++) {
+                    messageDAO.sendBroadcast(req.body.messageObj,senderID,persons[index]._id,function( err,obj){
+                        if(!err) {
+                            // //console.log('sendAMessage 查询所有'+senderID+'发送的消息:'+obj._id);
+                            output.push(obj);
+                        } else{
+                            // //console.log('sendAMessage 查询所有'+senderID+'发送的消息为空:'+err);
+                            output.push({error:err});
+                        }});
+                }
+                res.send(output);
+            }
+            break;
+        default:
+            break;
+    }
+
+};
 
 
 /**
- *得到一个时间段内某人发来的消息 或者 群体消息（群体消息部分未实现）
+ *读取了一个异常消息，将一个异常消息设置为已读，并且有同意和驳回两种选项
+ * @param {string} req - req.body.messID消息的唯一id，req.body.decision ：approve；reject 同意，驳回,curUserID 当前用户id
+ * @param {string} res - 成功返回该消息id，失败返回null
+ */
+var readtAbnormalMessage = function(req, res) {
+    // //console.log('call readtMessage');
+    //for(var i in req.body){ //console.log("readtMessage 请求内容body子项："+i+"<>\n")};
+    var messID=req.body.messID;
+    var curUserID=req.body.curUserID?req.body.curUserID:"";
+    var decision=req.body.decision?req.body.decision:"approve";
+    // 调用方法
+    // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
+    // //console.log('messID:'+messID);
+    messageDAO.readtAbnormalMessage(messID,curUserID,decision,function( err,obj){
+        if(!err) {
+            // //console.log('readtMessage 查询所有'+messID+'发送的消息:'+obj);
+            if(decision=="approve"){
+                var abnormalAttendenceObj={};
+                abnormalAttendenceObj.person=obj.sender;
+                abnormalAttendenceObj.askforleave
+                attendanceRecordDAO.sendpersonaskforleave()
+                /*
+                 person: String,//person 的 id
+                 checkdate:Date,//正常记录，到天，只比较天
+
+                askforleave: { //请假
+                    reason: String,//请假理由
+                        startDateTime: Date,
+                        endDateTime: Date
+                },//[startDateTime,endDateTime],//比如6月25请假
+                shift: {//换班
+                    startDateTime: Date,
+                        endDateTime: Date,
+                        alternateattendanceRecord: String//换班人
+                },
+                abnormal: Boolean,// default false
+                */
+
+                // default false
+                // attendanceRecordDAO.prototype.sendpersonaskforleave = function (obj, callback) {
+                //     var instance = new attendanceRecordmodel(obj);
+                //     instance.save(function (err, obj) {
+                //         if (err) {
+                //             callback(err)
+                //         } else {
+                //             callback(null, obj)
+                //         }
+                //     })
+                // }
+
+            }
+            res.send(messID);
+        } else{
+            // //console.log('readtMessage 查询所有'+messID+'发送的消息为空:'+err);
+            res.send({error:err});
+        }});
+};
+
+/**
+ *得到一个时间段内某人发来的消息(type:“message“) 或者 群体消息(type:”broadcast“)
  * @param {Object} req - 客户端提交的json{receiverID:"sdfdsf",startTime:"开始时间",lastTime:"结束时间","senderID":"发送者id"，type：“broadcast|message”（跟发送者id不同时作用，可以只发送type为broadcast而不指定senderid，如果有明确的发送者id，且type未指定或者为‘message’时，就查询个人消息，否则就是群体消息）}
  * @param {string} req.body.receiverID - 接受者id.
  * @param {string} req.body.senderID - 发送者id.
@@ -183,12 +380,13 @@ var getMessagesInATimeSpanFromWho = function(req, res) {
     var receiverID=req.body.receiverID,
         senderID=req.body.senderID,
         startTime=req.body.startTime,
-        lastTime=req.body.lastTime;
+        lastTime=req.body.lastTime,
+        type =req.body.type;
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     // //console.log('senderID:'+senderID);
     //待扩展实现
-    messageDAO.getMessagesInATimeSpanFromWho(receiverID,senderID,startTime,lastTime,function( err,obj){
+    messageDAO.getMessagesInATimeSpanFromWho(receiverID,senderID,startTime,lastTime,type,function( err,obj){
         if(!err) {
             // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
             res.send(obj);

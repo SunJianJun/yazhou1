@@ -60,6 +60,7 @@ MessageDAO.prototype.sendAMessage = function(messageObj,senderID,receiverID, out
 
     messageObj.receiver=receiverID;
     messageObj.status=0;//消息是未读的
+    messageObj.type="message";
     var newM=new Messagemodel(messageObj);
     newM.save( function(err,uobj){
             if(err)
@@ -75,7 +76,7 @@ MessageDAO.prototype.sendAMessage = function(messageObj,senderID,receiverID, out
 };
 
 
-MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverType,receiverIDs, outcallback) {
+MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverID, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
@@ -97,6 +98,7 @@ MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverType,r
 
     messageObj.receiver=receiverID;
     messageObj.status=0;//消息是未读的
+    messageObj.type="broadcast";
     var newM=new Messagemodel(messageObj);
     newM.save( function(err,uobj){
         if(err)
@@ -220,7 +222,7 @@ MessageDAO.prototype.getMyNewestMessageFromWho = function(receiverID,senderID,is
 
 
 
-MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderID,startTime,endtime, outcallback) {
+MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderID,startTime,endtime,type, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
@@ -237,12 +239,13 @@ MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderI
 
             }
         };
-
+    //默认就是message
+    var jjtype=type?type:"message";
     var query = Messagemodel.find();
-    query.or([{'receiver': receiverID,sender:senderID,create_date:{
+    query.or([{'receiver': receiverID,'type':jjtype,sender:senderID,create_date:{
         "$gte": new Date(startTime),
         "$lt":new Date(endtime)
-    }}, {'receiver':senderID,sender:receiverID,create_date:{
+    }}, {'receiver':senderID,sender:receiverID,'type':jjtype,create_date:{
         "$gte": new Date(startTime),
         "$lt":new Date(endtime)
     }}]);
@@ -343,6 +346,41 @@ MessageDAO.prototype.readtMessage = function(mid,curUserID, outcallback) {
         }
     });
 };
+
+
+MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision, outcallback) {
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                //console.log('callback readtMessage 出错：'+'<>'+err);
+            }else{
+                for(var index =0;index<obj.length;index++)
+                {
+                    //console.log('callback readtMessage 成功：'+'<>'+obj[index]);
+                }
+                //console.log('callback readtMessage 成功：'+'<>');
+            }
+        };
+
+    Messagemodel.findOne({_id:mid}, function(err, obj){
+        if(!err && obj){
+            if(curUserID && obj.receiver==curUserID){
+                Messagemodel.update({_id:mid},{status:1,"decision":decision},function(err,uobj){
+                    callback(err, uobj);
+                });
+            }else if(curUserID==""){
+                Messagemodel.update({_id:mid},{status:1,"decision":decision},function(err,uobj){
+                    callback(err, uobj);
+                });
+
+            }
+        }
+        else {
+            callback(err,null);
+        }
+    });
+};
+
 
 
 MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
