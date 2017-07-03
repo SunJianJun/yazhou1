@@ -822,6 +822,7 @@ DepartmentDAO.prototype.getAllpersonsByDepartIds = function (curDepartIds, outca
                 }
             }
         };
+    console.log('callback getAllpersonsByDepartIdOneStep curDepartIds[0]：'+'<>'+curDepartIds[0]);
     var opts = [{
         path: 'persons.person'
         ,
@@ -832,18 +833,26 @@ DepartmentDAO.prototype.getAllpersonsByDepartIds = function (curDepartIds, outca
         ,
         select: {personlocations: 0, departments: 0, images: 0}
     }];
-    Departmentmodel.find({id:{$in:[curDepartIds]}}).populate(opts).exec(
+    Departmentmodel.find({_id:{$in:curDepartIds}}).populate(opts).exec(
         function (err, departs) {
             if (!err) {
-                if (departs.length > 0)
-                  var personsArray=new Array();
+                if (departs.length > 0){
+                    var personsArray=new Array();
                     for (var index = 0; index < departs.length; index++) {
-                        // console.log('callback getAllpersonsByDepartIdOneStep 成功：'+'<>'+obj.Departments[index].name);
-                        personsArray.push(departs[index].persons.person);
+                        // console.log('callback Departmentmodel 成功[index]：'+'<>'+JSON.stringify(departs[index].persons));
+                        for (var itt = 0; itt < departs[index].persons.length; itt++) {
+                          personsArray.push(departs[index].persons[itt]);
+                        }
                     };
+                    console.log('callback Departmentmodel 成功：'+'<>'+JSON.stringify(personsArray));
                     callback(err, personsArray);
+
+                }
                 else
-                    callback(err, [departs[0].persons.person]);
+                {
+                    console.log('callback Departmentmodel 成功：'+'<>'+JSON.stringify(personsArray));
+                    callback(err, departs.persons);
+                }
             }
             else {
 

@@ -28,10 +28,10 @@ attendanceRecordDAO.prototype.save = function (obj, callback) {
 attendanceRecordDAO.prototype.sendpersonaskforleave = function (obj, callback) {
   var instance = new attendanceRecordmodel(obj);
   instance.save(function (err, obj) {
-    if (err) {
-      callback(err)
+    if (!err) {
+      callback(err,obj)
     } else {
-      callback({error:"保存请假状态出错!"}, obj)
+      callback({error:"保存请假状态出错!"+err}, obj)
     }
   })
 }

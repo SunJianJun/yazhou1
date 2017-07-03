@@ -1182,10 +1182,18 @@ PersonDAO.prototype.gettitleToperson=function(title,callback){
 
 //根据职务数组获取人员
 PersonDAO.prototype.gettitleIdsToperson=function(titles,callback){
-    Personmodel.find({title:{$in:[title]}},{personlocations:0,images:0},function(err,obj){
+    console.log('gettitleIdsToperson 查询所有title:'+titles+"titles[0]:"+titles[0]);
+    if(!(titles.length && titles.length>0))
+    {
+      console.log('gettitleIdsToperson titles:'+titles);return;
+    }
+    // {$in:title},{personlocations:0,images:0}
+    Personmodel.find({"title":{$in:titles}},{personlocations:0,images:0},function(err,obj){
         if(err){
-            callback(err)
+            // console.log('1gettitleIdsToperson 查询所有title:'+titles+'发送的消息:'+obj+'发送的错误:'+err);
+            callback({error:err},null)
         }else{
+            // console.log('2gettitleIdsToperson 查询所有title:'+titles+'发送的消息:'+obj+'发送的错误:'+err);
             callback(null,obj)
         }
     })

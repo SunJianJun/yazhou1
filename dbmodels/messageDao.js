@@ -86,7 +86,9 @@ MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverID, ou
             }
         };
 
-    if(!(messageObj.text || messageObj.image || messageObj.voice || messageObj.video)){
+    // console.log('messageObj ：'+'<>'+messageObj);
+    // messageObj=JSON.parse(messageObj);
+    if(!(messageObj.text || messageObj.image || messageObj.voice || messageObj.video || messageObj.abnormalShiftPersonId)){
         callback("你没有发送任何内容！",null);
         return;
     }
@@ -95,10 +97,10 @@ MessageDAO.prototype.sendBroadcast = function(messageObj,senderID,receiverID, ou
         return;
     }
     messageObj.sender=senderID;
-
+    // messageObj.abnormalID=abnormalID;
     messageObj.receiver=receiverID;
     messageObj.status=0;//消息是未读的
-    messageObj.type="broadcast";
+    // messageObj.type=type?type:"broadcast";
     var newM=new Messagemodel(messageObj);
     newM.save( function(err,uobj){
         if(err)
@@ -240,7 +242,7 @@ MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderI
             }
         };
     //默认就是message
-    var jjtype=type?type:"message";
+    var jjtype=type;//?type:"message";type可以为空
     var query = Messagemodel.find();
     query.or([{'receiver': receiverID,'type':jjtype,sender:senderID,create_date:{
         "$gte": new Date(startTime),
@@ -248,7 +250,17 @@ MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderI
     }}, {'receiver':senderID,sender:receiverID,'type':jjtype,create_date:{
         "$gte": new Date(startTime),
         "$lt":new Date(endtime)
-    }}]);
+    }}
+    // ,
+        // type是为了向前兼容
+    //     {'receiver': receiverID,'type':null,sender:senderID,create_date:{
+    //     "$gte": new Date(startTime),
+    //     "$lt":new Date(endtime)
+    // }}, {'receiver':senderID,sender:receiverID,'type':null,create_date:{
+    //     "$gte": new Date(startTime),
+    //     "$lt":new Date(endtime)
+    // }}
+    ]);
     var opts = [{
         path: 'sender'
         //上下两种写法效果一样，都可以将关联查询的字段进行筛选
@@ -348,7 +360,7 @@ MessageDAO.prototype.readtMessage = function(mid,curUserID, outcallback) {
 };
 
 //是根据唯一的AbnormalId来更新消息
-MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abnormald, outcallback) {
+MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abnormalID, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
@@ -362,8 +374,18 @@ MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abno
             }
         };
 
-        Messagemodel.update({ $and: [{"abnormald":abnormald},{status:0}]},{status:1,"decision":decision},function(err,uobj){
-            callback(err, uobj);
+        Messagemodel.update({ $and: [{"abnormalID":abnormalID},{status:0}]},{status:1,"decision":decision},function(errr,uobj){
+            if(!errr){
+                Messagemodel.find({"abnormalID":abnormalID}, function(err, obj){
+
+                    console.log('callback readtMessage update成功：'+obj+'<>'+abnormalID);
+
+                    callback(err, obj);
+                });
+            }else{
+
+                callback({error:errr}, uobj);
+            }
         });
 };
 
