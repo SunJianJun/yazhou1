@@ -10,12 +10,17 @@ db.once('open',function(){
 console.log('mongodb connection is ok!:'+mongodb);
 });
 
-
 //console.log('mongodb Schema:'+Schema);
 
 var Messagemodel = MessageSchema.Messagemodel;
+var mScheme=MessageSchema.MessageSchema;
 //console.log('mongodb Schema:'+Schema);
 var Personmodel=PersonSchema.Personmodel;
+
+
+
+
+
 
 var MessageDAO = function(){};
 MessageDAO.prototype.save = function(obj, callback) {
@@ -29,6 +34,8 @@ instance.save(function(err){
 callback(err);
 });
 };
+
+
 
 MessageDAO.prototype.findByName = function(name, callback) {
 Messagemodel.findOne({name:name}, function(err, obj){

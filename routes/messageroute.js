@@ -5,6 +5,8 @@
 var express = require('express');
 var messagerouter = express.Router();
 
+var MessageSchema = require('../dbmodels/messageschema');
+var mScheme=MessageSchema.MessageSchema;
 var uuid = require('node-uuid');
 //获取数据模型
 var personDAO = require('../dbmodels/personDAO.js');
@@ -13,9 +15,46 @@ var attendanceRecordDao=require('../dbmodels/attendanceRecordDao.js');
 
 var message = require('../dbmodels/messageschema.js');
 	 //console.log('message数据模型是否存在：'+message);
-
 //获取数据模型
 var messageDAO = require('../dbmodels/messageDao');
+
+var JPush = require("../node_modules/jpush-sdk/lib/JPush/JPush.js")
+var JPushclient = JPush.buildClient('8c95bceebb7459c9bcb29f94', '98fd64a9ac6ac47f3011b641')
+
+/**
+ * 保存每条消息就自动的发送推送消息
+ * @param doc
+ */
+var afterSave=function(doc) {
+
+    console.log('已经保存了%s ', JSON.stringify(doc));
+    if(doc.status==0){
+        console.log('未读消息，开始极光推送 ');
+        personDAO.getIMid(doc.receiver,function (immmid) {
+            if(immmid && !immmid.error){
+                //easy push
+                JPushclient.push().setPlatform(JPush.ALL)
+                    .setAudience({registration_id:[immmid]})
+            .setNotification(doc.text?doc.text:"您有一条"+doc.type=="message"?"工作":(doc.type=="broadcast"?"系统":(doc.type=="takeoff"?"请假申请":(doc.type=="shift"?"换班申请":"")))+"消息", JPush.ios('ios alert'), JPush.android('android alert', null, 1))
+                    .send(function(err, res) {
+                        if (err) {
+                            console.log(err.message)
+                        } else {
+                            console.log('Sendno: ' + res.sendno)
+                            console.log('Msg_id: ' + res.msg_id)
+                        }
+                    });
+            }
+        })
+    }
+}
+
+// var afterSave=function(doc) {
+//     console.log('%s has been saved', JSON.stringify(doc));
+// }
+
+//每个消息在保存之后就发送一条极光推送
+mScheme.post('save', afterSave);
 
 /**
  * 得到一个人发送来的最新未读消息

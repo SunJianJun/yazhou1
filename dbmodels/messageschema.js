@@ -36,6 +36,8 @@ var  Messagemodel=mongodb.mongoose.model("Message", MessageSchema);
 //module.exports= PersonSchema;
 //这两行引用方式不一样的
 // exports.PersonSchema = PersonSchema;
+
+
 exports.Messagemodel = Messagemodel;
 
 exports.MessageSchema = MessageSchema;

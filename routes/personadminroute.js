@@ -532,6 +532,45 @@ var getAllUserPic = function (req, res) {
   });
 }
 
+
+/**
+ * 根据人员id 获取极光id
+ * @param {} req - 直接请求req.body.personID
+ * @param {json} res - 返回参数 极光id 或者失败 {error: '获取失败'}
+ */
+var getIMid = function (req, res) {
+    // //console.log('call getUserPicById');
+    //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+    // 调用方法
+    personDAO.getIMid(req.body.personID,function (err, obj) {
+        if (!err) {
+            // //console.log('getUserPicById 查询'+userid+'照片ok:');
+            res.send(obj);
+        } else {
+            // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+            res.send({error: '获取失败'});
+        }
+    });
+}/**
+ * 根据人员id 设置极光id
+ * @param {} req - 直接请求 req.body.personID,req.body.IMid
+ * @param {json} res - 返回参数 极光id 或者失败 {error: '获取失败'}
+ */
+var setIMid = function (req, res) {
+        // //console.log('call getUserPicById');
+        //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+        // 调用方法
+        personDAO.setIMid(req.body.personID,req.body.IMid,function (err, obj) {
+            if (!err) {
+                // //console.log('getUserPicById 查询'+userid+'照片ok:');
+                res.send(obj);
+            } else {
+                // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+                res.send({error: '获取失败'});
+            }
+        });
+    }
+
 personrouter.post('/sendpersonimport', sendpersonimport);//提交
 personrouter.post('/sendpersonreGister', sendpersonreGister);//提交
 personrouter.post('/sendispersonAdd', sendispersonAdd);//提交
@@ -551,6 +590,8 @@ personrouter.post('/sendpersontitle', sendpersontitle);//提交
 personrouter.post('/getUserPicById', getUserPicById);
 personrouter.post('/getAllUserPic', getAllUserPic);
 personrouter.post('/sendtitle', sendtitle);
+personrouter.post('/getIMid', getIMid);
+personrouter.post('/setIMid', setIMid);
 
 
 module.exports = personrouter;

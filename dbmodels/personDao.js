@@ -1234,6 +1234,33 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
   });
 };
 
+//得到人员的极光id
+PersonDAO.prototype.getIMid = function (id,callback) {
+    //console.log(ID,start)
+    Personmodel.findOne({_id:id},{personlocations:0,images:0},function (err, obj) {
+        if (err) {
+            callback({error:err},obj);
+        } else if(obj && obj.IMid){
+            callback(null,obj.IMid);
+        }else {
+            callback({error:"此人没有极光id"},obj);
+        }
+    });
+};
+
+//设置人员的极光id
+PersonDAO.prototype.setIMid = function (id,IMid,callback) {
+    //console.log(ID,start)
+    Personmodel.update({_id:id},{"IMid":IMid},function(err,nobj){
+        if (err) {
+            callback({error:err},obj);
+        } else {
+            callback(null,nobj);
+        }
+    });
+};
+
+
 //获取考勤人员位置和时间信息
 PersonDAO.prototype.getpersondaycheck=function(startDate,endDate,callback){
   //var date=new Date();
