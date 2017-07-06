@@ -2,18 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="51dcf388-ec3f-46b4-a428-3a515a5e9398" name="默认的" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/routes/generateStatisticsRoute.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/index.html" afterPath="$PROJECT_DIR$/docs/gen/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/module-%E5%B7%A5%E4%BD%9C%E6%B6%88%E6%81%AF%E5%92%8C%E7%BE%A4%E4%BD%93%E9%80%9A%E7%9F%A5%E6%A8%A1%E5%9D%97.html" afterPath="$PROJECT_DIR$/docs/gen/module-%E5%B7%A5%E4%BD%9C%E6%B6%88%E6%81%AF%E5%92%8C%E7%BE%A4%E4%BD%93%E9%80%9A%E7%9F%A5%E6%A8%A1%E5%9D%97.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/module-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A8%A1%E5%9D%97.html" afterPath="$PROJECT_DIR$/docs/gen/module-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A8%A1%E5%9D%97.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/module-%E7%99%BB%E5%BD%95%E6%B3%A8%E5%86%8C%E6%A8%A1%E5%9D%97.html" afterPath="$PROJECT_DIR$/docs/gen/module-%E7%99%BB%E5%BD%95%E6%B3%A8%E5%86%8C%E6%A8%A1%E5%9D%97.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/module-%E8%80%81%E7%9A%84%E4%BA%BA%E5%91%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%20url%EF%BC%9A_person.html" afterPath="$PROJECT_DIR$/docs/gen/module-%E8%80%81%E7%9A%84%E4%BA%BA%E5%91%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%20url%EF%BC%9A_person.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/module-%E8%BA%AB%E4%BB%BD%E8%AF%81%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9D%97%20%20%20url%EF%BC%9A_processID.html" afterPath="$PROJECT_DIR$/docs/gen/module-%E8%BA%AB%E4%BB%BD%E8%AF%81%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9D%97%20%20%20url%EF%BC%9A_processID.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/modules.list.html" afterPath="$PROJECT_DIR$/docs/gen/modules.list.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/gen/quicksearch.html" afterPath="$PROJECT_DIR$/docs/gen/quicksearch.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/messageroute.js" afterPath="$PROJECT_DIR$/routes/messageroute.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/personadminroute.js" afterPath="$PROJECT_DIR$/routes/personadminroute.js" />
     </list>
     <ignored path="yazhouServer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -66,8 +56,8 @@
       <file leaf-file-name="messageroute.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/routes/messageroute.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="235" column="18" lean-forward="true" selection-start-line="235" selection-start-column="18" selection-end-line="235" selection-end-column="18" />
+            <state relative-caret-position="152">
+              <caret line="251" column="13" lean-forward="true" selection-start-line="251" selection-start-column="13" selection-end-line="251" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -86,8 +76,8 @@
       <file leaf-file-name="generateStatisticsRoute.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/generateStatisticsRoute.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-120">
-              <caret line="63" column="0" lean-forward="true" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+            <state relative-caret-position="374">
+              <caret line="89" column="64" lean-forward="false" selection-start-line="89" selection-start-column="64" selection-end-line="89" selection-end-column="64" />
               <folding />
             </state>
           </provider>
@@ -96,7 +86,7 @@
       <file leaf-file-name="personadminroute.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/personadminroute.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2565">
+            <state relative-caret-position="170">
               <caret line="135" column="15" lean-forward="false" selection-start-line="135" selection-start-column="15" selection-end-line="135" selection-end-column="15" />
               <folding />
             </state>
@@ -106,8 +96,8 @@
       <file leaf-file-name="departmentDao.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dbmodels/departmentDao.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="16017">
-              <caret line="843" column="73" lean-forward="false" selection-start-line="843" selection-start-column="73" selection-end-line="843" selection-end-column="73" />
+            <state relative-caret-position="184">
+              <caret line="805" column="0" lean-forward="false" selection-start-line="805" selection-start-column="0" selection-end-line="805" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -357,7 +347,7 @@
       <workItem from="1499173463719" duration="573000" />
       <workItem from="1499174158321" duration="701000" />
       <workItem from="1499175637928" duration="16238000" />
-      <workItem from="1499308654036" duration="5352000" />
+      <workItem from="1499308654036" duration="6126000" />
     </task>
     <task id="LOCAL-00001" summary="考勤计划任务">
       <created>1498998964512</created>
@@ -408,11 +398,18 @@
       <option name="project" value="LOCAL" />
       <updated>1499231019093</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="群发消息的校验">
+      <created>1499327553640</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1499327553640</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="59447000" />
+    <option name="totallyTimeSpent" value="60221000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -427,7 +424,7 @@
     <frame x="1272" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18545838" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18545838" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32962137" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="调试" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32850242" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -463,7 +460,8 @@
     <MESSAGE value="系统通知、考勤消息的发送与签收，待测试" />
     <MESSAGE value="系统通知、考勤消息的发送与签收，已测试" />
     <MESSAGE value="极光id的推送，设置和获取人员的极光id" />
-    <option name="LAST_COMMIT_MESSAGE" value="极光id的推送，设置和获取人员的极光id" />
+    <MESSAGE value="群发消息的校验" />
+    <option name="LAST_COMMIT_MESSAGE" value="群发消息的校验" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -798,14 +796,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dbmodels/departmentDao.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16017">
-          <caret line="843" column="73" lean-forward="false" selection-start-line="843" selection-start-column="73" selection-end-line="843" selection-end-column="73" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/jpush-sdk/lib/JPush/JPush.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -838,14 +828,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/personadminroute.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2565">
-          <caret line="135" column="15" lean-forward="false" selection-start-line="135" selection-start-column="15" selection-end-line="135" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dbmodels/personDao.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6840">
@@ -869,18 +851,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/routes/personadminroute.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="135" column="15" lean-forward="false" selection-start-line="135" selection-start-column="15" selection-end-line="135" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/routes/generateStatisticsRoute.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-120">
-          <caret line="63" column="0" lean-forward="true" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+        <state relative-caret-position="374">
+          <caret line="89" column="64" lean-forward="false" selection-start-line="89" selection-start-column="64" selection-end-line="89" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dbmodels/departmentDao.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="805" column="0" lean-forward="false" selection-start-line="805" selection-start-column="0" selection-end-line="805" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/messageroute.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="235" column="18" lean-forward="true" selection-start-line="235" selection-start-column="18" selection-end-line="235" selection-end-column="18" />
+        <state relative-caret-position="152">
+          <caret line="251" column="13" lean-forward="true" selection-start-line="251" selection-start-column="13" selection-end-line="251" selection-end-column="13" />
           <folding />
         </state>
       </provider>

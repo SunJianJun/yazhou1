@@ -179,10 +179,16 @@ var sendBroadcast = function(req, res) {
     var recieverIds=[];
     switch (receiverType){
         case "department":
+            // 传过来的id数组解码
+            var dpts;
+            if(receiverInfo.length && receiverInfo[0]=='[')
+                dpts=JSON.parse(receiverInfo);
+            else
+                dpts=receiverInfo;
             if(receiverInfo && receiverInfo.length>0)
             //receiverInfo这是departmentid的数组
             {
-                    departmentDAO.getAllpersonsByDepartIds(receiverInfo,function (err,persons) {
+                    departmentDAO.getAllpersonsByDepartIds(dpts,function (err,persons) {
                         if(!err){
                             if(persons && persons.length){
                                 var output=new  Array();
@@ -210,10 +216,16 @@ var sendBroadcast = function(req, res) {
         case "title":
             //5952112dea76066818fd6dd4
             //5952112dea76066818fd6dd2
+            // 传过来的id数组解码
+            var titles;
+            if(receiverInfo.length && receiverInfo[0]=='[')
+                titles=JSON.parse(receiverInfo);
+            else
+                titles=receiverInfo;
             if(receiverInfo && receiverInfo.length>0)
             //receiverInfo这是title id的数组
             {
-                personDAO.gettitleIdsToperson(receiverInfo,function (err,persons) {
+                personDAO.gettitleIdsToperson(titles,function (err,persons) {
                     if(!err){
                         if(persons && persons.length){
                             var output=new  Array();
@@ -241,6 +253,12 @@ var sendBroadcast = function(req, res) {
                 var persons=receiverInfo;
                 var output=new  Array();
                 messageObj.type="broadcast";
+                // 传过来的id数组解码
+                if(persons.length && persons[0]=='[')
+                    persons=JSON.parse(receiverInfo);
+                else
+                    persons=receiverInfo;
+
                 console.log('sendBroadcast 查询所有'+persons+'发送的消息:'+persons[0]);
                 for (var index = 0; index < persons.length; index++) {
                     messageDAO.sendBroadcast(messageObj,senderID,persons[index],function( err,obj){
