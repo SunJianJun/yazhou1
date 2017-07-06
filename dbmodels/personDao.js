@@ -1038,6 +1038,33 @@ PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
     return;
   });
 };
+
+
+//获取人员信息
+PersonDAO.prototype.getUserInfoById = function (personId, outcallback) {
+    var callback = outcallback ? outcallback : function (err, obj) {
+            if (err) {
+                //console.log('callback getUserPicById 得到照片出错：'+'<>'+err);
+            } else {
+                //console.log('callback getUserPicById 得到照片成功：'+'<>'+obj);
+            }
+        };
+    Personmodel.findOne({_id: personId}, {images: 0,personlocations:0}, function (err, obj) {
+        if (!err) {
+            if (obj && obj.name && obj.sex) {
+                callback(err, obj);
+                return;
+            }else {
+
+                callback({error:"查无此人"}, null);
+            }
+        }else {
+
+            callback(err, null);
+            return;
+        }
+    });
+};
 //获取所有人员头像
 PersonDAO.prototype.getAllUserPic = function (outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {

@@ -514,6 +514,33 @@ var getUserPicById = function (req, res) {
     });
   }
 }
+
+
+/**
+ * 根据人员ID 获取人员头像
+ * @param {json} req - 客户端传入参数 {personID:'12313'}
+ * @param {json} res - 返回参数 [{_id:'1234',name:{}....}]
+ */
+var getUserInfoById = function (req, res) {
+    // //console.log('call getUserPicById');
+    //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+    var userid = req.body.personID;
+    // 调用方法
+    if (!userid) {
+        res.send({error: '发送的id错误'})
+    } else {
+        personDAO.getUserInfoById(userid, function (err, obj) {
+            if (!err) {
+                // //console.log('getUserPicById 查询'+userid+'照片ok:');
+                res.send(obj);
+            } else {
+                // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+                res.send({error: '获取失败'});
+            }
+        });
+    }
+}
+
 /**
  * 获取所有人员照片
  * @param {} req - 直接请求
@@ -590,6 +617,7 @@ personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//�
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
 personrouter.post('/sendpersontitle', sendpersontitle);//提交
 personrouter.post('/getUserPicById', getUserPicById);
+personrouter.post('/getUserInfoById', getUserInfoById);
 personrouter.post('/getAllUserPic', getAllUserPic);
 personrouter.post('/sendtitle', sendtitle);
 personrouter.post('/getIMid', getIMid);
