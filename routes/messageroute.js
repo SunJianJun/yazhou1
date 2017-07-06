@@ -27,10 +27,10 @@ var JPushclient = JPush.buildClient('8c95bceebb7459c9bcb29f94', '98fd64a9ac6ac47
  */
 var afterSave=function(doc) {
 
-    console.log('已经保存了%s ', JSON.stringify(doc));
+    // console.log('已经保存了%s ', JSON.stringify(doc));
     if(doc.status==0){
-        console.log('未读消息，开始极光推送 ');
         personDAO.getIMid(doc.receiver,function (immmid) {
+            console.log('未读消息,且接收者有极光id，开始极光推送 ');
             if(immmid && !immmid.error){
                 //easy push
                 JPushclient.push().setPlatform(JPush.ALL)
@@ -166,10 +166,11 @@ var sendBroadcast = function(req, res) {
     var messType=req.body.type;
     var receiverType=req.body.receiverType;
     var receiverInfo=req.body.receiverInfo;
-    var messageObj=req.body.messageObj?JSON.parse(req.body.messageObj):{};
+    var messageObj=req.body.messageObj?req.body.messageObj:{};
+    messageObj=(messageObj.text|| messageObj.video|| messageObj.voice|| messageObj.image)?messageObj:JSON.parse(req.body.messageObj);
     console.log('call sendBroadcast2');
     //如果没有类型，或者类型不是广播，就返回
-    if(!req.body.type || req.body.type!="broadcast" || !messType || !receiverType || !receiverInfo){
+    if(!req.body.type || req.body.type!="broadcast" || !messType || !receiverType || !receiverInfo|| !(messageObj.text|| messageObj.video|| messageObj.voice|| messageObj.image)){
         // //console.log("客户端发来的json有空值");
         res.send({error:"客户端发来的json有空值"});
         return;

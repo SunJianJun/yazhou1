@@ -142,6 +142,8 @@ var sendWaitExamineperson = function (req, res) {
     });
   }
 };
+
+
 /**
  * 修改人员状态
  * @param {json} req - 客户端提交json 例如{_id:人员id,status:1}

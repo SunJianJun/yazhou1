@@ -148,6 +148,128 @@
             
 <hr>
 <dt>
+    <h4 class="name" id="~afterSave"><span class="type-signature">&lt;inner> </span>afterSave(doc)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>保存每条消息就自动的发送推送消息</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>doc</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
     <h4 class="name" id="~getAllUnreadMessages"><span class="type-signature">&lt;inner> </span>getAllUnreadMessages(req, res)</h4>
     
     
@@ -321,7 +443,7 @@
 
     
     <div class="description">
-        <p>得到一个时间段内某人发来的消息 或者 群体消息（群体消息部分未实现）</p>
+        <p>得到一个时间段内某人发来的消息(type:“message“) 或者 群体消息(type:”broadcast“)</p>
     </div>
     
 
@@ -464,7 +586,7 @@
 
             
 
-            <td class="description last"><p>发送类型.broadcast或者message，当为broadcast时，senderID会忽略，否则会用上</p></td>
+            <td class="description last"><p>发送类型.broadcast或者message，当为broadcast时，senderID会忽略，否则会用上，&quot;takeoff放假|shift换班&quot;</p></td>
         </tr>
 
     
@@ -772,6 +894,158 @@
             
 <hr>
 <dt>
+    <h4 class="name" id="~readtAbnormalMessage"><span class="type-signature">&lt;inner> </span>readtAbnormalMessage(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>读取了一个异常消息，将一个异常消息设置为已读，并且有同意和驳回两种选项</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>req.body.messID消息的唯一id，req.body.decision ：approve；reject 同意，驳回,curUserID 当前用户id,abnormalID:一个异常可能给多人发，比如请假的申请，只要有一个人批准，就全部已读</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>成功返回该消息id，失败返回null.对于请假消息，同意之后会在考勤状态表中生成一条请假状态，这样在计算考勤的时候，就不会被计入了</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
     <h4 class="name" id="~readtMessage"><span class="type-signature">&lt;inner> </span>readtMessage(req, res)</h4>
     
     
@@ -857,6 +1131,164 @@
             
 
             <td class="description last"><p>成功返回该消息id，失败返回null</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~sendAbnormalMessage"><span class="type-signature">&lt;inner> </span>sendAbnormalMessage(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>发送异常性消息（主要是考勤中的请假和换班消息）</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>json形式：(senderID:“dfdf&quot;,type:&quot;takeoff|shift&quot;,receiverType:&quot;title（按头衔发送）|person（选择一个人发送）&quot;,messageObj：{
+text:&quot;文本内容&quot;,startTime:&quot;语音消息&quot;,video:&quot;视频消息&quot;,image:&quot;图片消息&quot;（四种消息必有一种）
+//异常状态也是一种消息//请假事由 由message.text兼任
+abnormalStartTime:{ type: Date, default: Date.now},
+abnormalEndTime:{ type: Date, default: Date.now},
+abnormalShiftPersonId:String,//换班人员id
+receiverInfo:&quot;接收者信息(如果是title，就是title的id数组，如果是人员，就是人员的id数组)&quot;)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>发送失败 null，发送成功， 消息本身</p></td>
         </tr>
 
     
@@ -1085,7 +1517,7 @@ text:&quot;文本内容&quot;,voice:&quot;语音消息&quot;,video:&quot;视频�
 
     
     <div class="description">
-        <p>发送群体性消息，未实现</p>
+        <p>发送群体性消息</p>
     </div>
     
 
@@ -1276,7 +1708,7 @@ text:&quot;文本内容&quot;,voice:&quot;语音消息&quot;,video:&quot;视频�
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on July 2nd 2017, 8:34:16 pm
+		on July 5th 2017, 3:41:37 am
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
