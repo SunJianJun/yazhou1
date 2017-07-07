@@ -1381,34 +1381,39 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
     if(!personId || !sTime || !eTime || !countType || !timespan){
         callback({error:"统计参数不完整"},null)
     }
-
+// 只支持一种统计类型，就是计算不同时间比例尺内的定位数据总数
     switch (countType){
-        case "distance":
+        case "counts":
             console.log('2countType countByPerson ：'+'<>'+countType);
-            Personmodel.aggregate() .unwind("personlocations")
+            Personmodel.aggregate()
+                .match({
+                        "_id": mongodb.mongoose.Types.ObjectId(personId)
+                    }
+                )
+                .unwind("personlocations")
+                // .unwind("personlocations.positioningdate")
                 .match({
                         "personlocations.positioningdate": {
-                            "$gte":startDate,
-                            "$lt":endDate
-                        },
-                        "_id":mongodb.mongoose.Types.ObjectId(personId)
+                            "$gte": new Date(sTime),
+                            "$lte": new Date(eTime)
+                        }
                     }
                 )
                 .project (
                 {
-                    day : {$substr: [{"$add":["$create_date", 28800000]}, 0, 10] },//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
-                    week:{$week: "$create_date" },
-                    month:{$month: "$create_date" },
-                    "text": {$cond:{if:{$and:[{$not :{$not :"$text"}},{$ne :["$text",null]},{$ne :["$text",""]}]},then:1,else:0}},
-                    "image": {$cond:{if:{$and:[{$not :{$not :"$image"}},{$ne :["$image",null]},{$ne :["$image",""]}]},then:1,else:0}},
-                    "video": {$cond:{if:{$and:[{$not :{$not :"$video"}},{$ne :["$video",null]},{$ne :["$video",""]}]},then:1,else:0}},
-                    "voice": {$cond:{if:{$and:[{$not :{$not :"$voice"}},{$ne :["$voice",null]},{$ne :["$voice",""]}]},then:1,else:0}},
-                    "mesaageType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","message"]}]},then:1,else:0}},
-                    "broadcastType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","broadcast"]}]},then:1,else:0}},
-                    "takeoffType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","takeoff"]}]},then:1,else:0}},
-                    "takeoffDecision": {$cond:{if:{$and:[{$not :{$not :"$abnormaldecision"}},{$ne :["$abnormaldecision",null]},{$ne :["$abnormaldecision",""]},{$eq:["$abnormaldecision","approve"]}]},then:1,else:0}},
-                    "shiftType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","shift"]}]},then:1,else:0}},
-                    "sender":"$sender"
+                    day : {$substr: [{"$add":["$personlocations.positioningdate", 28800000]}, 0, 10] },//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+                    week:{$week: "$personlocations.positioningdate" },
+                    month:{$month: "$personlocations.positioningdate" },
+                    "positions": {$cond:{if:{$and:[{$not :{$not :"$personlocations.geolocation"}},{$ne :["$personlocations.geolocation",null]},{$ne :["$personlocations.geolocation",""]}]},then:1,else:0}},
+                    // 这里是判断上午有多少定位点
+                    "morning": {$cond:{if:{$and:[{$not :{$not :"$personlocations.geolocation"}},{$ne :["$personlocations.positioningdate",null]},{$ne :["$personlocations.positioningdate",""]},
+                        {$gte :[{$hour:"$personlocations.positioningdate"},8]},
+                        {$lte :[{$hour:"$personlocations.positioningdate"},12]}]},then:1,else:0}},
+                    // 这里是判断下午有多少定位点
+                    "afternoon": {$cond:{if:{$and:[{$not :{$not :"$personlocations.geolocation"}},{$ne :["$personlocations.positioningdate",null]},{$ne :["$personlocations.positioningdate",""]},
+                        {$gte :[{$hour:"$personlocations.positioningdate"},15]},
+                        {$lte :[{$hour:"$personlocations.positioningdate"},18]}]},then:1,else:0}},
+                    "name":"$name"
                 }
             )
                 .group(
@@ -1419,16 +1424,10 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
                         _id : "$"+timespan,//按设定统计
                         // dd:"$textTT",
                         all:{$sum: 1},
-                        textCount:{$sum: "$text"},
-                        imageCount:{$sum: "$image"},
-                        videoCount:{$sum: "$video"},
-                        voiceCount:{$sum: "$voice"},
-                        mesaageTypeCount:{$sum: "$mesaageType"},
-                        broadcastTypeCount:{$sum: "$broadcastType"},
-                        takeoffTypeCount:{$sum: "$takeoffType"},
-                        takeoffApprove:{$sum: "$takeoffDecision"},//对于接受者，这里是请假成功
-                        shiftTypeCount:{$sum: "$shiftType"},
-                        sender:{$first: "$sender"}
+                        positionsCount:{$sum: "$positions"},
+                        morningpositionsCount:{$sum: "$morning"},
+                        afternoonpositionsCount:{$sum: "$afternoon"},
+                        name:{$first: "$name"}
                     }
                 ).sort(
                 {_id: 1}
@@ -1469,4 +1468,5 @@ var daoObj = new PersonDAO();
 // ObjectId("58bff0836253fd4008b3d41b"),ObjectId("58cb3361e68197ec0c7b96c0")ObjectId("58c1d1cb278a267826a236aa")
 // daoObj.getWorkmatesByUserId('58c1d1cb278a267826a236aa');
 // daoObj.getUserPicById('58c043cc40cbb100091c640d');
+daoObj.countByPerson("594cc13fc6178a040fa76063","2017-06-24","2017-07-10","counts","day",null);
 module.exports = daoObj;
