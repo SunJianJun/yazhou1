@@ -1243,7 +1243,7 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
   //console.log(ID,start)
   Personmodel.findOne({_id:id},{personlocations:0},function (err, obj) {
     if (err) {
-      callback(err);
+      callback({error:err},null);
     } else {
       console.log(obj)
       if(obj && obj.pwd){
@@ -1252,7 +1252,7 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
             callback(err,nobj)
           })
         }else{//原密码输入错误
-          callback('原密码错误')
+          callback({error:'原密码错误'},null)
         }
       }else{//之前没设置密码，直接修改
         Personmodel.update({_id:id},{pwd:npwd},function(err,nobj){
