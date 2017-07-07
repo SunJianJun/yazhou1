@@ -601,6 +601,8 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
   });
 };
 
+
+
 // 得到人员一段时间的位置
 PersonDAO.prototype.getPersonLatestPositionInTimespan = function (personid, startTime, endTime, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -1244,7 +1246,7 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
       callback(err);
     } else {
       console.log(obj)
-      if(obj.pwd){
+      if(obj && obj.pwd){
         if(obj.pwd==opwd){//可以修改
           Personmodel.update({_id:id},{pwd:npwd},function(err,nobj){
             callback(err,nobj)
@@ -1326,6 +1328,131 @@ PersonDAO.prototype.getAllUser = function (callback) {
     }
   )
 }
+
+
+
+
+//获取人员统计信息
+PersonDAO.prototype.getPersonStatistics=function(startDate,endDate,callback){
+    //var date=new Date();
+    //new Date(date.setDate(date.getDate()-1));
+    //console.log(date,new Date())
+    //console.log(startDate,endDate)
+    Personmodel.aggregate()
+        .unwind("personlocations")
+        .match({
+                "personlocations.positioningdate": {
+                    "$gte":startDate,
+                    "$lt":endDate
+                }
+            }
+        ).group(
+        {
+            "_id": "$_id",
+            "personlocations": {$push: "$personlocations"}
+        }
+    ).exec(function(err,obj){
+        if(!err){
+            //for(var i=0;i<obj.length;i++){
+
+            callback(err,obj)
+            //}
+        }
+    })
+}
+
+
+
+
+PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timespan,outcallback) {
+
+    console.log('1countType countByPerson ：<>'+personId);
+
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                console.log('callback countByPerson 出错：'+'<>'+err);
+            }else{
+                console.log('3countType countByPerson ：'+'<>'+countType);
+                console.log('callback countByPerson 成功：'+'<>'+JSON.stringify(obj));
+            }
+        };
+
+    if(!personId || !sTime || !eTime || !countType || !timespan){
+        callback({error:"统计参数不完整"},null)
+    }
+
+    switch (countType){
+        case "distance":
+            console.log('2countType countByPerson ：'+'<>'+countType);
+            Personmodel.aggregate() .unwind("personlocations")
+                .match({
+                        "personlocations.positioningdate": {
+                            "$gte":startDate,
+                            "$lt":endDate
+                        },
+                        "_id":mongodb.mongoose.Types.ObjectId(personId)
+                    }
+                )
+                .project (
+                {
+                    day : {$substr: [{"$add":["$create_date", 28800000]}, 0, 10] },//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+                    week:{$week: "$create_date" },
+                    month:{$month: "$create_date" },
+                    "text": {$cond:{if:{$and:[{$not :{$not :"$text"}},{$ne :["$text",null]},{$ne :["$text",""]}]},then:1,else:0}},
+                    "image": {$cond:{if:{$and:[{$not :{$not :"$image"}},{$ne :["$image",null]},{$ne :["$image",""]}]},then:1,else:0}},
+                    "video": {$cond:{if:{$and:[{$not :{$not :"$video"}},{$ne :["$video",null]},{$ne :["$video",""]}]},then:1,else:0}},
+                    "voice": {$cond:{if:{$and:[{$not :{$not :"$voice"}},{$ne :["$voice",null]},{$ne :["$voice",""]}]},then:1,else:0}},
+                    "mesaageType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","message"]}]},then:1,else:0}},
+                    "broadcastType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","broadcast"]}]},then:1,else:0}},
+                    "takeoffType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","takeoff"]}]},then:1,else:0}},
+                    "takeoffDecision": {$cond:{if:{$and:[{$not :{$not :"$abnormaldecision"}},{$ne :["$abnormaldecision",null]},{$ne :["$abnormaldecision",""]},{$eq:["$abnormaldecision","approve"]}]},then:1,else:0}},
+                    "shiftType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","shift"]}]},then:1,else:0}},
+                    "sender":"$sender"
+                }
+            )
+                .group(
+                    {
+                        // _id : "$day",//按天统计
+                        // _id : "$week",//按周统计
+                        // _id : "$month",//按月统计
+                        _id : "$"+timespan,//按设定统计
+                        // dd:"$textTT",
+                        all:{$sum: 1},
+                        textCount:{$sum: "$text"},
+                        imageCount:{$sum: "$image"},
+                        videoCount:{$sum: "$video"},
+                        voiceCount:{$sum: "$voice"},
+                        mesaageTypeCount:{$sum: "$mesaageType"},
+                        broadcastTypeCount:{$sum: "$broadcastType"},
+                        takeoffTypeCount:{$sum: "$takeoffType"},
+                        takeoffApprove:{$sum: "$takeoffDecision"},//对于接受者，这里是请假成功
+                        shiftTypeCount:{$sum: "$shiftType"},
+                        sender:{$first: "$sender"}
+                    }
+                ).sort(
+                {_id: 1}
+            ).exec(function(err,obj){
+                if(!err){
+                    //for(var i=0;i<obj.length;i++){
+
+                    callback(err,obj);
+                    //}
+                }else {
+                    callback(err,null);
+                }
+            })
+            break;
+
+
+        default:
+            break;
+    }
+}
+
+
+
+
 
 var daoObj = new PersonDAO();
 //

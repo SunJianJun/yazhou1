@@ -422,6 +422,151 @@ MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
     });
 };
 
+
+
+
+MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,timespan,outcallback) {
+
+    console.log('1countType sendMessage ：<>'+personId);
+
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                console.log('callback countByMessages 出错：'+'<>'+err);
+            }else{
+                console.log('3countType sendMessage ：'+'<>'+countType);
+                console.log('callback countByMessages 成功：'+'<>'+JSON.stringify(obj));
+            }
+        };
+
+    if(!personId || !sTime || !eTime || !countType || !timespan){
+        callback({error:"统计参数不完整"},null)
+    }
+
+    switch (countType){
+        case "sendMessage":
+            console.log('2countType sendMessage ：'+'<>'+countType);
+            Messagemodel.aggregate()
+                .match({
+                    "sender":mongodb.mongoose.Types.ObjectId(personId)
+                }
+            ).project (
+                {
+                    day : {$substr: [{"$add":["$create_date", 28800000]}, 0, 10] },//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+                    week:{$week: "$create_date" },
+                    month:{$month: "$create_date" },
+                    "text": {$cond:{if:{$and:[{$not :{$not :"$text"}},{$ne :["$text",null]},{$ne :["$text",""]}]},then:1,else:0}},
+                    "image": {$cond:{if:{$and:[{$not :{$not :"$image"}},{$ne :["$image",null]},{$ne :["$image",""]}]},then:1,else:0}},
+                    "video": {$cond:{if:{$and:[{$not :{$not :"$video"}},{$ne :["$video",null]},{$ne :["$video",""]}]},then:1,else:0}},
+                    "voice": {$cond:{if:{$and:[{$not :{$not :"$voice"}},{$ne :["$voice",null]},{$ne :["$voice",""]}]},then:1,else:0}},
+                    "mesaageType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","message"]}]},then:1,else:0}},
+                    "broadcastType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","broadcast"]}]},then:1,else:0}},
+                    "takeoffType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","takeoff"]}]},then:1,else:0}},
+                    "takeoffDecision": {$cond:{if:{$and:[{$not :{$not :"$abnormaldecision"}},{$ne :["$abnormaldecision",null]},{$ne :["$abnormaldecision",""]},{$eq:["$abnormaldecision","approve"]}]},then:1,else:0}},
+                    "shiftType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","shift"]}]},then:1,else:0}},
+                    "sender":"$sender"
+                }
+            )
+                .group(
+                {
+                    // _id : "$day",//按天统计
+                    // _id : "$week",//按周统计
+                    // _id : "$month",//按月统计
+                    _id : "$"+timespan,//按设定统计
+                    // dd:"$textTT",
+                    all:{$sum: 1},
+                    textCount:{$sum: "$text"},
+                    imageCount:{$sum: "$image"},
+                    videoCount:{$sum: "$video"},
+                    voiceCount:{$sum: "$voice"},
+                    mesaageTypeCount:{$sum: "$mesaageType"},
+                    broadcastTypeCount:{$sum: "$broadcastType"},
+                    takeoffTypeCount:{$sum: "$takeoffType"},
+                    takeoffApprove:{$sum: "$takeoffDecision"},//对于接受者，这里是请假成功
+                    shiftTypeCount:{$sum: "$shiftType"},
+                    sender:{$first: "$sender"}
+                }
+            ).sort(
+                 {_id: 1}
+            ).exec(function(err,obj){
+                if(!err){
+                    //for(var i=0;i<obj.length;i++){
+
+                    callback(err,obj);
+                    //}
+                }else {
+                    callback(err,null);
+                }
+            })
+            break;
+
+        case "receiveMessage":
+            console.log('2countType sendMessage ：'+'<>'+countType);
+            Messagemodel.aggregate()
+                .match({
+                        "receiver":mongodb.mongoose.Types.ObjectId(personId),
+                        "create_date":{
+                            "$gte": new Date(sTime),
+                            "$lte": new Date(eTime)
+                        }
+                    }
+                ).project (
+                {
+                    day : {$substr: [{"$add":["$create_date", 28800000]}, 0, 10] },//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+                    week:{$week: "$create_date" },
+                    month:{$week: "$create_date" },
+                    "text": {$cond:{if:{$and:[{$not :{$not :"$text"}},{$ne :["$text",null]},{$ne :["$text",""]}]},then:1,else:0}},
+                    "image": {$cond:{if:{$and:[{$not :{$not :"$image"}},{$ne :["$image",null]},{$ne :["$image",""]}]},then:1,else:0}},
+                    "video": {$cond:{if:{$and:[{$not :{$not :"$video"}},{$ne :["$video",null]},{$ne :["$video",""]}]},then:1,else:0}},
+                    "voice": {$cond:{if:{$and:[{$not :{$not :"$voice"}},{$ne :["$voice",null]},{$ne :["$voice",""]}]},then:1,else:0}},
+                    "mesaageType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","message"]}]},then:1,else:0}},
+                    "broadcastType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","broadcast"]}]},then:1,else:0}},
+                    "takeoffType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","takeoff"]}]},then:1,else:0}},
+                    "takeoffDecision": {$cond:{if:{$and:[{$not :{$not :"$abnormaldecision"}},{$ne :["$abnormaldecision",null]},{$ne :["$abnormaldecision",""]},{$eq:["$abnormaldecision","approve"]}]},then:1,else:0}},
+                    "shiftType": {$cond:{if:{$and:[{$not :{$not :"$type"}},{$ne :["$type",null]},{$ne :["$type",""]},{$eq:["$type","shift"]}]},then:1,else:0}},
+                    "receiver":"$receiver"
+                }
+            )
+                .group(
+                    {
+                        // _id : "$day",//按天统计
+                        // _id : "$week",//按周统计
+                        // _id : "$month",//按月统计
+                        _id : "$"+timespan,//按设定统计
+                        // dd:"$textTT",
+                        all:{$sum: 1},
+                        textCount:{$sum: "$text"},
+                        imageCount:{$sum: "$image"},
+                        videoCount:{$sum: "$video"},
+                        voiceCount:{$sum: "$voice"},
+                        mesaageTypeCount:{$sum: "$mesaageType"},
+                        broadcastTypeCount:{$sum: "$broadcastType"},
+                        takeoffTypeCount:{$sum: "$takeoffType"},
+                        takeoffApprove:{$sum: "$takeoffDecision"},//对于接受者，这里是请假批准
+                        shiftTypeCount:{$sum: "$shiftType"},
+                        receiver:{$first: "$receiver"}
+                    }
+                ).sort(
+                {_id: 1}
+            ).exec(function(err,obj){
+                if(!err){
+                    //for(var i=0;i<obj.length;i++){
+
+                    callback(err,obj);
+                    //}
+                }else {
+                    callback(err,null);
+                }
+            })
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+
 var messageObj=new MessageDAO();
 // messageObj.sendAMessage(
 // 	{text:'今天吃过饭了吗？'},"58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b"
@@ -459,4 +604,6 @@ var messageObj=new MessageDAO();
 
 // messageObj.getMyNewestMessageFromWho("58c043cc40cbb100091c640d","58bff0836253fd4008b3d41b",false);
 // messageObj.getAllUnreadMessages("58dd96c9ac015a0809000070");
+// messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","sendMessage","week|day|month",null);
+// messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","receiveMessage","day",null);
 module.exports = messageObj;
