@@ -1366,14 +1366,14 @@ PersonDAO.prototype.getPersonStatistics=function(startDate,endDate,callback){
 
 PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timespan,outcallback) {
 
-    console.log('1countType countByPerson ：<>'+personId);
+    // console.log('1countType countByPerson ：<>'+personId);
 
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
                 console.log('callback countByPerson 出错：'+'<>'+err);
             }else{
-                console.log('3countType countByPerson ：'+'<>'+countType);
+                // console.log('3countType countByPerson ：'+'<>'+countType);
                 console.log('callback countByPerson 成功：'+'<>'+JSON.stringify(obj));
             }
         };
@@ -1384,7 +1384,7 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
 // 只支持一种统计类型，就是计算不同时间比例尺内的定位数据总数
     switch (countType){
         case "counts":
-            console.log('2countType countByPerson ：'+'<>'+countType);
+            // console.log('2countType countByPerson ：'+'<>'+countType);
             Personmodel.aggregate()
                 .match({
                         "_id": mongodb.mongoose.Types.ObjectId(personId)

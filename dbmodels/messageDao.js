@@ -381,19 +381,29 @@ MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abno
             }
         };
 
-        Messagemodel.update({ $and: [{"abnormalID":abnormalID},{status:0}]},{status:1,"decision":decision},function(errr,uobj){
-            if(!errr){
-                Messagemodel.find({"abnormalID":abnormalID}, function(err, obj){
+        //multi批量更新
+        Messagemodel.update({"abnormalID":abnormalID},{status:1}, { multi: true },function(errr,uobj){
+                if(!errr){
+                    Messagemodel.update({_id:mid,"abnormalID":abnormalID},{"abnormaldecision":decision},function(errr,uobj){
+                            if(!errr){
+                                Messagemodel.find({"abnormalID":abnormalID}, function(err, obj){
 
-                    console.log('callback readtMessage update成功：'+obj+'<>'+abnormalID);
+                                    console.log('callback readtMessage update成功：'+obj+'<>'+abnormalID);
 
-                    callback(err, obj);
-                });
-            }else{
+                                    callback(err, obj);
+                                });
+                            }else{
 
-                callback({error:errr}, uobj);
+                                callback({error:errr}, uobj);
+                            }
+                        }
+                    );
+                }else{
+
+                    callback({error:errr}, uobj);
+                }
             }
-        });
+        );
 };
 
 
@@ -423,18 +433,25 @@ MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
 };
 
 
-
-
+/**
+ * 对消息进行统计分析
+ * @param personId - 人员id
+ * @param sTime  - 统计时间段开始
+ * @param eTime  - 统计时间段结束
+ * @param countType  - 哪种统计方式 sendMessage|receiveMessage
+ * @param timespan -  时间采样类型 day|week|month
+ * @param outcallback
+ */
 MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,timespan,outcallback) {
 
-    console.log('1countType sendMessage ：<>'+personId);
+    // console.log('1countType sendMessage ：<>'+personId);
 
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {
                 console.log('callback countByMessages 出错：'+'<>'+err);
             }else{
-                console.log('3countType sendMessage ：'+'<>'+countType);
+                // console.log('3countType sendMessage ：'+'<>'+countType);
                 console.log('callback countByMessages 成功：'+'<>'+JSON.stringify(obj));
             }
         };
@@ -445,7 +462,7 @@ MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,tim
 
     switch (countType){
         case "sendMessage":
-            console.log('2countType sendMessage ：'+'<>'+countType);
+            // console.log('2countType sendMessage ：'+'<>'+countType);
             Messagemodel.aggregate()
                 .match({
                     "sender":mongodb.mongoose.Types.ObjectId(personId)
@@ -567,6 +584,35 @@ MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,tim
 
 
 
+MessageDAO.prototype.getAbnormaldMessageFeedback = function(senderID, outcallback,abnormalID) {
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                console.log('callback getAbnormaldMessageFeedback 出错：'+'<>'+err);
+            }else{
+                for(var index =0;index<obj.length;index++)
+                {
+                    console.log('callback getAbnormaldMessageFeedback 成功：'+'<>'+obj[index]);
+                }
+                console.log('callback getAbnormaldMessageFeedback 成功：'+'<>');
+            }
+        };
+
+    var querystr=abnormalID?{sender:senderID,status:1,abnormalID:abnormalID,$and:[{"abnormaldecision":{$ne :null}},{"abnormaldecision":{$ne :""}}]}:
+        {sender:senderID,status:1,$and:[{"abnormaldecision":{$ne :null}},{"abnormaldecision":{$ne :""}}]};
+
+    // console.log('callback getAbnormaldMessageFeedback querystr：'+querystr.sender+'<>'+JSON.stringify(querystr));
+    Messagemodel.find(querystr, function(err, obj){
+        if(!err && obj){
+            callback(err,obj);
+        }
+        else {
+            callback(err,null);
+        }
+    });
+};
+
+
 var messageObj=new MessageDAO();
 // messageObj.sendAMessage(
 // 	{text:'今天吃过饭了吗？'},"58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b"
@@ -606,4 +652,5 @@ var messageObj=new MessageDAO();
 // messageObj.getAllUnreadMessages("58dd96c9ac015a0809000070");
 // messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","sendMessage","week|day|month",null);
 // messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","receiveMessage","day",null);
+// messageObj.getAbnormaldMessageFeedback("58dd96c9ac015a0809000070",null,null);
 module.exports = messageObj;

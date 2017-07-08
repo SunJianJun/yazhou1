@@ -326,6 +326,7 @@ var sendAbnormalMessage = function(req, res) {
                             console.log('messageObj ：'+'<>'+req.body.messageObj);
                             var messageObj=req.body.messageObj?JSON.parse(req.body.messageObj):{};
                             messageObj.abnormalID=abnormalID;
+                            messageObj.abnormaldecision="";
                             messageObj.type=req.body.type;
                             messageObj.abnormalStartTime=req.body.abnormalStartTime;
                             messageObj.abnormalEndTime=req.body.abnormalEndTime;
@@ -340,7 +341,7 @@ var sendAbnormalMessage = function(req, res) {
                                         output.push({error:err});
                                     }});
                             }
-                            res.send(output);
+                            res.send(output.length?output:messageObj);
                         }
                     }else {
                         res.send(err);
@@ -356,6 +357,7 @@ var sendAbnormalMessage = function(req, res) {
                 console.log('messageObj ：'+'<>'+req.body.messageObj);
                 var messageObj=req.body.messageObj?JSON.parse(req.body.messageObj):{};
                 messageObj.abnormalID=abnormalID;
+                messageObj.abnormaldecision="";
                 messageObj.type=req.body.type;
                 messageObj.abnormalStartTime=req.body.abnormalStartTime;
                 messageObj.abnormalEndTime=req.body.abnormalEndTime;
@@ -397,15 +399,15 @@ var readtAbnormalMessage = function(req, res) {
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     // //console.log('messID:'+messID);
-    messageDAO.readtAbnormalMessage(messID,curUserID,decision,abnormalID,function( err,obj){
+    messageDAO.readtAbnormalMessage(messID,curUserID,decision,abnormalID,function( err,oobj){
         if(!err) {
-            if(!obj)
+            if(!oobj)
             {res.send({error:"查无此消息！"});return;}
 
-            var sampleObj=obj.length?obj[0]:obj;
+            var sampleObj=oobj.length?oobj[0]:oobj;
 
             var abnormalAttendenceObj={};
-            console.log('readtAbnormalMessage 查询sampleObj.type'+sampleObj.type+'q全部的消息:'+JSON.stringify(obj));
+            // console.log('readtAbnormalMessage 查询sampleObj.type'+sampleObj.type+'q全部的消息:'+JSON.stringify(oobj));
             if(decision=="approve"){
                 if(sampleObj.type=="takeoff" ){
                     abnormalAttendenceObj.person=sampleObj.sender;
@@ -414,7 +416,7 @@ var readtAbnormalMessage = function(req, res) {
                     abnormalAttendenceObj.askforleave.startDateTime=sampleObj.abnormalStartTime;
                     abnormalAttendenceObj.askforleave.endDateTime=sampleObj.abnormalEndTime;
                     abnormalAttendenceObj.abnormal=true;
-                    console.log('readtAbnormalMessage takeoff查询所有'+abnormalAttendenceObj+'发送的消息:'+abnormalAttendenceObj.abnormal);
+                    // console.log('readtAbnormalMessage takeoff查询所有'+abnormalAttendenceObj+'发送的消息:'+abnormalAttendenceObj.abnormal);
                 }
                 else if(sampleObj.type=="shift" ){
                     abnormalAttendenceObj.shift={};
@@ -422,11 +424,11 @@ var readtAbnormalMessage = function(req, res) {
                     abnormalAttendenceObj.shift.endDateTime=sampleObj.abnormalEndTime;
                     abnormalAttendenceObj.shift.alternateattendanceRecord=sampleObj.receiver;
                     abnormalAttendenceObj.abnormal=true;
-                    console.log('readtAbnormalMessage shift查询所有'+abnormalAttendenceObj+'发送的消息:'+abnormalAttendenceObj.abnormal);
+                    // console.log('readtAbnormalMessage shift查询所有'+abnormalAttendenceObj+'发送的消息:'+abnormalAttendenceObj.abnormal);
                 }
                 attendanceRecordDao.sendpersonaskforleave(abnormalAttendenceObj,function( err,obj){
                     if(!err) {
-                        res.send(obj);}
+                        res.send(oobj);}
                     else{
                         res.send({error:err});
                     }
@@ -506,6 +508,62 @@ var getAllUnreadMessages = function(req, res) {
             res.send(null);
         }});
 };
+
+
+/**
+ * 得到已回复的异常消息，用于异常消息的申请者查看自己的申请有没有批复
+ * @param {json} req - senderId发送者id，这里一般是异常消息的申请者 abnormalID唯一的异常消息id（可以为null，这时就查出所有的已回复的异常消息）
+ * @param {json}  res - 异常消息的数组 或者1个异常消息 或者 null 出错会返回{error:err}
+ */
+var getAbnormaldMessageFeedback = function(req, res) {
+    // //console.log('call getMessagesInATimeSpanFromWho');
+    // for(var i in req.body){
+    //     console.log("getMessagesInATimeSpanFromWho 请求内容body子项："+i+"<>\n")
+    //     };
+    var senderID=req.body.senderID;
+    var abnormalID=req.body.abnormalID;
+    // 调用方法
+    // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
+    console.log('ROUTE getAbnormaldMessageFeedback senderID:'+senderID);
+    messageDAO.getAbnormaldMessageFeedback(senderID,function( err,obj){
+        if(!err) {
+            console.log('callback getAbnormaldMessageFeedback obj：'+'<>'+JSON.stringify(obj));
+            // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
+            res.send(obj);
+        } else{
+            // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
+            res.send({error:err});
+        }},abnormalID);
+};
+
+/**
+ * 对消息进行统计分析
+ * @param {json} req - personId 人员id，sTime 统计时间段开始，eTime 统计时间段结束，countType 哪种统计方式 sendMessage|receiveMessage，timespan 时间采样类型 day|week|month
+ * @param {json}  res - 异常消息的数组 或者1个异常消息 或者 null 出错会返回{error:err}
+ */
+var countByMessages = function(req, res) {
+    // for(var i in req.body){
+    //     console.log("countByMessages 请求内容body子项："+i+"<>\n")
+    // };
+    var personId=req.body.personId;
+    var sTime=req.body.sTime;
+    var eTime=req.body.eTime;
+    var countType=req.body.countType?req.body.countType:"sendMessage";
+    var timespan=req.body.timespan?req.body.timespan:"day";
+// messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","sendMessage","week|day|month",null);
+// messageObj.countByMessages("594cc13fc6178a040fa76063","2017-01-01","2017-07-01","receiveMessage","day",null);
+    messageDAO.countByMessages(personId,sTime,eTime,countType,timespan,function( err,obj){
+        if(!err) {
+            // console.log('callback countByMessages obj：'+'<>'+JSON.stringify(obj));
+            // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
+            res.send(obj);
+        } else{
+            // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
+            res.send({error:err});
+        }})
+}
+
+
 messagerouter.get('/add',messageAdd);//增加
 messagerouter.post('/sendAMessage',sendAMessage);//发送普通消息
 messagerouter.post('/readtMessage',readtMessage);//已读普通消息
@@ -515,6 +573,8 @@ messagerouter.post('/getAllUnreadMessages',getAllUnreadMessages);//得到一个�
 messagerouter.post('/sendBroadcast',sendBroadcast);//发送系统广播消息
 messagerouter.post('/sendAbnormalMessage',sendAbnormalMessage);//发送异常消息
 messagerouter.post('/readtAbnormalMessage',readtAbnormalMessage);//读一条异常消息
+messagerouter.post('/getAbnormaldMessageFeedback',getAbnormaldMessageFeedback);//得到已回复的异常消息，用于异常消息的申请者查看自己的申请有没有批复
+messagerouter.post('/countByMessages',countByMessages);//对消息进行统计分析
 
 
 // messagerouter.post('/checkWorkMessagesCount',checkWorkMessagesCount);//提交
