@@ -539,7 +539,19 @@ var getAbnormaldMessageFeedback = function(req, res) {
 /**
  * 对消息进行统计分析
  * @param {json} req - personId 人员id，sTime 统计时间段开始，eTime 统计时间段结束，countType 哪种统计方式 sendMessage|receiveMessage，timespan 时间采样类型 day|week|month
- * @param {json}  res - 异常消息的数组 或者1个异常消息 或者 null 出错会返回{error:err}
+ * @param {json}  res - 异常消息的数组 或者1个异常消息 或者 null 出错会返回{error:err} 统计结果说明： _id : 按timespan设定统计，如果timespan为day，就是直接的日期，week就是星期编号，0-53，month就是月份编号0-11
+ all,timespan内的消息总数量
+ textCount,timespan内的文本消息数量
+ imageCount,timespan内的图片消息数量
+ videoCount,timespan内的视频消息数量
+ voiceCount,timespan内的音频消息数量
+ mesaageTypeCount,timespan内的工作消息数量
+ broadcastTypeCount,timespan内的广播消息数量
+ takeoffTypeCount,timespan内的放假消息数量
+ takeoffApprove,timespan内的，对于接受者，这里是请假成功的次数
+ shiftTypeCount,timespan内的换班消息数量
+ sender消息的发送者
+ receiver消息的接收者
  */
 var countByMessages = function(req, res) {
     // for(var i in req.body){

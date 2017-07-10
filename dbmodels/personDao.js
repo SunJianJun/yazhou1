@@ -1423,11 +1423,11 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
                         // _id : "$month",//按月统计
                         _id : "$"+timespan,//按设定统计
                         // dd:"$textTT",
-                        all:{$sum: 1},
-                        positionsCount:{$sum: "$positions"},
-                        morningpositionsCount:{$sum: "$morning"},
-                        afternoonpositionsCount:{$sum: "$afternoon"},
-                        name:{$first: "$name"}
+                        all:{$sum: 1},//一个timespan内的所有定位点
+                        positionsCount:{$sum: "$positions"},//一个timespan内的所有定位点
+                        morningpositionsCount:{$sum: "$morning"},//一个timespan内的上午定位点
+                        afternoonpositionsCount:{$sum: "$afternoon"},//一个timespan内的下午定位点
+                        name:{$first: "$name"}//统计人员的姓名
                     }
                 ).sort(
                 {_id: 1}
@@ -1455,12 +1455,12 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
 
 var daoObj = new PersonDAO();
 //
-//var locationObj = {
-//  positioningdate: new Date(),
-//  SRS: '4321',
-//  geolocation: [119, 37]
-//};
-//daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
+var locationObj = {
+ positioningdate: new Date(),
+ SRS: '4321',
+ geolocation: [119, 37]
+};
+daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 
 // 测试
 // daoObj.getPersonLatestPosition('58c043cc40cbb100091c640d');
@@ -1468,5 +1468,5 @@ var daoObj = new PersonDAO();
 // ObjectId("58bff0836253fd4008b3d41b"),ObjectId("58cb3361e68197ec0c7b96c0")ObjectId("58c1d1cb278a267826a236aa")
 // daoObj.getWorkmatesByUserId('58c1d1cb278a267826a236aa');
 // daoObj.getUserPicById('58c043cc40cbb100091c640d');
-daoObj.countByPerson("594cc13fc6178a040fa76063","2017-06-24","2017-07-10","counts","day",null);
+// daoObj.countByPerson("594cc13fc6178a040fa76063","2017-06-24","2017-07-10","counts","day",null);
 module.exports = daoObj;

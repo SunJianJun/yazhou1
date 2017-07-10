@@ -433,6 +433,30 @@ MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
 };
 
 
+MessageDAO.prototype.getAllUnreadAbnormalMessages = function(senderId, outcallback) {
+    var callback=outcallback?outcallback:function (err,obj) {
+            if(err)
+            {
+                console.log('callback getAllUnreadAbnormalMessages 出错：'+'<>'+err);
+            }else{
+                for(var index =0;index<obj.length;index++)
+                {
+                    console.log('callback getAllUnreadAbnormalMessages 成功：'+'<>'+obj[index]);
+                }
+                console.log('callback getAllUnreadAbnormalMessages 成功：'+'<>');
+            }
+        };
+
+    Messagemodel.find({$and:[{sender:senderId,status:0},{$or:[{type:"takeoff"},{type:"shift"}]}]}, function(err, obj){
+        if(!err && obj){
+            callback(err,obj);
+        }
+        else {
+            callback(err,null);
+        }
+    });
+};
+
 /**
  * 对消息进行统计分析
  * @param personId - 人员id
@@ -440,7 +464,7 @@ MessageDAO.prototype.getAllUnreadMessages = function(receiverId, outcallback) {
  * @param eTime  - 统计时间段结束
  * @param countType  - 哪种统计方式 sendMessage|receiveMessage
  * @param timespan -  时间采样类型 day|week|month
- * @param outcallback
+ * @param outcallback -
  */
 MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,timespan,outcallback) {
 

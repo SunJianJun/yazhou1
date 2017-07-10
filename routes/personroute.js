@@ -88,14 +88,23 @@ var getPersonBymobile = function(req, res) {
     });
 }
 
-//添加人员位置
+//
+/**
+ *添加人员位置 url:person/addlocation
+ * @para {json} req - personid 人员id，curlocation一个定位对象{
+ positioningdate: new Date(),
+ SRS: '4321',
+ geolocation: [119, 37]
+};
+ * @param {json} res -失败会返回{error：...}，成功会返回person对象
+ */
 var personAddLocation = function(req, res) {
     console.log('调用了personAddLocation方法 by params:'+req.params);
 // //for(var i in req.params){ //console.log("请求内容params子项："+i+"<>")};
 // //for(var i in req.body){ //console.log("请求内容body子项："+i+"<>\n")};
     person.addNewLocation(req.body.personid,req.body.curlocation,function(err, obj){
         if(err){
-            res.send(err);
+            res.send({error:err});
         }
         else {
             res.send(obj);
