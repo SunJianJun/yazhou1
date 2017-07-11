@@ -1,0 +1,119 @@
+﻿var mongodb = require('./mongodb');
+var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
+
+var locationModuler = require('./locationschema');
+var db = mongodb.mongoose.connection; 
+
+db.on('error',console.error.bind(console,'连接错误:'));
+db.on('open',function(){
+  
+console.log('mongodb PersonSchema connection is ok!:'+mongodb);
+});
+    
+
+//console.log('mongodb Schema:'+Schema);
+var Personmodel=PersonSchema.Personmodel;
+var locationmodel=locationModuler.Locationmodel;
+//Personmodel= mongodb.mongoose.model("Person", PersonSchema);
+console.log('mongodb Person model is ok?:'+mongodb.mongoose.model("Person"));
+//for(var i in Person){console.log("Person model items："+i+"<>")};
+/*
+var testperson={
+		    'name': '123',
+				'alias':'123',
+				'title':'123',
+				'mobile':'123123',
+				'age':'123'
+		};
+*/
+var PersonDAO = function(){};
+
+PersonDAO.prototype.save = function(obj, callback) {
+	//Personmodel.create();
+	// 终端打印如下信息
+console.log('called Person save');
+var instance = new Personmodel(obj);
+console.log('param value:'+obj+'<>instance.save:'+instance);
+instance.save(function(err){
+	console.log('save Person'+instance+' fail:'+err);
+callback(err,instance);
+});
+};
+
+PersonDAO.prototype.findByName = function(name, callback) {
+Personmodel.findOne({name:name}, function(err, obj){
+callback(err, obj);
+});
+};
+
+PersonDAO.prototype.findByIDNum = function(IDNum, callback) {
+Personmodel.findOne({idNum:IDNum}, function(err, obj){
+callback(err, obj);
+});
+};
+
+PersonDAO.prototype.findByMobileUUid = function(mobileUUid, callback) {
+Personmodel.findOne({mobileUUid:mobileUUid}, function(err, obj){
+callback(err, obj);
+});
+};
+
+PersonDAO.prototype.updateById=function(person,callback){
+  var options    = {upsert : true};
+	console.log('called Person update id:'+person._id);
+
+  var _id = person._id; //需要取出主键_id
+  delete person._id;    //再将其删除
+  Personmodel.update({_id:_id},person,options,function(err,obj){
+	callback(err, obj);
+	});
+  //此时才能用Model操作，否则报错
+};
+
+PersonDAO.prototype.findByMobile = function(mobile, callback) {
+	
+console.log('called Person findOne by mobile'+mobile);//mobile
+Personmodel.findOne({'mobile':mobile}, function(err, obj){
+callback(err, obj);
+console.log(' Person findout:'+obj);
+});
+};
+
+
+//为指定用户添加新的定位点
+PersonDAO.prototype.addNewLocation = function(personId,locationObj, callback) {
+			try {
+console.log('called Person addNewLocation by personId:'+personId+'<>'+locationObj);
+if(locationObj){	
+console.log('\nlocation:'+personId+'<>'+locationObj.geolocation.type);
+	}
+Personmodel.findOne({'_id':personId}, function(err, personObj){
+		if(!err){		
+			var newlocation=new locationmodel(locationObj);
+			if (personObj) {
+				personObj.personlocations.push(newlocation);
+				personObj.save(function(err){
+					if(err){					
+						console.log('save Person'+personObj.name+' fail:'+err);
+						callback(err,personObj);
+						}
+					else {
+						console.log(' Person new location added!');
+						callback(err,personObj);
+					}
+					});
+			}
+			
+		}else{
+			callback(err, null);
+			console.log(' Person new location err:'+err);
+		}
+});			} catch (e) {
+	// handle errors here
+
+  			console.log(" 用户定位点上传出错："+e );
+		return;
+}
+};
+
+module.exports = new PersonDAO();
