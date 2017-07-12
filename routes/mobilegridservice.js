@@ -494,7 +494,7 @@ var sendeventargument = function (req, res) {
   }
 };
 /**
- * 获取待处理的事件列表<br/>根据部门查询所有待处理事件
+ * 获取待处理的事件列表--完善中<br/>根据部门查询所有待处理事件
  * @param {json} req - 传入要查询的待处理事件的部门ID,客户端提交json 例如{documentID:"部门ID"}
  * @param {json} res - 返回待处理事件的json数组<br/>{type:类型,name:名称,_id:ID,newer:更新日期,step:步骤列表}
  */
