@@ -1,5 +1,5 @@
 /**
- * @module 网格业务接口 url: /mobilegridservice
+ * @module 网格业务接口 url: mobilegrid/mobilegridservice
  */
 var express = require('express');
 var mobilegridservice = express.Router();
@@ -174,7 +174,7 @@ var getcurrentstep = function (req, res) {
             if (sterr) {
               res.send({error: null})
             } else {
-              res.send(stobj)
+              res.send({success:stobj})
             }
           });
         }else{
@@ -210,8 +210,8 @@ var geteventTimestatistics = function (req, res) {
 };
 /**
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
- * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,
- * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID'}
+ * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,
+ * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456]}
  * @param {json} res - 返回成功或失败响应状态码
  */
 var sendnewEvent = function (req, res) {
@@ -220,6 +220,8 @@ var sendnewEvent = function (req, res) {
   var name = req.body.name;  //名称
   var typeID = req.body.type; //类型
   var depart=req.body.departmentID;
+  var position=req.body.position;
+  position=position?position:[116.396359,39.910651];
   if (!name || !typeID||!depart) {
     res.send({error: '参数提交错误'});
     return;
@@ -245,7 +247,9 @@ var sendnewEvent = function (req, res) {
       eventJson.type = obj.typeName;
       eventJson.name = name;
       eventJson.newer = new Date();
+      eventJson.createTime= new Date();
       eventJson.status = 1;
+      eventJson.position=position;
       eventJson.department=depart;
       eventJson.step = [];
       obj.steps.forEach(function (val, key) {
@@ -407,13 +411,13 @@ var getcompletestep=function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({error: Null})
+        res.send({error: null})
       } else {
         concretestepDAO.geteventstep(obj.step, 3, function (sterr, stobj) {
           if (sterr) {
-            res.send({error: Null})
+            res.send({error: null})
           } else {
-            res.send(stobj)
+            res.send({success:stobj})
           }
         });
       }
@@ -454,14 +458,14 @@ var sendeventargument = function (req, res) {
   var stepid = req.body.stepID;
   var argu=req.body.arguments;
   if(stepid&&argu){
-    concretestepDAO.getoneeventstep(stepid, function (geterr, getstep) {
+    concretestepDAO.getoneeventstep(stepid, function (geterr, getstep) {//获取到事件的步骤
       if (geterr) {
         res.send({error: null});
       } else {
         var argulength=argu.length;
         var argucount=0;
         var arguset=function() {
-            concretearguDAO.setAConcreteargu(getstep.argu[argucount], argu[argucount], function (seterr, setstep) {
+            concretearguDAO.setAConcreteargu(getstep.argu[argucount], argu[argucount], function (seterr, setstep) {//依次给步骤中填入参数
               if (seterr) {
                 res.send({error: null});
               } else {
@@ -470,7 +474,13 @@ var sendeventargument = function (req, res) {
                 if(argucount<argulength){
                   arguset()
                 }else{
-                  res.send({success:'is OK!'});
+                  concreteeventDAO.sendeventnewer(stepid,function(nererr,nerobj){//修改事件更新日期
+                    if(nererr){
+                      res.send({error: null});
+                    }else{
+                      res.send({success:'is OK!'});
+                    }
+                  })
                 }
                 // res.send({success:setstep});
               }
@@ -493,11 +503,11 @@ var getEventtype = function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({error: Null})
+        res.send({error: null})
       } else {
         concretestepDAO.geteventstep(obj.step,1, function (sterr, stobj) {
           if (sterr) {
-            res.send({error: Null})
+            res.send({error: null})
           } else {
             res.send({success:stobj})
           }
@@ -519,6 +529,21 @@ var geteventSearch = function (req, res) {
     timeRange = req.body.time,
     region = req.body.region,
     person = req.body.person;
+  var isabc='';
+  (function(){
+  for(var ac in req.body){
+    if(req.body[ac]){
+        isabc=ac;
+        return;
+    }
+  }
+}())
+  res.send({success:isabc});
+  switch (isabc){
+    case 'person':
+      console.log('perosnasd')
+
+  }
   //concreteeventDAO.
 };
 
@@ -532,11 +557,11 @@ mobilegridservice.post('/geteventStatus', geteventStatus);
 mobilegridservice.post('/getcurrentstep', getcurrentstep);
 mobilegridservice.post('/getcompletestep',getcompletestep);
 
+mobilegridservice.post('/geteventTimestatistics',geteventTimestatistics)
 mobilegridservice.post('/sendnewEvent', sendnewEvent);
+mobilegridservice.post('/geteventstep',geteventstep)
 mobilegridservice.post('/sendeventargument', sendeventargument);
 mobilegridservice.post('/getEventtype',getEventtype)
 mobilegridservice.post('/geteventSearch',geteventSearch)
-mobilegridservice.post('/geteventstep',geteventstep)
-mobilegridservice.post('/geteventTimestatistics',geteventTimestatistics)
 
 module.exports = mobilegridservice;

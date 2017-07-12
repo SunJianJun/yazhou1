@@ -1,4 +1,4 @@
-﻿﻿var mongodb = require('./mongodb');
+﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
 // var deepPopulate = require('mongoose-deep-populate')(mongodb.mongoose);
