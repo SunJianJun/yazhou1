@@ -8,7 +8,7 @@ var concreteargu = require('../dbmodels/concretearguschema.js');
 //获取数据模型
 var concretearguDAO = require('../dbmodels/concretearguDao');
 
-
+//根据参数ID数组获取到参数
 var getparametersaccordingtoParameter = function (req, res) {
   // //console.log('call getparametersaccordingtoParameter');
   //for(var i in req.body){ //console.log("getparametersaccordingtoParameter 请求内容body子项："+i+"<>\n")};
@@ -16,7 +16,6 @@ var getparametersaccordingtoParameter = function (req, res) {
 // console.log(arguID)
   concretearguDAO.getparametersaccordingtoParameter(arguID,function (err, obj) {
     if (!err) {
-      console.log(obj)
       res.send(obj);
     } else {
       // //console.log('getparametersaccordingtoParameter 查询所有'+senderID+'发送的消息为空:'+err);

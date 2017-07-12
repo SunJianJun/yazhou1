@@ -1,4 +1,4 @@
-﻿﻿var mongodb = require('./mongodb');
+﻿var mongodb= require('./mongodb');
 var attendanceRecordSchema = require('./attendanceRecordschema');
 var departmentDAO = require('./departmentDAO');
 var db = mongodb.mongoose.connection;

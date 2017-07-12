@@ -39,7 +39,7 @@ ConcreteeventDAO.prototype.findByName = function (name, callback) {
     callback(err, obj);
   });
 };
-ConcreteeventDAO.prototype.getAllConcreteevent=function(callback){//获取所有类型
+ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,callback){//获取所有类型
     var callback = callback ? callback : function (err, obj) {
     if (err) {
       console.log('callback getAllConcreteevent 出错：-' + '<>' + err);

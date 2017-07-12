@@ -27,14 +27,19 @@ var personDAO = require('../dbmodels/personDao');
  * @param {json} res - 返回部门事件数组JSON,包含<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
 var getAllConcreteevent = function (req, res) { //获取部门事件
-  concreteeventDAO.getAllConcreteevent(function (err, obj) {
-    //console.log(obj);
-    if (err) {
-      res.send(null)
-    } else {
-      res.send(obj)
-    }
-  })
+  var departemnt=req.body.departmentID;
+  if(!departemnt){
+    res.send({error:'参数错误'})
+  }else {
+    concreteeventDAO.getAllConcreteevent(departemnt,function (err, obj) {
+      //console.log(obj);
+      if (err) {
+        res.send({error:null})
+      } else {
+        res.send({success:obj})
+      }
+    })
+  }
 };
 /**
  * 获得部门人员
@@ -66,21 +71,7 @@ var getDepartmentgird = function (req, res) {
     }
   })
 };
-/**
- * 获取人员考勤记录-
- * @param {json} req - 传入要获取考勤的人员ID,{personID:"人员ID",startTime:"2017-05-16",endSTime:"2017-06-16"}
- * @param {json} res - 返回<br/>[{time:记录时间, record:考勤记录}]
- */
-var getpersonCheckwork = function (req, res) {
-  var personID = req.body.personID;
-  personDAO.getpersonCheckwork(personID, function (err, obj) {
-    if (err) {
-      res.send(null)
-    } else {
-      res.send(obj)
-    }
-  })
-};
+
 /**
  * 人员处理的事件 ，（正在进行中的事件）
  * @param {json} req - 传入要查询人员ID 客户端提交json 例如{personID:"人员ID"}
@@ -108,7 +99,7 @@ var getcasestep=function(req,res){
       if (err) {
         res.send({errot: Null})
       } else {
-        concretestepDAO.geteventstep(obj.step,1, function (sterr, stobj) {
+        concretestepDAO.geteventstep(obj.step,'', function (sterr, stobj) {
           if (sterr) {
             res.send({errot: Null})
           } else {
@@ -176,15 +167,19 @@ var getcurrentstep = function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({errot: Null})
+        res.send({errot: null})
       } else {
-        concretestepDAO.geteventstep(obj.step, 2, function (sterr, stobj) {
-          if (sterr) {
-            res.send({errot: Null})
-          } else {
-            res.send(stobj)
-          }
-        });
+        if(obj&&obj.step) {
+          concretestepDAO.geteventstep(obj.step, 2, function (sterr, stobj) {
+            if (sterr) {
+              res.send({errot: null})
+            } else {
+              res.send(stobj)
+            }
+          });
+        }else{
+          res.send({errot: '获取出错'})
+        }
       }
     })
   }else {
@@ -213,19 +208,19 @@ var geteventTimestatistics = function (req, res) {
     }
   })
 };
-
 /**
- * 新建一个事件
- * @param {json} req - 新建事件的名称和类型,类型是已定义好的类型模板<br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID"}
+ * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
+ * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,
+ * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID'}
  * @param {json} res - 返回成功或失败响应状态码
  */
 var sendnewEvent = function (req, res) {
   // //console.log('call sendAConcreteevent');
   //for(var i in req.body){ //console.log("sendAConcreteevent 请求内容body子项："+i+"<>\n")};
-  var datt = req.body;
-  var name = datt.name;  //名称
-  var typeID = datt.type; //类型
-  if (!name || !typeID) {
+  var name = req.body.name;  //名称
+  var typeID = req.body.type; //类型
+  var depart=req.body.departmentID;
+  if (!name || !typeID||!depart) {
     res.send({error: '参数提交错误'});
     return;
   }
@@ -251,6 +246,7 @@ var sendnewEvent = function (req, res) {
       eventJson.name = name;
       eventJson.newer = new Date();
       eventJson.status = 1;
+      eventJson.department=depart;
       eventJson.step = [];
       obj.steps.forEach(function (val, key) {
         //eventJson.step.push({types: val.stepName, status: 1});
@@ -287,7 +283,6 @@ var sendnewEvent = function (req, res) {
               }
               argu1.name = stepobj[count].type;
               argu1.type = obj.typeName;
-              console.log(count?2:1);
               argu1.status = count?2:1;
               argu1.no = stepobj[count].status;
               argu1.wordTemplate = stepobj[count].wordTemplate;
@@ -310,7 +305,7 @@ var sendnewEvent = function (req, res) {
         })
       }
       var sendAConcretestep = function (argu1, stepobj, count, call) {
-        console.log(argu1)
+        // console.log(argu1)
         concretestepDAO.sendAConcretestep(argu1, function (err, Concretestepobj) { //具体步骤表
           if (err) {
             console.log(err)
@@ -428,7 +423,7 @@ var getcompletestep=function (req, res) {
   }
 }
 /**
- * 获取事件步骤，传入事件的步骤ID
+ * 获取事件所有步骤，传入事件的步骤ID
  * @param {json} req - 客户端提交json，{id:'事件ID'}
  * @param {json} res - 返回数组json，[{identified:"1"promptvalue:"案发时间",setByWho:"58c043cc40cbb100091c640d",setTime:"2017-07-11T08:40:36.704Z",type:"时间",value:Array(0),__v:0,_id:"59648f04472f14b01de7a74f"},.....]
  */
@@ -452,12 +447,41 @@ var geteventstep = function (req, res) {
 };
 /**
  * 填写参数完成，提交审核
- * @param {json} req - 传入步骤,参数,客户端提交json 例如{stepID:"步骤ID",arguments:[{type:"日期",value:["值1","值2"]},setByWho:"设置人ID",identified:"设置的密码"}]
- * @param {json} res - 返回成功或失败响应状态码
+ * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{stepID:"步骤ID",arguments:[["值1","值2"],["设置人ID"],["设置的密码"]]
+ * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
  */
 var sendeventargument = function (req, res) {
-  var eventID = req.body.eventID;
-
+  var stepid = req.body.stepID;
+  var argu=req.body.arguments;
+  if(stepid&&argu){
+    concretestepDAO.getoneeventstep(stepid, function (geterr, getstep) {
+      if (geterr) {
+        res.send({error: null});
+      } else {
+        var argulength=argu.length;
+        var argucount=0;
+        var arguset=function() {
+            concretearguDAO.setAConcreteargu(getstep.argu[argucount], argu[argucount], function (seterr, setstep) {
+              if (seterr) {
+                res.send({error: null});
+              } else {
+                // console.log(setstep)
+                argucount++;
+                if(argucount<argulength){
+                  arguset()
+                }else{
+                  res.send({success:'is OK!'});
+                }
+                // res.send({success:setstep});
+              }
+            })
+        }
+        arguset()
+      }
+    })
+  }else{
+    res.send({error:'提交参数有误'});
+  }
 };
 /**
  * 获取待处理的事件列表<br/>根据部门查询所有待处理事件
@@ -465,14 +489,25 @@ var sendeventargument = function (req, res) {
  * @param {json} res - 返回待处理事件的json数组<br/>{type:类型,name:名称,_id:ID,newer:更新日期,step:步骤列表}
  */
 var getEventtype = function (req, res) {
-  concreteeventDAO.getAllConcreteevent(function (err, obj) {
-    if (err) {
-      res.send(null);
-    } else {
-      res.send(obj);
-    }
-  })
-};
+  var caseID = req.body._id;
+  if (caseID) {
+    concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
+      if (err) {
+        res.send({errot: Null})
+      } else {
+        concretestepDAO.geteventstep(obj.step,1, function (sterr, stobj) {
+          if (sterr) {
+            res.send({errot: Null})
+          } else {
+            res.send(stobj)
+          }
+        });
+      }
+    })
+  }else {
+    res.send({errot: '参数有误'})
+  }
+}
 /**
  * 事件查询<br/>
  * 根据类型，时间，区域，人员查询事件

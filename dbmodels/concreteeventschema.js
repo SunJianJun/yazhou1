@@ -15,7 +15,7 @@ var ConcreteeventSchema=new Schema({//事件表
 
   setupTime:Date, //建立日期
   ediTime:Date,  //结束日期
-  document:String,//事件归属部门
+  department:String,//事件归属部门
   people:[String],//事件参与人员
   position:[Number]
 });

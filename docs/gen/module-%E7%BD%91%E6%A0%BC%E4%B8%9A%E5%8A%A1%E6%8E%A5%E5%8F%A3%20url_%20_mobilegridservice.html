@@ -300,6 +300,462 @@
             
 <hr>
 <dt>
+    <h4 class="name" id="~getcasestep"><span class="type-signature">&lt;inner> </span>getcasestep(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>获取当前案件的所有步骤</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>客户端发起请求</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>服务器返回json，[{argu:[&quot;59648f04472f14b01de7a74f&quot;,&quot;59648f04472f14b01de7a750&quot;,&quot;59648f04472f14b01de7a751&quot;],currentPusher:&quot;null&quot;name:&quot;立案&quot;,no:1,status:&quot;2&quot;,type:&quot;无照经营&quot;wordTemplate:&quot;&lt;p style=&quot;text-a&quot;,_id:&quot;59648f04472f14b01de7a74e&quot;},....]</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~getcompletestep"><span class="type-signature">&lt;inner> </span>getcompletestep(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>获得所有已完成的步骤</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>客户端传入json，{id:'案件ID'}</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>服务器返回json，{argu:[&quot;59648f04472f14b01de7a74f&quot;,&quot;59648f04472f14b01de7a750&quot;,&quot;59648f04472f14b01de7a751&quot;],currentPusher:&quot;null&quot;name:&quot;立案&quot;,no:1,status:&quot;2&quot;,type:&quot;无照经营&quot;wordTemplate:&quot;&lt;p style=&quot;text-a&quot;,_id:&quot;59648f04472f14b01de7a74e&quot;}</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="~getcurrentstep"><span class="type-signature">&lt;inner> </span>getcurrentstep(req, res)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>获取当前需要进行的案件</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>客户端传入json，{id:'案件ID'}</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">json</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>服务器返回json，{argu:[&quot;59648f04472f14b01de7a74f&quot;,&quot;59648f04472f14b01de7a750&quot;,&quot;59648f04472f14b01de7a751&quot;],currentPusher:&quot;null&quot;name:&quot;立案&quot;,no:1,status:&quot;2&quot;,type:&quot;无照经营&quot;wordTemplate:&quot;&lt;p style=&quot;text-a&quot;,_id:&quot;59648f04472f14b01de7a74e&quot;}</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
     <h4 class="name" id="~getDepartmentgird"><span class="type-signature">&lt;inner> </span>getDepartmentgird(req, res)</h4>
     
     
@@ -917,7 +1373,7 @@
 
     
     <div class="description">
-        <p>获取事件步骤，传入事件的步骤ID</p>
+        <p>获取事件所有步骤，传入事件的步骤ID</p>
     </div>
     
 
@@ -1373,7 +1829,7 @@
 
     
     <div class="description">
-        <p>获取人员考勤记录-</p>
+        <p>获取人员考勤记录</p>
     </div>
     
 
@@ -1830,7 +2286,7 @@
 
     
     <div class="description">
-        <p>填写事件所需参数</p>
+        <p>填写参数完成，提交审核</p>
     </div>
     
 
@@ -1882,7 +2338,7 @@
 
             
 
-            <td class="description last"><p>传入步骤,参数,客户端提交json 例如{stepID:&quot;步骤ID&quot;,arguments:[{type:&quot;日期&quot;,value:[&quot;值1&quot;,&quot;值2&quot;]},setByWho:&quot;设置人ID&quot;,identified:&quot;设置的密码&quot;}]</p></td>
+            <td class="description last"><p>传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{stepID:&quot;步骤ID&quot;,arguments:[[&quot;值1&quot;,&quot;值2&quot;],[&quot;设置人ID&quot;],[&quot;设置的密码&quot;]]</p></td>
         </tr>
 
     
@@ -1906,7 +2362,7 @@
 
             
 
-            <td class="description last"><p>返回成功或失败响应状态码</p></td>
+            <td class="description last"><p>返回成功{success:'is OK!'}或失败响应{error: null}状态码</p></td>
         </tr>
 
     
@@ -2172,7 +2628,7 @@
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on July 11th 2017, 7:02:22 pm
+		on July 12th 2017, 1:57:02 pm
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
