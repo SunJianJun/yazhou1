@@ -50,9 +50,9 @@ var getDepartmentparson = function (req, res) {
   var departmentID = req.body.departmentID;
   departmentDAO.getAllpersonsByDepartIdOneStep(departmentID, function (err, obj) {
     if (err) {
-      res.send(null)
+      res.send({error:null})
     } else {
-      res.send(obj)
+      res.send({success:obj})
     }
   })
 };
@@ -65,9 +65,9 @@ var getDepartmentgird = function (req, res) {
   var departmentID = req.body.departmentID;
   departmentDAO.getDepartmentgird(departmentID, function (err, obj) {
     if (err) {
-      res.send(null)
+      res.send({error:null})
     } else {
-      res.send(obj)
+      res.send({success:obj})
     }
   })
 };
@@ -81,9 +81,9 @@ var getpersonEvent = function (req, res) {
   var personID = req.body.personID;
   concreteeventDAO.getpersonEvent(personID, function (err, obj) {
     if (err) {
-      res.send(null)
+      res.send({error:null})
     } else {
-      res.send(obj)
+      res.send({success:obj})
     }
   })
 };
@@ -97,11 +97,11 @@ var getcasestep=function(req,res){
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({errot: Null})
+        res.send({error:null})
       } else {
         concretestepDAO.geteventstep(obj.step,'', function (sterr, stobj) {
           if (sterr) {
-            res.send({errot: Null})
+            res.send({error:null})
           } else {
             var compare = function(obj1, obj2) {
               var val1 = obj1.no;
@@ -115,13 +115,13 @@ var getcasestep=function(req,res){
               }
             }
             stobj.sort(compare);
-            res.send(stobj)
+            res.send({success:stobj})
           }
         });
       }
     })
   } else {
-    res.send({errot: '参数有误'})
+    res.send({error:'参数有误'})
   }
 };
 /**
@@ -136,9 +136,9 @@ var getpersonRoute = function (req, res) {
     edidate = req.body.edidate;
   personDAO.getPersonLatestPositionInTimespan(personID, startdate, edidate, function (err, obj) {
     if (err) {
-      res.send(null);
+      res.send({error:null})
     } else {
-      res.send(obj);
+      res.send({success:obj})
     }
   })
 };
@@ -167,23 +167,23 @@ var getcurrentstep = function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({errot: null})
+        res.send({error: null})
       } else {
         if(obj&&obj.step) {
           concretestepDAO.geteventstep(obj.step, 2, function (sterr, stobj) {
             if (sterr) {
-              res.send({errot: null})
+              res.send({error: null})
             } else {
               res.send(stobj)
             }
           });
         }else{
-          res.send({errot: '获取出错'})
+          res.send({error: '获取出错'})
         }
       }
     })
   }else {
-    res.send({errot: '参数有误'})
+    res.send({error: '参数有误'})
   }
 }
 /**
@@ -407,11 +407,11 @@ var getcompletestep=function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({errot: Null})
+        res.send({error: Null})
       } else {
         concretestepDAO.geteventstep(obj.step, 3, function (sterr, stobj) {
           if (sterr) {
-            res.send({errot: Null})
+            res.send({error: Null})
           } else {
             res.send(stobj)
           }
@@ -419,7 +419,7 @@ var getcompletestep=function (req, res) {
       }
     })
   }else {
-    res.send({errot: '参数有误'})
+    res.send({error: '参数有误'})
   }
 }
 /**
@@ -493,19 +493,19 @@ var getEventtype = function (req, res) {
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
-        res.send({errot: Null})
+        res.send({error: Null})
       } else {
         concretestepDAO.geteventstep(obj.step,1, function (sterr, stobj) {
           if (sterr) {
-            res.send({errot: Null})
+            res.send({error: Null})
           } else {
-            res.send(stobj)
+            res.send({success:stobj})
           }
         });
       }
     })
   }else {
-    res.send({errot: '参数有误'})
+    res.send({error: '参数有误'})
   }
 }
 /**
