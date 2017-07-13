@@ -489,7 +489,11 @@ MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,tim
             // console.log('2countType sendMessage ：'+'<>'+countType);
             Messagemodel.aggregate()
                 .match({
-                    "sender":mongodb.mongoose.Types.ObjectId(personId)
+                    "sender":mongodb.mongoose.Types.ObjectId(personId),
+                    "create_date":{
+                        "$gte": new Date(sTime),
+                        "$lte": new Date(eTime)
+                    }
                 }
             ).project (
                 {
@@ -542,7 +546,7 @@ MessageDAO.prototype.countByMessages=function(personId,sTime,eTime,countType,tim
             break;
 
         case "receiveMessage":
-            console.log('2countType sendMessage ：'+'<>'+countType);
+            // console.log('2countType sendMessage ：'+'<>'+countType);
             Messagemodel.aggregate()
                 .match({
                         "receiver":mongodb.mongoose.Types.ObjectId(personId),
