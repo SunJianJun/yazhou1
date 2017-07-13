@@ -140,7 +140,7 @@ ConcreteeventDAO.prototype.concreteeventDelete = function (id, outcallback) {
     }
     else {
       console.log('没有数据');
-      callback(err, 0);
+      callback(err);
     }
   });
 }

@@ -212,7 +212,7 @@ var geteventTimestatistics = function (req, res) {
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
  * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,
  * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456]}
- * @param {json} res - 返回成功或失败响应状态码
+ * @param {json} res - 返回成功或失败{error: '参数提交错误'}响应状态码
  */
 var sendnewEvent = function (req, res) {
   // //console.log('call sendAConcreteevent');
@@ -277,34 +277,32 @@ var sendnewEvent = function (req, res) {
             // console.log(stepobj)
             //stepobj 抽象步骤 数组 多条记录
             var steplength = stepobj.length;
-            var count = 0, argu1 = {};
+            var stepcount = 0, argu1 = {};
 
-            var jiazai = function () {
-              // console.log(count>=steplength)
-              if (count >= steplength) {
-                //console.log('跳出')
-                return;
+            var stepjiazai = function () {
+              // console.log(stepcount>=steplength)
+              if (stepcount >= steplength) {
+                res.send({success:'建立成功'});
+              }else {
+                // console.log('调了几次'+stepcount)
+                argu1.name = stepobj[stepcount].type;
+                argu1.type = obj.typeName;
+                argu1.status = stepcount ? 2 : 1;
+                argu1.no = stepobj[stepcount].status;
+                argu1.wordTemplate = stepobj[stepcount].wordTemplate;
+                argu1.currentPusher = 'null';
+                argu1.argu = [];
+                //console.log(stepobj[stepcount]); //得到抽象表步骤 实例化成具体步骤和参数
+                sendAConcretestep(argu1, stepobj[stepcount], stepcount, function (a) {
+                  if (stepcount < steplength) {
+                    stepcount++;
+                    stepjiazai();
+                  }
+                })
               }
-              argu1.name = stepobj[count].type;
-              argu1.type = obj.typeName;
-              argu1.status = count?2:1;
-              argu1.no = stepobj[count].status;
-              argu1.wordTemplate = stepobj[count].wordTemplate;
-              argu1.currentPusher = 'null';
-              argu1.argu = [];
-              //console.log(stepobj[count]); //得到抽象表步骤 实例化成具体步骤和参数
-              sendAConcretestep(argu1, stepobj[count], count, function (a) {
-                //console.log($scope.abstracttype)
-                if (count < steplength) {
-                  count++;
-                  jiazai();
-                } else {
-                  // res.send({success:'建立成功'})
-                }
-              })
 
             }
-            jiazai();
+            stepjiazai();
           }
         })
       }
@@ -324,7 +322,7 @@ var sendnewEvent = function (req, res) {
 
             updateaddsetp(Allobj, stepobj, function (e) {//把具体步骤的id存到具体类型中
               //console.log('把具体步骤的id存到具体类型中') //应该调取两次
-              res.send(e);
+              // res.send(e);
               // console.log('建立成功')
               call(true)
               //console.log(stepobj)
@@ -429,7 +427,7 @@ var getcompletestep=function (req, res) {
 /**
  * 获取事件所有步骤，传入事件的步骤ID
  * @param {json} req - 客户端提交json，{id:'事件ID'}
- * @param {json} res - 返回数组json，[{identified:"1"promptvalue:"案发时间",setByWho:"58c043cc40cbb100091c640d",setTime:"2017-07-11T08:40:36.704Z",type:"时间",value:Array(0),__v:0,_id:"59648f04472f14b01de7a74f"},.....]
+ * @param {json} res - 返回所有事件步骤数组json，[{identified:"1"promptvalue:"案发时间",setByWho:"58c043cc40cbb100091c640d",setTime:"2017-07-11T08:40:36.704Z",type:"时间",value:Array(0),__v:0,_id:"59648f04472f14b01de7a74f"},.....]
  */
 var geteventstep = function (req, res) {
   // //console.log('call geteventstep');
@@ -496,7 +494,7 @@ var sendeventargument = function (req, res) {
 /**
  * 获取待处理的事件列表--完善中<br/>根据部门查询所有待处理事件
  * @param {json} req - 传入要查询的待处理事件的部门ID,客户端提交json 例如{documentID:"部门ID"}
- * @param {json} res - 返回待处理事件的json数组<br/>{type:类型,name:名称,_id:ID,newer:更新日期,step:步骤列表}
+ * @param {json} res - 返回待处理事件的json数组<br/>[{type:类型,name:名称,_id:ID,no:步骤顺序,status:步骤状态}]
  */
 var getEventtype = function (req, res) {
   var caseID = req.body._id;
@@ -547,6 +545,118 @@ var geteventSearch = function (req, res) {
   //concreteeventDAO.
 };
 
+var getConcretestepsInATimeSpanFromWho = function (req, res) {
+  // //console.log('call getConcretestepsInATimeSpanFromWho');
+  //for(var i in req.body){ //console.log("getConcretestepsInATimeSpanFromWho 请求内容body子项："+i+"<>\n")};
+  var receiverID = req.body.receiverID,
+    senderID = req.body.senderID,
+    startTime = req.body.startTime,
+    lastTime = req.body.lastTime;
+  // 调用方法
+  // concretestepObj.getConcretestepsInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
+  // //console.log('senderID:'+senderID);
+  concretestepDAO.getConcretestepsInATimeSpanFromWho(receiverID, senderID, startTime, lastTime, function (err, obj) {
+    if (!err) {
+      // console.log('getConcretestepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
+      res.send(obj);
+    } else {
+      //console.log('getConcretestepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
+      res.send(null);
+    }
+  });
+};
+/**
+ * 根据步骤ID获取步骤
+ * @param {json} req - 传入要事件的步骤ID,客户端提交json 例如{id:"步骤ID"}
+ * @param {json} res - 返回查询的步骤详细<br/>{type:类型,name:名称,_id:ID,no:步骤顺序,status:步骤状态,wordTemplate:'<p>案件模板</p>'，currentPusher:'这个步骤当前的责任人'}
+ */
+var getoneeventstep = function (req, res) {
+  var ID = req.body.id;
+  concretestepDAO.getoneeventstep(ID,function (err, obj) {
+    if (!err) {
+      res.send({success:obj});
+      // console.log(obj);
+    } else {
+      // console.log(err);
+      res.send({error:null});
+    }
+  })
+}
+/**
+ * 根据步骤获取所有步骤的参数
+ * @param {json} req - 传入要事件的步骤ID,客户端提交json 例如{id:"步骤ID"}
+ * @param {json} res - 返回此步骤的参数json数组<br/>[{identified:"1",promptvalue:"案发时间",setByWho:"58c043cc40cbb100091c640d",setTime:"2017-07-12T08:17:44.680Z",type:"时间",value:Array(0),_id:"5965db28eb1408f41ddfaa6e"},.....]
+ */
+var getargutostep = function (req, res) {
+  var ID = req.body.id;
+  if(ID) {
+    concretestepDAO.getoneeventstep(ID, function (err, obj) {
+      if (!err) {
+        concretearguDAO.getparametersaccordingtoParameter(obj.argu, function (arguerr, arguobj) {
+          if (!err) {
+            res.send({success: arguobj});
+          } else {
+            // //console.log('getparametersaccordingtoParameter 查询所有'+senderID+'发送的消息为空:'+err);
+            res.send({error:'参数获取出错'});
+          }
+        });
+      } else {
+        res.send({error:'步骤获取出错'});
+      }
+    })
+  }else{
+    res.send({error:"参数有误"});
+  }
+}
+/**
+ * 获取所有已定义的事件类型,
+ * 可用于新建事件选择事件类型
+ * @param {} req - 发起请求
+ * @param {json} res - 返回数据[{typeName:'无照经营'，status:1,setDate:'2017-6-1',_id:'事件类型id'},.....]
+ */
+var getAllAbstracttype=function(req,res){
+  abstracttypeDAO.getAllAbstracttype(function(err,obj){
+    if(!err){
+      // console.log(obj);
+      res.send({success:obj});
+    }else{
+      //console.log(err)
+      res.send({error:null});
+    }
+  })
+}
+/**
+ * 事件删除
+ * @param {json} req - 客户端请求 json {id:'事件ID'}
+ * @param {json} res - 返回成功或失败{error:null}
+ */
+var sendeeventDelete = function (req, res) {
+  var id = req.body.id;
+  if(id) {
+    concreteeventDAO.concreteeventDelete(id, function (err, obj) {
+      if (!err) {
+        res.send({success:'已删除'+id});
+      } else {
+        res.send({error: null});
+      }
+    })
+  }else{
+    res.send({error:'请求参数有误'});
+  }
+}
+var sendstepadvance= function (req, res) {
+  var ID = req.body.id;
+  concretestepDAO.getoneeventstep(ID,function (err, obj) {
+    if (!err) {
+      res.send(obj);
+      // console.log(obj);
+    } else {
+      // console.log(err);
+      res.send(null);
+    }
+  })
+}
+
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
 mobilegridservice.post('/getDepartmentparson', getDepartmentparson);
 mobilegridservice.post('/getDepartmentgird', getDepartmentgird);
@@ -559,9 +669,13 @@ mobilegridservice.post('/getcompletestep',getcompletestep);
 
 mobilegridservice.post('/geteventTimestatistics',geteventTimestatistics)
 mobilegridservice.post('/sendnewEvent', sendnewEvent);
-mobilegridservice.post('/geteventstep',geteventstep)
+mobilegridservice.post('/geteventstep',geteventstep);
 mobilegridservice.post('/sendeventargument', sendeventargument);
-mobilegridservice.post('/getEventtype',getEventtype)
-mobilegridservice.post('/geteventSearch',geteventSearch)
+mobilegridservice.post('/getEventtype',getEventtype);
+mobilegridservice.post('/geteventSearch',geteventSearch);
+mobilegridservice.post('/getoneeventstep',getoneeventstep);
+mobilegridservice.post('/getargutostep',getargutostep);
+mobilegridservice.post('/getAllAbstracttype',getAllAbstracttype);
+mobilegridservice.post('/sendeeventDelete',sendeeventDelete);
 
 module.exports = mobilegridservice;

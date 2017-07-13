@@ -168,14 +168,15 @@ var getoneeventstep = function (req, res) {
 }
 
 
+
 concretesteprouter.post('/sendAConcretestep', sendAConcretestep);//增加
 concretesteprouter.post('/geteventstep', geteventstep);
 concretesteprouter.post('/getcurrentstep',getcurrentstep);//获取当前进行的步骤
 concretesteprouter.post('/readtConcretestep', readtConcretestep);//提交
 concretesteprouter.post('/getMyNewestConcretestepFromWho', getMyNewestConcretestepFromWho);//编辑查询
 concretesteprouter.post('/getConcretestepsInATimeSpanFromWho', getConcretestepsInATimeSpanFromWho);//编辑查询
-concretesteprouter.post('/getoneeventstep',getoneeventstep);//根据用户id得到事件步骤
 
 concretesteprouter.post('/concretestepDelete', concretestepDelete);//查找
 concretesteprouter.post('/concretesteppeopleDelete', concretesteppeopleDelete);//查找
+concretesteprouter.post('/getoneeventstep',getoneeventstep);//根据用户id得到事件步骤
 module.exports = concretesteprouter;

@@ -325,7 +325,7 @@ ConcretestepDAO.prototype.getConcretestepsInATimeSpanFromWho = function (receive
 ConcretestepDAO.prototype.getoneeventstep=function (ID,outcallback) {
   var query = Concretestepmodel.findOne({_id: ID}, function (err, result) {
     if (err) {
-      outcallback(err,null)
+      outcallback(err)
     } else {
       // console.log(result);
       outcallback(null,result);
