@@ -7,10 +7,15 @@ var abstractstep = require('../dbmodels/abstractstepschema.js');
 
 //获取数据模型
 var abstractstepDAO = require('../dbmodels/abstractstepDao');
+var persontitleDAO=require('../dbmodels/persontitleDao');
 
-
+/*
+* 获取人员title
+*/
 var getpersonTiele = function (req, res) {
-  abstractstepDAO.getpersonTiele (function(err,obj){
+    var deparment=req.body.departmentID;
+    deparment=deparment?deparment:'58c3a5e9a63cf24c16a50b8c';
+  persontitleDAO.getpersontitleTodepartment(deparment,function(err,obj){
         console.log(err,obj)
         if(err){
             res.send(err);

@@ -83,9 +83,9 @@ ConcretearguDAO.prototype.sendAConcreteargu = function (concretearguObj, outcall
 };
 
 //添加参数值
-ConcretearguDAO.prototype.setAConcreteargu = function (arguid,argu,callback) {
+ConcretearguDAO.prototype.setAConcreteargu = function (arguid,argu,setwho,callback) {
   // callback('',[arguid,argu]);
-  Concreteargumodel.update({_id:arguid},{value:argu},function (err, uobj) {
+  Concreteargumodel.update({_id:arguid},{value:argu,setByWho:setwho,setTime:new Date()},function (err, uobj) {
     if (err) {
       callback(err, null);
     } else {

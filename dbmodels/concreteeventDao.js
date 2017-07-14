@@ -309,6 +309,7 @@ ConcreteeventDAO.prototype.getIncompletesteps=function(ID,callback){
 }
 //修改事件更新日期
 ConcreteeventDAO.prototype.sendeventnewer=function(ID,callback){
+  console.log('日期更新'+ID)
   Concreteeventmodel.update({_id:ID},{newer:new Date()},function(err,obj){
     if(err){
       callback(err)

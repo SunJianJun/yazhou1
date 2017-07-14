@@ -423,17 +423,27 @@ var getpersontitleTodepartment = function (req, res) {
 }
 /**
  * 在职务列表中添加一个职务,可以不传 parentTitle
- * @param {json} req - 传入职务名称，部门名称和上级职务ID。<br>客户端提交json 例如{name:'雇员',derpartmentID:'部门id',parentTitle:'上级职务ID'}
+ * @param {json} req - 传入职务名称，部门名称和上级职务ID。<br>客户端提交json 例如{name:'雇员',departmentID:'部门id',parentTitle:'上级职务ID'}
  * @param {json} res - 返回json：例如{_id:'123456',name:'雇员',derpartmentID:'部门id',parentTitle:'上级职务ID'}
  */
 var sendtitle = function (req, res) {
-  var json=req.body;
+  var json=req.body,
+  parenttitle=json.parentTitle;
+console.log(json.name,json.departmentID)
   if(json.name&&json.departmentID){
-    persontitleDAO.sendpersontitle(json,function (err, obj) {
-      if (err) {
-        res.send({error: '添加失败'})
-      } else {
-        res.send({success: obj})
+    persontitleDAO.getetitle(parenttitle,function(pererr,perobj){
+      if(perobj){
+        perobj
+      }
+           console.log('fanhui')
+        console.log(perobj)
+        persontitleDAO.sendpersontitle(json,function (err, obj) {
+          if (err) {
+            res.send({error: '添加失败'})
+          } else {
+            res.send({success: obj})
+          }
+        })
       }
     })
   }else {
@@ -503,6 +513,7 @@ var sendpersontitle = function (req, res) {
   if (id && title) {
     res.send({error: '提交的参数有误'})
   }
+
   personDAO.sendpersontitle(id, title, function (err, obj) {
     if (err) {
       res.send({error: '提交失败'})

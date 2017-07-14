@@ -210,8 +210,8 @@ var geteventTimestatistics = function (req, res) {
 };
 /**
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
- * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,
- * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456]}
+ * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,新建人
+ * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456],newwho:'新建人ID'}
  * @param {json} res - 返回成功或失败{error: '参数提交错误'}响应状态码
  */
 var sendnewEvent = function (req, res) {
@@ -221,6 +221,7 @@ var sendnewEvent = function (req, res) {
   var typeID = req.body.type; //类型
   var depart=req.body.departmentID;
   var position=req.body.position;
+  var newwho=req.body.newwho;
   position=position?position:[116.396359,39.910651];
   if (!name || !typeID||!depart) {
     res.send({error: '参数提交错误'});
@@ -251,6 +252,7 @@ var sendnewEvent = function (req, res) {
       eventJson.status = 1;
       eventJson.position=position;
       eventJson.department=depart;
+      eventJson.createperson=newwho;
       eventJson.step = [];
       obj.steps.forEach(function (val, key) {
         //eventJson.step.push({types: val.stepName, status: 1});
@@ -277,7 +279,7 @@ var sendnewEvent = function (req, res) {
             // console.log(stepobj)
             //stepobj 抽象步骤 数组 多条记录
             var steplength = stepobj.length;
-            var stepcount = 0, argu1 = {};
+            var stepcount = 0, argu1 = {},isstatus=true;
 
             var stepjiazai = function () {
               // console.log(stepcount>=steplength)
@@ -287,7 +289,15 @@ var sendnewEvent = function (req, res) {
                 // console.log('调了几次'+stepcount)
                 argu1.name = stepobj[stepcount].type;
                 argu1.type = obj.typeName;
-                argu1.status = stepcount ? 2 : 1;
+                argu1.status=1;
+                argu1.responsible=null;
+                if(isstatus) {
+                  argu1.status = stepcount ? 2 : 1;
+                  if (argu1.status == 2) {
+                    argu1.responsible = newwho;
+                    isstatus=false;
+                  }
+                }
                 argu1.no = stepobj[stepcount].status;
                 argu1.wordTemplate = stepobj[stepcount].wordTemplate;
                 argu1.currentPusher = 'null';
@@ -452,7 +462,7 @@ var geteventstep = function (req, res) {
  * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{stepID:"步骤ID",arguments:[["值1","值2"],["设置人ID"],["设置的密码"]]
  * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
  */
-var sendeventargument = function (req, res) {
+var sendeventargumentpush = function (req, res) {
   var stepid = req.body.stepID;
   var argu=req.body.arguments;
   if(stepid&&argu){
@@ -491,6 +501,47 @@ var sendeventargument = function (req, res) {
     res.send({error:'提交参数有误'});
   }
 };
+/**
+ * 填写参数完成，保存参数
+ * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{eventID:"事件ID",arguments:[{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"}],setwho:'当前人员ID'}
+ * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
+ */
+var sendeventargument = function (req, res) {
+  var eventid = req.body.eventID;
+  var argu=req.body.arguments;
+  var setwho=req.body.setwho;
+  console.log(eventid,argu)
+  if(argu&&eventid){
+        var argulength=argu.length;
+        var argucount=0;
+        var arguset=function() {
+          concretearguDAO.setAConcreteargu(argu[argucount].arguid, argu[argucount].value,setwho, function (seterr, setstep) {//依次给步骤中填入参数
+            if (seterr) {
+              res.send({error: null});
+            } else {
+              argucount++;
+              if(argucount<argulength){
+                arguset()
+              }else{
+                concreteeventDAO.sendeventnewer(eventid,function(nererr,nerobj){//修改事件更新日期
+                  if(nererr){
+                    res.send({error: null});
+                  }else{
+                    res.send({success:'is OK!'});
+                  }
+                })
+              }
+              // res.send({success:setstep});
+            }
+          })
+        }
+        arguset()
+
+  }else{
+    res.send({error:'提交参数有误'});
+  }
+};
+
 /**
  * 获取待处理的事件列表--完善中<br/>根据部门查询所有待处理事件
  * @param {json} req - 传入要查询的待处理事件的部门ID,客户端提交json 例如{documentID:"部门ID"}
@@ -670,6 +721,8 @@ mobilegridservice.post('/getcompletestep',getcompletestep);
 mobilegridservice.post('/geteventTimestatistics',geteventTimestatistics)
 mobilegridservice.post('/sendnewEvent', sendnewEvent);
 mobilegridservice.post('/geteventstep',geteventstep);
+
+mobilegridservice.post('/sendeventargumentpush', sendeventargumentpush);
 mobilegridservice.post('/sendeventargument', sendeventargument);
 mobilegridservice.post('/getEventtype',getEventtype);
 mobilegridservice.post('/geteventSearch',geteventSearch);

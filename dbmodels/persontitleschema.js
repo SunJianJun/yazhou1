@@ -6,7 +6,8 @@ var Schema = mongodb.mongoose.Schema;
 var persontitleSchema = new Schema({
   departmentID:String,//department 的 id
   parentTitle:String,//上级ID
-  name:String//名称
+  name:String,//名称
+  grade:Number//职务级别
 });
 // var options={};
 // persontitleSchema.plugin(deepPopulate, options );/* more on options below */

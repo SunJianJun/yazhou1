@@ -13,6 +13,11 @@ var Persontitlemodel = PersontitleSchema.Persontitlemodel;
 
 var Persontitle = function () {};
 
+Persontitle.prototype.getetitle=function(id,callback){
+  Persontitlemodel.findOne({_id:id},function(err,obj){
+      callback(err,obj)
+  })
+}
 //添加一个职务
 Persontitle.prototype.sendpersontitle = function (obj, callback) {
   var instance = new Persontitlemodel(obj);
