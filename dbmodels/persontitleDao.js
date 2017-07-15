@@ -65,6 +65,16 @@ Persontitle.prototype.getpersontitleTodepartment=function(deoartment,callback){
     }
   })
 }
+//获取职务级别
+Persontitle.prototype.getpersontitleno=function(id,callback){
+  Persontitlemodel.findOne({_id:id},'grade',function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 
 

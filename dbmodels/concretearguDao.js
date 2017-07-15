@@ -85,13 +85,33 @@ ConcretearguDAO.prototype.sendAConcreteargu = function (concretearguObj, outcall
 //添加参数值
 ConcretearguDAO.prototype.setAConcreteargu = function (arguid,argu,setwho,callback) {
   // callback('',[arguid,argu]);
-  Concreteargumodel.update({_id:arguid},{value:argu,setByWho:setwho,setTime:new Date()},function (err, uobj) {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, uobj);
+  Concreteargumodel.findOne({_id:arguid}, function (finerr,finobj) {
+    if(finerr){
+      callback(err)
+    }else{
+      var record=[];
+      if(finobj.updateRecord){
+        record=finobj.updateRecord
+      }
+      record.push({
+        person:setwho,
+        updatetime:new Date(),
+        updatedata:{
+          value:argu
+        }})
+      var ops={value:argu,setByWho:setwho,setTime:new Date()};
+      if(argu){
+        ops.updateRecord=record;
+      }
+      Concreteargumodel.update({_id:arguid},ops,function (err, uobj) {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, uobj);
+        }
+      });
     }
-  });
+  })
 };
 
 //添加多条数据

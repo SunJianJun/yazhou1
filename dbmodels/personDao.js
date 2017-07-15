@@ -932,11 +932,10 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
             /*临时使用，获取测试用户*/
             Personmodel.find({status: 9//{$gt: 0}
                   }, {
-                      personlocations: 0,
-                      images: 0
+                      personlocations: 0
                     }).exec(function (err, workmatesObjs) {
                         if (!err) {
-                          console.log(workmatesObjs)
+                          //console.log(workmatesObjs)
                           //console.log('callback getWorkmatesByUserId personObjs得到谁的同事：'+'<>'+curPserson.name+'<>'+workmates);
                           // console.log(workmatesObjs);
                           callback(err, workmatesObjs);

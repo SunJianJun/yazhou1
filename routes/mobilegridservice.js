@@ -19,6 +19,7 @@ var concretearguDAO = require('../dbmodels/concretearguDao');//具体参数表
 
 var departmentDAO = require('../dbmodels/departmentDAO.js');
 var personDAO = require('../dbmodels/personDao');
+var persontitleDAO = require('../dbmodels/persontitleDao');
 
 /**
  *
@@ -254,11 +255,12 @@ var sendnewEvent = function (req, res) {
       eventJson.department=depart;
       eventJson.createperson=newwho;
       eventJson.step = [];
-      obj.steps.forEach(function (val, key) {
-        //eventJson.step.push({types: val.stepName, status: 1});
-      })
-      // console.log('具体事件数据')
-      // console.log(eventJson)
+      //obj.steps.forEach(function (val, key) {
+      //  //eventJson.step.push({types: val.stepName, status: 1});
+      //})
+       console.log('抽象事件的步骤+')
+       console.log(obj.steps)
+      console.log('抽象事件的步骤-')
       concreteeventDAO.sendAConcreteevent(eventJson, function (coneventerr, coneventobj) { //具体类型
         if (coneventerr) {
           console.log(coneventerr)
@@ -292,14 +294,21 @@ var sendnewEvent = function (req, res) {
                 argu1.status=1;
                 argu1.responsible=null;
                 if(isstatus) {
-                  argu1.status = stepcount ? 2 : 1;
-                  if (argu1.status == 2) {
-                    argu1.responsible = newwho;
-                    isstatus=false;
+                  for(var aa=0;aa<stepss.length;aa++){
+                    if(stepss[aa].no==1){
+                      if(stepss[aa].step==stepobj[stepcount]._id){
+
+                        argu1.status =2;
+                          argu1.responsible = newwho;
+                          isstatus=false;
+
+                      }
+                    }
                   }
                 }
                 argu1.no = stepobj[stepcount].status;
                 argu1.wordTemplate = stepobj[stepcount].wordTemplate;
+                argu1.power = stepobj[stepcount].power;//从抽象步骤中获取到添加到具体步骤中
                 argu1.currentPusher = 'null';
                 argu1.argu = [];
                 //console.log(stepobj[stepcount]); //得到抽象表步骤 实例化成具体步骤和参数
@@ -459,44 +468,42 @@ var geteventstep = function (req, res) {
 };
 /**
  * 填写参数完成，提交审核
- * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{stepID:"步骤ID",arguments:[["值1","值2"],["设置人ID"],["设置的密码"]]
+ * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{eventID:"事件ID",stepID:'步骤ID',arguments:[{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"}],setwho:'当前人员ID'}
  * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
  */
 var sendeventargumentpush = function (req, res) {
-  var stepid = req.body.stepID;
+  var eventid = req.body.eventID;
+  var stepid=req.body.stepID;
   var argu=req.body.arguments;
-  if(stepid&&argu){
-    concretestepDAO.getoneeventstep(stepid, function (geterr, getstep) {//获取到事件的步骤
-      if (geterr) {
-        res.send({error: null});
-      } else {
-        var argulength=argu.length;
-        var argucount=0;
-        var arguset=function() {
-            concretearguDAO.setAConcreteargu(getstep.argu[argucount], argu[argucount], function (seterr, setstep) {//依次给步骤中填入参数
-              if (seterr) {
+  var setwho=req.body.setwho;
+  console.log(eventid,argu)
+  if(argu&&eventid&&setwho&&stepid){
+    var argulength=argu.length;
+    var argucount=0;
+    var arguset=function() {
+      concretearguDAO.setAConcreteargu(argu[argucount].arguid, argu[argucount].value,setwho, function (seterr, setstep) {//依次给步骤中填入参数
+        if (seterr) {
+          res.send({error: null});
+        } else {
+          argucount++;
+          if(argucount<argulength){
+            arguset()
+          }else{
+            concreteeventDAO.sendeventnewer(eventid,function(nererr,nerobj){//修改事件更新日期
+              if(nererr){
                 res.send({error: null});
-              } else {
-                // console.log(setstep)
-                argucount++;
-                if(argucount<argulength){
-                  arguset()
-                }else{
-                  concreteeventDAO.sendeventnewer(stepid,function(nererr,nerobj){//修改事件更新日期
-                    if(nererr){
-                      res.send({error: null});
-                    }else{
-                      res.send({success:'is OK!'});
-                    }
-                  })
-                }
-                // res.send({success:setstep});
+              }else{
+
+                res.send({success:'is OK!'});
               }
             })
+          }
+          // res.send({success:setstep});
         }
-        arguset()
-      }
-    })
+      })
+    }
+    arguset()
+
   }else{
     res.send({error:'提交参数有误'});
   }
@@ -511,7 +518,7 @@ var sendeventargument = function (req, res) {
   var argu=req.body.arguments;
   var setwho=req.body.setwho;
   console.log(eventid,argu)
-  if(argu&&eventid){
+  if(argu&&eventid&&setwho){
         var argulength=argu.length;
         var argucount=0;
         var arguset=function() {
@@ -706,6 +713,58 @@ var sendstepadvance= function (req, res) {
       res.send(null);
     }
   })
+};
+/**
+ * 获取当前用户编辑文档的权限
+ * @param {json} req - 客户端传入案件设置的权限，人员职务 <br>{power：{backoff:"59520e5d7b6d7fa011adcc73",go:"59520e5d7b6d7fa011adcc73",new:"all"},title:'当前人员职务'}
+ * @param {json} res - 服务器返回,当前用户可以使用的权限 {[backoff,go]}
+ */
+var getpersonpower=function(req,res){
+  var power = req.body.power;
+  var title=req.body.title;
+  var back=[],iscurrent=[];
+  if(!power){res.send({error:'参数传入错误'});return;}
+  for(var isnot in power){
+    if(power[isnot]=='all'){
+      delete power[isnot]
+      back.push(isnot)
+    }else{
+      iscurrent.push(isnot)
+    }
+  }
+  if(!title){res.send({success:back});return;}
+  persontitleDAO.getpersontitleno(title,function(pertiterr,pertitiobj){
+    if(pertiterr){
+      res.send({error:"获取当前用户职务出错"})
+    }else{
+      //console.log("获取用户级别")
+      //console.log(pertitiobj)
+      var titcount= 0,iscurrentlength=iscurrent.length;    if(!iscurrentlength){return;}
+      var titlejiazai=function(){
+        console.log(power[iscurrent[titcount]])
+        persontitleDAO.getpersontitleno(power[iscurrent[titcount]],function(powtiterr,powtitiobj){//获取设置的权限
+          if(pertiterr){
+            res.send({error:"获取当前权限职务出错"})
+          }else{
+            //console.log("获取权限级别")
+            //console.log(powtitiobj)
+            if(pertitiobj.grade>=powtitiobj.grade){
+              back.push(iscurrent[titcount])
+            }
+            titcount++;
+            if(titcount<iscurrentlength){
+              titlejiazai();
+            }else{
+              //console.log("获取完毕")
+              res.send({success:back});
+              return;
+            }
+          }
+        })
+      }
+      titlejiazai();
+    }
+  })
 }
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
@@ -730,5 +789,6 @@ mobilegridservice.post('/getoneeventstep',getoneeventstep);
 mobilegridservice.post('/getargutostep',getargutostep);
 mobilegridservice.post('/getAllAbstracttype',getAllAbstracttype);
 mobilegridservice.post('/sendeeventDelete',sendeeventDelete);
+mobilegridservice.post('/getpersonpower',getpersonpower);
 
 module.exports = mobilegridservice;

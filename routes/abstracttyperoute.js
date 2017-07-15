@@ -125,7 +125,8 @@ var sendAAbstracttype = function (req, res) {
   //for(var i in req.body){ //console.log("sendAAbstracttype 请求内容body子项："+i+"<>\n")};
   var datt = req.body;
   // console.log(datt+'')
-  if (!datt.typeName) {
+  if (!datt.typeName&&!datt.createparent) {
+    res.send({error:'参数错误'});
     return;
   }
   // //console.log('senderID:'+senderID);

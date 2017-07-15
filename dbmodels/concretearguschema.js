@@ -17,6 +17,14 @@ var ConcretearguSchema = new Schema({//word模板参数
   type:String,
   setTime:Date,
   setByWho:String,//这个参数是谁设置的
+
+  updateRecord:[{ //修改过此参数的人员记录
+    person:String,
+    updatetime:Date,
+    updatedata:{
+      value:String
+    }
+  }],
   promptvalue:String,//参数提示
   identified:String//表示这个值是输入了个人签名密码的
 })

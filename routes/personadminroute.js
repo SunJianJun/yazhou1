@@ -433,7 +433,7 @@ console.log(json.name,json.departmentID)
   if(json.name&&json.departmentID){
     persontitleDAO.getetitle(parenttitle,function(pererr,perobj){
       if(perobj){
-        perobj
+        //perobj
       }
            console.log('fanhui')
         console.log(perobj)
@@ -445,7 +445,7 @@ console.log(json.name,json.departmentID)
           }
         })
       }
-    })
+    )
   }else {
     res.send({error:'提交参数有误'})
   }

@@ -28,6 +28,7 @@ var AbstracttypeSchema = new Schema({//抽象事件
   steps:[{no:Number,step:String}],//步骤的ID
   newer:Date,//更新
   setDate:Date,
+  createparent:String,
   status:Number//1正常 0删除
 })
 // console.log(AbstracttypeSchema);

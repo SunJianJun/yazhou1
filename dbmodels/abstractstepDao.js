@@ -42,14 +42,14 @@ AbstractstepDAO.prototype.getstepsName=function(id,callback) {
 
 
 AbstractstepDAO.prototype.updatepersonpower=function(id,json,callback) {
-  Abstractstepmodel.remove({'_id':id},function(err,obj){
+  Abstractstepmodel.update({'_id':id},json,function(err,obj){
     if(err){
 
     }else{
-      var newS=new Abstractstepmodel(json)
-      newS.save(function (err, obj) {
+      //var newS=new Abstractstepmodel(json)
+      //newS.save(function (err, obj) {
         callback(err, obj);
-      });
+      //});
     }
   })
 };
