@@ -155,6 +155,27 @@ var updatepersonpassword = function (req, res) {
     res.send({error: '提交参数错误'})
   }
 }
+/**
+ * 判断密码是否输入正确
+ * @param {json} req - 客户端提交json， 例如{_id:'用户id',pwd:'密码'}
+ * @param {json} res  返回提示修改成功，或者原密码错误
+ */
+var ispersonpassword = function (req, res) {
+  var json = req.body,
+      uid = json._id,
+      pwd = json.pwd;
+  if (uid || pwd) {
+    personDAO.ispersonpassword(uid,pwd,function (err, obj) {
+      if (!err) {
+        res.send({success:'输入正确'})
+      } else {
+        res.send({error:err})
+      }
+    })
+  } else {
+    res.send({error: '提交参数错误'})
+  }
+}
 
 /**
  * 身份信息有误上报 - 待完善
@@ -179,6 +200,7 @@ personinfo.post('/sendpersonshift', sendpersonshift);
 personinfo.post('/getpersonrecordtoid', getpersonrecordtoid);
 personinfo.post('/getpersonrecordTodepartment', getpersonrecordTodepartment)
 personinfo.post('/updatepersonpassword', updatepersonpassword);
+personinfo.post('/ispersonpassword',ispersonpassword);
 personinfo.post('/sendpersoninfoerr', sendpersoninfoerr);
 personinfo.post('/getpersontwocode', getpersontwocode)
 

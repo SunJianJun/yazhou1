@@ -1254,6 +1254,27 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
     }
   });
 };
+//判断人员密码是否正确
+PersonDAO.prototype.ispersonpassword = function (id,pwd, callback) {
+  //console.log(ID,start)
+  Personmodel.findOne({_id:id},{personlocations:0},function (err, obj) {
+    if (err) {
+      callback(null);
+    } else {
+
+      if(obj && obj.pwd){
+        console.log(obj.pwd,pwd)
+        if(obj.pwd==pwd){//可以修改
+          callback(null,obj)
+        }else{//原密码输入错误
+          callback('密码输入错误')
+        }
+      }else{
+        callback('用户没有设置密码')
+      }
+    }
+  });
+};
 //修改人员信息
 PersonDAO.prototype.updatepersoninfo=function(id,json,callback){
   Personmodel.update({_id:id},json,function(err,nobj){

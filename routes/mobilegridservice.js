@@ -748,15 +748,17 @@ var getpersonpower=function(req,res){
           }else{
             //console.log("获取权限级别")
             //console.log(powtitiobj)
-            if(pertitiobj.grade>=powtitiobj.grade){
-              back.push(iscurrent[titcount])
+            if(powtitiobj&&powtitiobj.grade) {
+              if (pertitiobj.grade >= powtitiobj.grade) {
+                back.push(iscurrent[titcount])
+              }
             }
             titcount++;
-            if(titcount<iscurrentlength){
+            if (titcount < iscurrentlength) {
               titlejiazai();
-            }else{
+            } else {
               //console.log("获取完毕")
-              res.send({success:back});
+              res.send({success: back});
               return;
             }
           }

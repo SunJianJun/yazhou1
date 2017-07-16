@@ -539,7 +539,7 @@ var getUserPicById = function (req, res) {
     personDAO.getUserPicById(userid, function (err, obj) {
       if (!err) {
         // //console.log('getUserPicById 查询'+userid+'照片ok:');
-        res.send(obj);
+        res.send({success:{_id:userid,images:obj}});
       } else {
         // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
         res.send({error: '获取失败'});
