@@ -25,31 +25,31 @@ AbstractstepDAO.prototype.getpersonTiele=function (callback) {
 };
 AbstractstepDAO.prototype.getstepsName=function(id,callback) {
   //console.log('查询数组')
-  //console.log(id)
+  console.log(id)
   var query=Abstractstepmodel.find({'_id':{$in:id}},'type');
   var ops='type';
   query.sort({_id:1});
   query.exec(function (err, obj) {
     if(err){
-
+      callback(err);
     }else{
       //console.log('返回数组')
       //console.log(obj)
-      callback(err, obj);
+      callback(null,obj);
     }
   });
 };
 
 
 AbstractstepDAO.prototype.updatepersonpower=function(id,json,callback) {
-  Abstractstepmodel.remove({'_id':id},function(err,obj){
+  Abstractstepmodel.update({'_id':id},json,function(err,obj){
     if(err){
 
     }else{
-      var newS=new Abstractstepmodel(json)
-      newS.save(function (err, obj) {
+      //var newS=new Abstractstepmodel(json)
+      //newS.save(function (err, obj) {
         callback(err, obj);
-      });
+      //});
     }
   })
 };
@@ -285,6 +285,11 @@ AbstractstepDAO.prototype.getoneeventstep = function (ID,outcallback) {
 }
 AbstractstepDAO.prototype.geteventsteps= function (ID,outcallback) {
   // var areaID=area.areaID;
+  // console.log(ID)
+  for (var i = 0, stepid = []; i <ID.length; i++) { //循环出人员id数组
+    // console.log(obj.steps[i].step); //抽象步骤 id
+      stepid.push(ID[i].step);
+  }
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback geteventsteps 出错：' + '<>' + err);
@@ -292,11 +297,21 @@ AbstractstepDAO.prototype.geteventsteps= function (ID,outcallback) {
         console.log('callback geteventsteps 成功：' + '<>' + obj);
       }
     }
-  var query = Abstractstepmodel.find({_id: {$in:ID},status:1}, function (err, result) {
+  var query = Abstractstepmodel.find({_id: {$in:stepid},status:1}, function (err, result) {
     if (err) {
       outcallback(err,null)
     } else {
-      outcallback(null,result);
+      var result1=result;
+      for(var a=0;a<result1.length;a++){
+        for(var b=0;b<ID.length;b++){
+          // console.log(result1[a]._id,ID[b].step)
+          if(result1[a]._id==ID[b].step){
+            // console.log('修改添加'+ID[b].no)
+            result1[a].status=ID[b].no;
+          }
+        }
+      }
+      outcallback(null,result1);
     }
   });
 }

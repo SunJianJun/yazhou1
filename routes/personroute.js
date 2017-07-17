@@ -88,7 +88,6 @@ var getPersonBymobile = function(req, res) {
     });
 }
 
-//
 /**
  *添加人员位置 url:person/addlocation
  * @para {json} req - personid 人员id，curlocation一个定位对象{

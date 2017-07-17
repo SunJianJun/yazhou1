@@ -6,6 +6,7 @@ var concretestep = require('../dbmodels/concretestepschema.js');
 // console.log('concretestep数据模型是否存在：'+concretestep);
 
 //获取数据模型
+var concreteeventDAO = require('../dbmodels/concreteeventDao');//具体事件表
 var concretestepDAO = require('../dbmodels/concretestepDao');
 
 
@@ -103,22 +104,35 @@ var sendAConcretestep = function (req, res) {
 var geteventstep = function (req, res) {
   // //console.log('call geteventstep');
   //for(var i in req.body){ //console.log("geteventstep 请求内容body子项："+i+"<>\n")};
-  var datt = req.body.id;
+  var datt = req.body.id;//传入事件id
   console.log(datt)
   if (!datt) {
-    return;
+    res.send({error:'参数错误'});
+  }else {
+    concreteeventDAO.getIncompletesteps(datt, function (err, obj) {
+      if (obj) {
+        //console.log('getIncompletesteps 成功-' + obj)
+        concretestepDAO.geteventstep(obj.step, function (err, obj) {
+          // var jjj=obj.clone();
+          // jjj.newproperty="11";
+          if (!err) {
+            res.send({success:obj});
+          } else {
+            res.send({error:'获取步骤出错'});
+          }
+        });
+      } else {
+        res.send({error:'获取步骤出错'})
+      }
+    })
+    // //console.log('senderID:'+senderID);
+
   }
-  // //console.log('senderID:'+senderID);
-  concretestepDAO.geteventstep(datt, function (err, obj) {
-    if (!err) {
-      console.log('geteventstep 查询所有发送的消息:' + obj._id);
-      res.send(obj);
-    } else {
-      console.log('geteventstep 查询所有发送的消息为空:' + err);
-      res.send(null);
-    }
-  });
 };
+
+var getcurrentstep = function (req,res){
+  console.log('123')
+}
 
 var getConcretestepsInATimeSpanFromWho = function (req, res) {
   // //console.log('call getConcretestepsInATimeSpanFromWho');
@@ -141,26 +155,28 @@ var getConcretestepsInATimeSpanFromWho = function (req, res) {
   });
 };
 var getoneeventstep = function (req, res) {
-    var ID = req.body.id;
-    concretestepDAO.getoneeventstep(ID,function (err, obj) {
-        if (!err) {
-            res.send(obj);
-            // console.log(obj);
-        } else {
-            // console.log(err);
-            res.send(null);
-        }
-    })
+  var ID = req.body.id;
+  concretestepDAO.getoneeventstep(ID,function (err, obj) {
+    if (!err) {
+      res.send(obj);
+      // console.log(obj);
+    } else {
+      // console.log(err);
+      res.send(null);
+    }
+  })
 }
+
 
 
 concretesteprouter.post('/sendAConcretestep', sendAConcretestep);//增加
 concretesteprouter.post('/geteventstep', geteventstep);
+concretesteprouter.post('/getcurrentstep',getcurrentstep);//获取当前进行的步骤
 concretesteprouter.post('/readtConcretestep', readtConcretestep);//提交
 concretesteprouter.post('/getMyNewestConcretestepFromWho', getMyNewestConcretestepFromWho);//编辑查询
 concretesteprouter.post('/getConcretestepsInATimeSpanFromWho', getConcretestepsInATimeSpanFromWho);//编辑查询
-concretesteprouter.post('/getoneeventstep',getoneeventstep);//根据用户id得到事件步骤
 
 concretesteprouter.post('/concretestepDelete', concretestepDelete);//查找
 concretesteprouter.post('/concretesteppeopleDelete', concretesteppeopleDelete);//查找
+concretesteprouter.post('/getoneeventstep',getoneeventstep);//根据用户id得到事件步骤
 module.exports = concretesteprouter;

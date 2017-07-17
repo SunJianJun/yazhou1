@@ -45,6 +45,7 @@ AbstracttypeDAO.prototype.getAllAbstracttype=function(callback){//获取所有�
     }
   };
    Abstracttypemodel.find({status:1}).exec(function(err,obj){
+     // console.log(obj)
       callback(err,obj)
    })
 };

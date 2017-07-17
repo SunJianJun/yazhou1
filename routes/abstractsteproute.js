@@ -7,22 +7,34 @@ var abstractstep = require('../dbmodels/abstractstepschema.js');
 
 //获取数据模型
 var abstractstepDAO = require('../dbmodels/abstractstepDao');
+var persontitleDAO=require('../dbmodels/persontitleDao');
 
-
+/*
+* 获取人员title
+*/
 var getpersonTiele = function (req, res) {
-  abstractstepDAO.getpersonTiele (function(err,obj){
+    var deparment=req.body.departmentID;
+    deparment=deparment?deparment:'58c3a5e9a63cf24c16a50b8c';
+  persontitleDAO.getpersontitleTodepartment(deparment,function(err,obj){
         console.log(err,obj)
         if(err){
-            res.send(err);
+            res.send({error:err});
         }else{
-            res.send(obj);
+            res.send({success:obj});
         }
   });
 };
 var getstepsName = function (req, res) {
     var idArr=req.body.id;
+    // console.log(idArr)
+  if(!idArr){
 
-    abstractstepDAO.getstepsName(idArr,function(err,obj){
+  }else {
+    for (var i = 0, arr = []; i < idArr.length; i++) {
+      arr.push(idArr[i].step)
+    }
+    // console.log(arr)
+    abstractstepDAO.getstepsName(arr,function(err,obj){
         if(err){
             res.send(null);
         }else{
@@ -33,32 +45,33 @@ var getstepsName = function (req, res) {
     //    idcount=0,
     //    idlength=idArr.length;
     //console.log('-------------华丽的分割线---------------')
-    var idLoad=function(){
-        //console.log(idArr)
-        //console.log('人员步骤')
-        //console.log(idArr[idcount])
-        //    abstractstepDAO.getstepsName(idArr[idcount], function (err, obj) {
-        //        if (err) {
-        //            res.send(null);
-        //        } else {
-        //
-        //
-        //        }
-        //    });
-        idcount++;
-        if(idcount<idlength){
-            console.log(idArr[idcount])
-            //nameArr.push(obj)
-            //console.log(nameArr)
-            idLoad();
-        }
-        else{
-            //console.log('完成')
-            //console.log(nameArr)
-            res.send(nameArr);
-        }
+    var idLoad = function () {
+      //console.log(idArr)
+      //console.log('人员步骤')
+      //console.log(idArr[idcount])
+      //    abstractstepDAO.getstepsName(idArr[idcount], function (err, obj) {
+      //        if (err) {
+      //            res.send(null);
+      //        } else {
+      //
+      //
+      //        }
+      //    });
+      idcount++;
+      if (idcount < idlength) {
+        console.log(idArr[idcount])
+        //nameArr.push(obj)
+        //console.log(nameArr)
+        idLoad();
+      }
+      else {
+        //console.log('完成')
+        //console.log(nameArr)
+        res.send(nameArr);
+      }
     }
     //idLoad();
+  }
 };
 var updatepersonpower= function (req, res) {
     var idArr=req.body.id;

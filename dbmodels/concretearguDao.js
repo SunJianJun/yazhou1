@@ -39,10 +39,8 @@ ConcretearguDAO.prototype.getparametersaccordingtoParameter = function(arguID, o
     };
     Concreteargumodel.find({ _id : {$in:arguID}} ,function(err,obj){
         if (err) {
-          console.log('callback  出错：-' + '<>' + err);
           outcallback(err,null)
         } else {
-          console.log('callback  成功：-' + '<>' + obj);
           outcallback(null,obj)
         }
     })
@@ -55,6 +53,7 @@ ConcretearguDAO.prototype.findByName = function (name, callback) {
   });
 };
 
+//新建参数
 ConcretearguDAO.prototype.sendAConcreteargu = function (concretearguObj, outcallback) {
 
   console.log('添加数据');
@@ -83,6 +82,39 @@ ConcretearguDAO.prototype.sendAConcreteargu = function (concretearguObj, outcall
   });
 };
 
+//添加参数值
+ConcretearguDAO.prototype.setAConcreteargu = function (arguid,argu,setwho,callback) {
+  // callback('',[arguid,argu]);
+  Concreteargumodel.findOne({_id:arguid}, function (finerr,finobj) {
+    if(finerr){
+      callback(err)
+    }else{
+      var record=[];
+      if(finobj.updateRecord){
+        record=finobj.updateRecord
+      }
+      record.push({
+        person:setwho,
+        updatetime:new Date(),
+        updatedata:{
+          value:argu
+        }})
+      var ops={value:argu,setByWho:setwho,setTime:new Date()};
+      if(argu){
+        ops.updateRecord=record;
+      }
+      Concreteargumodel.update({_id:arguid},ops,function (err, uobj) {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, uobj);
+        }
+      });
+    }
+  })
+};
+
+//添加多条数据
 ConcretearguDAO.prototype.sendAllConcreteargu = function (concretearguObj, outcallback) {
   //console.log('添加多条数据');
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -110,100 +142,6 @@ ConcretearguDAO.prototype.sendAllConcreteargu = function (concretearguObj, outca
   }
 };
 
-
-ConcretearguDAO.prototype.getMyNewestConcreteargu = function (receiverID, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getMyNewestConcreteargu 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        console.log('callback getMyNewestConcreteargu 成功：' + '<>' + obj[index]);
-      }
-      //console.log('callback getMyNewestConcreteargu 成功：'+'<>');
-    }
-  };
-
-  var query = Concreteargumodel.find({'receiver': receiverID, status: 0});
-  var opts = [{
-    path: 'sender'
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    ,
-    select: {name: 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
-    if (!err) {
-      callback(err, docs);
-    }
-    else {
-      callback(err, null);
-    }
-  });
-};
-
-ConcretearguDAO.prototype.getMyNewestConcretearguFromWho = function (receiverID, senderID, isAbstract, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      console.log('callback getMyNewestConcretearguFromWho 出错：' + '<>' + err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        console.log('callback getMyNewestConcretearguFromWho 成功：' + '<>' + obj[index]);
-      }
-      if (obj.abstract) {
-
-        console.log('callback getMyNewestConcretearguFromWho 成功：' + '<>' + obj.abstract + '<>' + obj.count + '<>' + obj.lastTime);
-      }
-    }
-  };
-
-  var query = Concreteargumodel.find({'receiver': receiverID, sender: senderID, status: 1}, {});
-  var opts = [{
-    path: 'sender',
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,'images':0
-    select: {'name': 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
-    if (!err) {
-      // 如果是需要摘要信息，而且指定来源的消息数量》0
-      if (isAbstract && docs.length > 0) {
-        var count = docs.length;
-        var abstract = docs[docs.length - 1].text ? docs[docs.length - 1].text.substr(0, 6) + '...' : ((docs[docs.length - 1].image || docs[docs.length - 1].video || docs[docs.length - 1].voice) ? '多媒体消息...' : '....');
-        var output = {
-          sender: docs[docs.length - 1].sender, count: count, abstract: abstract,
-          startTime: docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-          lastTime: docs[docs.length - 1].create_date.Format("yyyy-MM-dd hh:mm:ss")
-          // ,
-          // unreadconcreteargus:docs
-        };
-        callback(err, output);
-      }
-      // 如果不需要摘要信息，而且消息数量大于0
-      else if (docs.length > 0) {
-        callback(err, docs);
-      } else {
-        // 虽然没有错，但是也没有消息
-        callback(err, null);
-      }
-    }
-    else {
-    }
-  });
-};
-
 ConcretearguDAO.prototype.concretearguDelete = function (name, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -221,7 +159,7 @@ ConcretearguDAO.prototype.concretearguDelete = function (name, outcallback) {
   query.exec(function (err, docs) {
     if (!err) {
       // console.log(docs);
-      callback(err, docs);
+      callback(null, docs);
     }
     else {
       console.log('没有数据');
@@ -229,6 +167,7 @@ ConcretearguDAO.prototype.concretearguDelete = function (name, outcallback) {
     }
   });
 }
+
 ConcretearguDAO.prototype.concreteargupeopleDelete = function (areaID, position, outcallback) {
   // var areaID=area.areaID;
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -268,125 +207,27 @@ ConcretearguDAO.prototype.concreteargupeopleDelete = function (areaID, position,
   });
 }
 
-ConcretearguDAO.prototype.getConcreteargusInATimeSpanFromWho = function (receiverID, senderID, startTime, endtime, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getConcreteargusInATimeSpanFromWho 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getConcreteargusInATimeSpanFromWho 成功：'+'<>'+obj[index]);
+//判断参数是否全部填写
+ConcretearguDAO.prototype.isargunoblank=function(id,callback){
+  Concreteargumodel.find({_id:{$in:id}},'value',function(err,obj){
+    if(err){
+      callback(err);
+    }else{
+      for(var i=0;i<obj.length;i++){
+        // console.log(i)
+        // console.log(obj[i])
+        if(obj[i].value.length){
+
+        }else{
+          console.log(id);
+          callback(null,id)
+          return;
+        }
       }
-      if (obj.abstract) {
-
-        //console.log('callback getConcreteargusInATimeSpanFromWho 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
-      }
-
+      // console.log(obj)
     }
-  };
-
-  var query = Concreteargumodel.find();
-  query.or([{
-    'receiver': receiverID, sender: senderID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }, {
-    'receiver': senderID, sender: receiverID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }]);
-  var opts = [{
-    path: 'sender'
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,'images':0
-    ,
-    select: {'name': 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
-    if (!err) {
-      // 如果是需要摘要信息，而且指定来源的消息数量》0
-      if (docs.length > 0) {
-        // var count=docs.length;
-        // var abstract=docs[docs.length-1].text?docs[docs.length-1].text.substr(0,6)+'...':(docs[docs.length-1].image?'图片消息...':(docs[docs.length-1].video?'视频消息...':'....'));
-        // var output={sender:docs[docs.length-1].sender,count:count,abstract:abstract,
-        //     firstTime:docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     lastTime:docs[docs.length-1].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     unreadconcreteargus:docs
-        // };
-        callback(err, docs);
-      }
-      else {
-        // 虽然没有错，但是也没有消息
-        callback(err, null);
-      }
-    }
-    else {
-    }
-  });
-};
-
-
-ConcretearguDAO.prototype.getMyUnreadConcreteargusCount = function (receiverID, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getMyUnreadConcreteargusCount 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getMyUnreadConcreteargusCount 成功：'+'<>'+obj[index]);
-      }
-      //console.log('callback getMyUnreadConcreteargusCount 成功：'+'<>未读消息数量:'+obj);
-    }
-  };
-
-  var query = Concreteargumodel.find({'receiver': receiverID, status: 0}, {_id: 1});
-  query.exec(function (err, docs) {
-    if (!err) {
-      callback(err, docs.length);
-    }
-    else {
-      callback(err, 0);
-    }
-  });
-};
-
-
-ConcretearguDAO.prototype.readtConcreteargu = function (mid, outcallback) {
-
-  console.log('a--------------------------------')
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      console.log('callback readtConcreteargu 出错：' + '<>' + err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        console.log('callback readtConcreteargu 成功：' + '<>' + obj[index]);
-      }
-      console.log('callback readtConcreteargu 成功：' + '<>');
-    }
-  };
-
-  Concreteargumodel.findOne({name: mid.name}, function (err, obj) {
-    if (!err && obj) {
-      console.log('添加');
-      console.log(mid.persons);
-      Concreteargumodel.update({name: mid.name}, {persons: mid.persons}, function (err, uobj) {
-        console.log(uobj);
-        callback(err, uobj);
-      });
-    }
-    else {
-      console.log('添加失败');
-      callback(err, null);
-    }
-  });
-};
+  })
+}
 
 
 var concretearguObj = new ConcretearguDAO();

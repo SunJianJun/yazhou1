@@ -98,7 +98,7 @@ var getAllAbstracttype=function(req,res){
   //console.log('----------')
 	abstracttypeDAO.getAllAbstracttype(function(err,obj){
 		if(!err){
-			 //console.log(obj)
+			 // console.log(obj);
 			res.send(obj);
 		}else{
 			//console.log(err)
@@ -125,7 +125,8 @@ var sendAAbstracttype = function (req, res) {
   //for(var i in req.body){ //console.log("sendAAbstracttype 请求内容body子项："+i+"<>\n")};
   var datt = req.body;
   // console.log(datt+'')
-  if (!datt.typeName) {
+  if (!datt.typeName&&!datt.createparent) {
+    res.send({error:'参数错误'});
     return;
   }
   // //console.log('senderID:'+senderID);

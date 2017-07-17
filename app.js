@@ -84,7 +84,7 @@ app.use('/department', departmentroute);
 app.use('/panoimg', panoimgroute);
 app.use('/spotarea', spotarearoute);
 
-app.use('/mobilegridservice', mobilegridservice);
+app.use('/mobilegrid', mobilegridservice);
 app.use('/personadminroute',personadminroute);
 app.use('/map',maproute);
 app.use('/personalinfo',personalinfo);

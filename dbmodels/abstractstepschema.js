@@ -32,7 +32,7 @@ var AbstractstepSchema = new Schema({//抽象表
     }],//参数,值为参数的类型，这个类型是有限的，至少包括 时间time 地点 location 部门内部人员workers 社会人员peoples 法律法规laws
     wordTemplate: String,//word
     author: String,//id//谁制作的
-    power: {
+    power: { //设置审核人员
         new: String,
         backoff: String,
         go: String

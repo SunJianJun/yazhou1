@@ -1,4 +1,4 @@
-﻿var mongodb = require('./mongodb');
+﻿﻿﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
 ////网格化区域，geojson导入，后期要支持他们的编辑
@@ -25,9 +25,10 @@ var Schema = mongodb.mongoose.Schema;
 
 var AbstracttypeSchema = new Schema({//抽象事件
   typeName:String,//事件类型
-  steps:[String],//步骤的ID
+  steps:[{no:Number,step:String}],//步骤的ID
   newer:Date,//更新
   setDate:Date,
+  createparent:String,
   status:Number//1正常 0删除
 })
 // console.log(AbstracttypeSchema);

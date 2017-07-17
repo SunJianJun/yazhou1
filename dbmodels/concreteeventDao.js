@@ -39,7 +39,7 @@ ConcreteeventDAO.prototype.findByName = function (name, callback) {
     callback(err, obj);
   });
 };
-ConcreteeventDAO.prototype.getAllConcreteevent=function(callback){//获取所有类型
+ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,callback){//获取所有类型
     var callback = callback ? callback : function (err, obj) {
     if (err) {
       console.log('callback getAllConcreteevent 出错：-' + '<>' + err);
@@ -47,14 +47,16 @@ ConcreteeventDAO.prototype.getAllConcreteevent=function(callback){//获取所有
       console.log('callback getAllConcreteevent 成功：-' + '<>' + obj);
     }
   };
-   Concreteeventmodel.find({}).exec(function(err,obj){
+   Concreteeventmodel.find({status:1}).exec(function(err,obj){
      if(err){
        callback(err,null)
      }else{
        callback(null,obj)
      }
    })
-}
+};
+
+//新建一个事件
 ConcreteeventDAO.prototype.sendAConcreteevent = function (concreteeventObj, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -67,12 +69,14 @@ ConcreteeventDAO.prototype.sendAConcreteevent = function (concreteeventObj, outc
   var newM = new Concreteeventmodel(concreteeventObj);
   newM.save(function (err, uobj) {
     if (err) {
-      callback(err, null);
+      callback(err);
     } else {
-      callback(err, uobj);
+      callback(null, uobj);
     }
   });
 };
+
+//
 ConcreteeventDAO.prototype.geteventTimestatistics=function(){
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -81,16 +85,8 @@ ConcreteeventDAO.prototype.geteventTimestatistics=function(){
       console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
     }
   };
-}
-ConcreteeventDAO.prototype.currentProcessedevents=function(userID,outcallback){
-  var callback=outcallback?outcallback:function(err,obj){
-    if (err) {
-      console.log('callback sendAConcreteevent 出错：-' + '<>' + err);
-    } else {
-      console.log('callback sendAConcreteevent 成功：-' + '<>' + obj);
-    }
-  }
-}
+};
+
 ConcreteeventDAO.prototype.getMyNewestConcreteevent = function (receiverID, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
@@ -127,62 +123,6 @@ ConcreteeventDAO.prototype.getMyNewestConcreteevent = function (receiverID, outc
   });
 };
 
-ConcreteeventDAO.prototype.getMyNewestConcreteeventFromWho = function (receiverID, senderID, isAbstract, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      console.log('callback getMyNewestConcreteeventFromWho 出错：' + '<>' + err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        console.log('callback getMyNewestConcreteeventFromWho 成功：' + '<>' + obj[index]);
-      }
-      if (obj.abstract) {
-
-        console.log('callback getMyNewestConcreteeventFromWho 成功：' + '<>' + obj.abstract + '<>' + obj.count + '<>' + obj.lastTime);
-      }
-    }
-  };
-
-  var query = Concreteeventmodel.find({'receiver': receiverID, sender: senderID, status: 1}, {});
-  var opts = [{
-    path: 'sender',
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,'images':0
-    select: {'name': 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
-    if (!err) {
-      // 如果是需要摘要信息，而且指定来源的消息数量》0
-      if (isAbstract && docs.length > 0) {
-        var count = docs.length;
-        var abstract = docs[docs.length - 1].text ? docs[docs.length - 1].text.substr(0, 6) + '...' : ((docs[docs.length - 1].image || docs[docs.length - 1].video || docs[docs.length - 1].voice) ? '多媒体消息...' : '....');
-        var output = {
-          sender: docs[docs.length - 1].sender, count: count, abstract: abstract,
-          startTime: docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-          lastTime: docs[docs.length - 1].create_date.Format("yyyy-MM-dd hh:mm:ss")
-          // ,
-          // unreadconcreteevents:docs
-        };
-        callback(err, output);
-      }
-      // 如果不需要摘要信息，而且消息数量大于0
-      else if (docs.length > 0) {
-        callback(err, docs);
-      } else {
-        // 虽然没有错，但是也没有消息
-        callback(err, null);
-      }
-    }
-    else {
-    }
-  });
-};
 
 ConcreteeventDAO.prototype.concreteeventDelete = function (id, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -192,15 +132,15 @@ ConcreteeventDAO.prototype.concreteeventDelete = function (id, outcallback) {
         console.log('callback concreteeventDelete 成功：' + '<>' + obj);
     }
   };
-  var query = Concreteeventmodel.remove({'_id': id, status: 1}, {});
+  var query = Concreteeventmodel.update({'_id': id}, {status:0});
   query.exec(function (err, docs) {
     if (!err) {
       // console.log(docs);
-      callback(err, docs);
+      callback(null, docs);
     }
     else {
       console.log('没有数据');
-      callback(err, 0);
+      callback(err);
     }
   });
 }
@@ -213,13 +153,10 @@ ConcreteeventDAO.prototype.updateaddsetp = function (eventId,step, callback) {
     }
   }
   var stepjson=step;
-      console.log('--11--')
-      console.log(step)
-
-  console.log('--22--')
+      //console.log(step)
       Concreteeventmodel.update({_id: eventId}, {$set: {'step':step}}, function (err, res) {
         if (!err) {
-          console.log('修改');
+          //console.log('修改');
           callback(err, res);
         }
         else {
@@ -238,10 +175,10 @@ ConcreteeventDAO.prototype.geteventStatus = function (status, callback) {
   }
   Concreteeventmodel.find({status: status},function (err,obj) {
     if (!err) {
-      callback(obj);
+      callback(null,obj);
     }
     else {
-      callback(null);
+      callback(err);
     }
   });
 }
@@ -285,74 +222,8 @@ ConcreteeventDAO.prototype.concreteeventpeopleDelete = function (areaID, positio
   });
 }
 
-ConcreteeventDAO.prototype.getConcreteeventsInATimeSpanFromWho = function (receiverID, senderID, startTime, endtime, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getConcreteeventsInATimeSpanFromWho 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getConcreteeventsInATimeSpanFromWho 成功：'+'<>'+obj[index]);
-      }
-      if (obj.abstract) {
-
-        //console.log('callback getConcreteeventsInATimeSpanFromWho 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
-      }
-
-    }
-  };
-
-  var query = Concreteeventmodel.find();
-  query.or([{
-    'receiver': receiverID, sender: senderID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }, {
-    'receiver': senderID, sender: receiverID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }]);
-  var opts = [{
-    path: 'sender'
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,'images':0
-    ,
-    select: {'name': 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
-    if (!err) {
-      // 如果是需要摘要信息，而且指定来源的消息数量》0
-      if (docs.length > 0) {
-        // var count=docs.length;
-        // var abstract=docs[docs.length-1].text?docs[docs.length-1].text.substr(0,6)+'...':(docs[docs.length-1].image?'图片消息...':(docs[docs.length-1].video?'视频消息...':'....'));
-        // var output={sender:docs[docs.length-1].sender,count:count,abstract:abstract,
-        //     firstTime:docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     lastTime:docs[docs.length-1].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     unreadconcreteevents:docs
-        // };
-        callback(err, docs);
-      }
-      else {
-        // 虽然没有错，但是也没有消息
-        callback(err, null);
-      }
-    }
-    else {
-    }
-  });
-};
 ConcreteeventDAO.prototype.getpersonEvent=function(personID,callback){ //人员id查询在哪个事件中
   var query=Concreteeventmodel.find({people:{$in:[personID]}});
-
-
   query.exec(function(err,obj){
     if(err){
       console.log('查询错误')
@@ -421,6 +292,27 @@ ConcreteeventDAO.prototype.geteventposition=function(callback){
   Concreteeventmodel.find({status:1},'name newer position',function(err,obj){
     if(err){
       callback(err,null)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+
+ConcreteeventDAO.prototype.getIncompletesteps=function(ID,callback){
+  Concreteeventmodel.findOne({_id:ID},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+//修改事件更新日期
+ConcreteeventDAO.prototype.sendeventnewer=function(ID,callback){
+  console.log('日期更新'+ID)
+  Concreteeventmodel.update({_id:ID},{newer:new Date()},function(err,obj){
+    if(err){
+      callback(err)
     }else{
       callback(null,obj)
     }

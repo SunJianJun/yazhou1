@@ -13,6 +13,11 @@ var Persontitlemodel = PersontitleSchema.Persontitlemodel;
 
 var Persontitle = function () {};
 
+Persontitle.prototype.getetitle=function(id,callback){
+  Persontitlemodel.findOne({_id:id},function(err,obj){
+      callback(err,obj)
+  })
+}
 //添加一个职务
 Persontitle.prototype.sendpersontitle = function (obj, callback) {
   var instance = new Persontitlemodel(obj);
@@ -30,7 +35,16 @@ Persontitle.prototype.sendpersonparent=function(id,parent,callback){
     }
   })
 }
-
+//根据职务获取上级职务
+Persontitle.prototype.getpersontitle=function(id,callback){
+  Persontitlemodel.findOne({_id:id},'parentTitle',function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 //获取某一状态的人员
 Persontitle.prototype.getpersonstate= function (status,callback) {
   Persontitlemodel.find({status:status},{personlocations:0},function(err,obj){
@@ -44,6 +58,16 @@ Persontitle.prototype.getpersonstate= function (status,callback) {
 //获取所有职务
 Persontitle.prototype.getpersontitleTodepartment=function(deoartment,callback){
   Persontitlemodel.find({departmentID:deoartment},'name',function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+//获取职务级别
+Persontitle.prototype.getpersontitleno=function(id,callback){
+  Persontitlemodel.findOne({_id:id},'grade',function(err,obj){
     if(err){
       callback(err)
     }else{

@@ -13,11 +13,12 @@ var ConcreteeventSchema=new Schema({//事件表
   //}],
   status:Number,// 1表示完结， 完结状态是当且仅当所有步骤的状态为完结时才完结
 
-  setupTime:Date, //建立日期
+  createTime:Date, //建立日期
   ediTime:Date,  //结束日期
-  document:String,//事件归属部门
+  department:String,//事件归属部门
   people:[String],//事件参与人员
-  position:[Number]
+  position:[Number],
+  createperson:String,
 });
 
 console.log('mongodb ConcreteeventSchema load is ok!:' + ConcreteeventSchema);

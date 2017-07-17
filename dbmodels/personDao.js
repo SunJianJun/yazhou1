@@ -1,4 +1,4 @@
-﻿var mongodb = require('./mongodb');
+﻿﻿var mongodb = require('./mongodb');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var departmentModule = require('./departmentschema');
 var select = require('xpath.js'),
@@ -932,11 +932,10 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
             /*临时使用，获取测试用户*/
             Personmodel.find({status: 9//{$gt: 0}
                   }, {
-                      personlocations: 0,
-                      images: 0
+                      personlocations: 0
                     }).exec(function (err, workmatesObjs) {
                         if (!err) {
-                          console.log(workmatesObjs)
+                          //console.log(workmatesObjs)
                           //console.log('callback getWorkmatesByUserId personObjs得到谁的同事：'+'<>'+curPserson.name+'<>'+workmates);
                           // console.log(workmatesObjs);
                           callback(err, workmatesObjs);
@@ -1116,6 +1115,7 @@ PersonDAO.prototype.addpersonCheckwork = function (mobile, callback) {
   });
 };
 
+
 //为指定用户添加新的定位点
 PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallback) {
   try {
@@ -1262,6 +1262,37 @@ PersonDAO.prototype.updatepersonpassword = function (id,idNum,opwd,npwd, callbac
     }
   });
 };
+//判断人员密码是否正确
+PersonDAO.prototype.ispersonpassword = function (id,pwd, callback) {
+  //console.log(ID,start)
+  Personmodel.findOne({_id:id},{personlocations:0},function (err, obj) {
+    if (err) {
+      callback(null);
+    } else {
+
+      if(obj && obj.pwd){
+        console.log(obj.pwd,pwd)
+        if(obj.pwd==pwd){//可以修改
+          callback(null,obj)
+        }else{//原密码输入错误
+          callback('密码输入错误')
+        }
+      }else{
+        callback('用户没有设置密码')
+      }
+    }
+  });
+};
+//修改人员信息
+PersonDAO.prototype.updatepersoninfo=function(id,json,callback){
+  Personmodel.update({_id:id},json,function(err,nobj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,nobj)
+    }
+  })
+}
 
 //得到人员的极光id
 PersonDAO.prototype.getIMid = function (id,callback) {
@@ -1355,11 +1386,11 @@ PersonDAO.prototype.getPersonStatistics=function(startDate,endDate,callback){
         if(!err){
             //for(var i=0;i<obj.length;i++){
 
-            callback(err,obj)
+            callback(err,obj);
             //}
         }
     })
-}
+};
 
 
 
@@ -1455,12 +1486,12 @@ PersonDAO.prototype.countByPerson=function(personId,sTime,eTime,countType,timesp
 
 var daoObj = new PersonDAO();
 //
-var locationObj = {
- positioningdate: new Date(),
- SRS: '4321',
- geolocation: [119, 37]
-};
-daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
+//var locationObj = {
+//  positioningdate: new Date(),
+//  SRS: '4321',
+//  geolocation: [119, 37]
+//};
+//daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 
 // 测试
 // daoObj.getPersonLatestPosition('58c043cc40cbb100091c640d');
@@ -1468,5 +1499,5 @@ daoObj.addNewLocation('58c043cc40cbb100091c640d', locationObj);
 // ObjectId("58bff0836253fd4008b3d41b"),ObjectId("58cb3361e68197ec0c7b96c0")ObjectId("58c1d1cb278a267826a236aa")
 // daoObj.getWorkmatesByUserId('58c1d1cb278a267826a236aa');
 // daoObj.getUserPicById('58c043cc40cbb100091c640d');
-// daoObj.countByPerson("594cc13fc6178a040fa76063","2017-06-24","2017-07-10","counts","day",null);
+daoObj.countByPerson("594cc13fc6178a040fa76063","2017-06-24","2017-07-10","counts","day",null);
 module.exports = daoObj;

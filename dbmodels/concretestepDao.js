@@ -50,7 +50,7 @@ ConcretestepDAO.prototype.sendAConcretestep = function (concretestepObj, outcall
   // concretestepObj.sender=senderID;
 
   // concretestepObj.receiver=receiverID;
-  concretestepObj.status = 1;
+  // concretestepObj.status = 1;
   //console.log(concretestepObj);
   var newM = new Concretestepmodel(concretestepObj);
   newM.save(function (err, uobj) {
@@ -323,25 +323,19 @@ ConcretestepDAO.prototype.getConcretestepsInATimeSpanFromWho = function (receive
   });
 };
 ConcretestepDAO.prototype.getoneeventstep=function (ID,outcallback) {
-  // var areaID=area.areaID;
-  var callback = outcallback ? outcallback : function (err, obj) {
+  var query = Concretestepmodel.findOne({_id: ID}, function (err, result) {
     if (err) {
-      console.log('callback getoneeventstep 出错：' + '<>' + err);
+      outcallback(err)
     } else {
-        console.log('callback getoneeventstep 成功：' + '<>' + obj);
-      }
-    }
-  var query = Concretestepmodel.findOne({_id: ID, status: 1}, function (err, result) {
-    if (err) {
-      outcallback(err,null)
-    } else {
-      console.log(result);
+      // console.log(result);
       outcallback(null,result);
     }
   });
 }
-ConcretestepDAO.prototype.geteventstep=function (ID,outcallback) {
+ConcretestepDAO.prototype.geteventstep=function (ID,status,outcallback) {
   // var areaID=area.areaID;
+  // console.log('步骤')
+  // console.log(ID)
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback getoneeventstep 出错：' + '<>' + err);
@@ -349,40 +343,30 @@ ConcretestepDAO.prototype.geteventstep=function (ID,outcallback) {
       console.log('callback getoneeventstep 成功：' + '<>' + obj);
     }
   }
-  //console.log(ID)
-  var query = Concretestepmodel.find({_id:{$in:ID}, status: 1}, function (err, result) {
+
+  var ops={_id:{$in:ID}}
+  if(status){
+    ops.status=status;
+  }
+  var query = Concretestepmodel.find(ops,'no status type name',function (err, result) {
     if (err) {
       outcallback(err,null)
     } else {
-      console.log(result);
+    // enumerate(school_paper['result'])
+    //   console.log('依次打出')
+    //   for(var sor=0;sor<result.length;sor++){
+    //     console.log(result[sor]);
+    //   }
+      result.sort();
       outcallback(null,result);
     }
   });
+
+  // items = Concretestepmodel.find({'_id':{'$in':ID}});
+  // item_indexes = {id_:index for index, id_ in enumerate(school_paper['ID'])
+  // items.sort(key=lambda item: item_indexes[item['_id']])
 }
 
-
-ConcretestepDAO.prototype.getMyUnreadConcretestepsCount = function (receiverID, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getMyUnreadConcretestepsCount 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getMyUnreadConcretestepsCount 成功：'+'<>'+obj[index]);
-      }
-      //console.log('callback getMyUnreadConcretestepsCount 成功：'+'<>未读消息数量:'+obj);
-    }
-  };
-
-  var query = Concretestepmodel.find({'receiver': receiverID, status: 0}, {_id: 1});
-  query.exec(function (err, docs) {
-    if (!err) {
-      callback(err, docs.length);
-    }
-    else {
-      callback(err, 0);
-    }
-  });
-};
 
 
 ConcretestepDAO.prototype.readtConcretestep = function (mid, outcallback) {
