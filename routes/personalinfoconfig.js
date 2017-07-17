@@ -11,35 +11,7 @@ var attendanceRecordDao = require('../dbmodels/attendanceRecordDao.js');
 //console.log(attendanceRecordDao)
 
 
-/**
- * 人员请假
- * @param {json} req - 传入人员请假json数据，例如{personID:'123456',startTime:date,endTime:Date,reason:'请假理由'}
- * @param {json} res - 返回成功后的json 例如：{success:''}
- */
-var sendpersonaskforleave = function (req, res) {
-  var datt = req.body;
-  var start = datt.startTime, end = datt.endTime, reason = datt.reason;
-  if (start && end && reason) {
-    var leave = {};
-    leave.personID = datt.personID;
-    leave.askforleave = {};
-    leave.askforleave.startDateTime = start;
-    leave.askforleave.endDateTime = end;
-    leave.askforleave.reason = reason;
-    //leave.abnormal = true;
-    leave.status = 2;
-    //res.send(leave)
-    attendanceRecordDao.save(leave, function (err, obj) {
-      if (err) {
-        res.send({error: '发生错误'});
-      } else {
-        res.send({success:obj});
-      }
-    });
-  } else {
-    res.send({error: '参数错误'})
-  }
-};
+
 
 /**
  * 换班
@@ -194,8 +166,6 @@ var getpersontwocode = function (req, res) {
 
 }
 
-
-personinfo.post('/sendpersonaskforleave', sendpersonaskforleave);//提交
 personinfo.post('/sendpersonshift', sendpersonshift);
 personinfo.post('/getpersonrecordtoid', getpersonrecordtoid);
 personinfo.post('/getpersonrecordTodepartment', getpersonrecordTodepartment)

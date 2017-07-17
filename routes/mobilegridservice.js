@@ -258,9 +258,6 @@ var sendnewEvent = function (req, res) {
       //obj.steps.forEach(function (val, key) {
       //  //eventJson.step.push({types: val.stepName, status: 1});
       //})
-       console.log('抽象事件的步骤+')
-       console.log(obj.steps)
-      console.log('抽象事件的步骤-')
       concreteeventDAO.sendAConcreteevent(eventJson, function (coneventerr, coneventobj) { //具体类型
         if (coneventerr) {
           console.log(coneventerr)
@@ -286,9 +283,10 @@ var sendnewEvent = function (req, res) {
             var stepjiazai = function () {
               // console.log(stepcount>=steplength)
               if (stepcount >= steplength) {
-                res.send({success:'建立成功'});
+                console.log('返回数据'+Allobj.onestepID)
+                res.send({success:Allobj.onestepID});
               }else {
-                // console.log('调了几次'+stepcount)
+                console.log('调了几次'+stepcount)
                 argu1.name = stepobj[stepcount].type;
                 argu1.type = obj.typeName;
                 argu1.status=1;
@@ -331,6 +329,10 @@ var sendnewEvent = function (req, res) {
           if (err) {
             console.log(err)
           } else {
+            if(argu1.status==2){
+              Allobj.onestepID=Concretestepobj._id;
+            }
+            console.log("第一步的ID"+Allobj.onestepID)
             Allobj.eventstepID.push(Concretestepobj._id);
             Allobj.iseventstep = Concretestepobj._id;
             Allobj.eventargu = [];
@@ -768,6 +770,12 @@ var getpersonpower=function(req,res){
     }
   })
 }
+/**
+ * 判断当前人员是否有审核权利（删除事件，案件审理包括结案）
+ * @param {json} req
+ * @param {json} res
+ */
+var getpersonreviewedpower=function(req,res){}
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
 mobilegridservice.post('/getDepartmentparson', getDepartmentparson);

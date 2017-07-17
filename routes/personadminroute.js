@@ -249,7 +249,7 @@ var getdepartmentsstatus = function (req, res) {
   })
 };
 /**
- * 获取得到所有有效的部门
+ * 获取得到所有有效的部门 ,不包含人员ID
  * @param {} req - 客户端发起请求，无需传参
  * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息'}]
  */
@@ -267,7 +267,7 @@ var getAllDepartments = function (req, res) {
 /**
  * 得到所有的部门包含人员ID
  * @param {} req - 客户端发起请求，无需传参
- * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息',persons:[[{_id:''}]]
+ * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息',persons:[[{_id:'',name:'';}]]
  */
 var getAllDepartment = function (req,res) {
   departmentDAO.getAllDepartment(function (err, obj) {
@@ -502,6 +502,27 @@ var gettitleToperson = function (req, res) {
 }
 //gettitleToperson({_id:'5952112dea76066818fd6dd0'})
 /**
+ * 获取当前人员的直接上级
+ * @param {json} req - 客户端传入当前人员的title  {title:'123456'}
+ * @param {json} res - 返回上级职务列表 []
+ */
+var getpersontitlelevel = function (req, res) {
+  var json = req.body;
+  var title = json.title;
+  if(title){
+    persontitleDAO.getpersontitlelevel(title, function (err, obj) {
+    if (err) {
+      res.send({error: '获取失败'})
+    } else {
+      res.send({success: obj})
+    }
+  })
+  }else{
+    res.send({error: '提交参数有误'})
+  }
+}
+
+/**
  * 修改或添加人员职务，职务是唯一的
  * @param {json} req - 客户端提交json 例如{_id:'人员ID',title:'职务ID'}
  * @param {json} res - 返回json：例如{success:'修改成功'}
@@ -565,10 +586,10 @@ var getUserInfoById = function (req, res) {
         personDAO.getUserInfoById(userid, function (err, obj) {
             if (!err) {
                 // //console.log('getUserPicById 查询'+userid+'照片ok:');
-                res.send(obj);
+                res.send({success:obj});
             } else {
                 // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
-                res.send({error: '获取失败'});
+                res.send({error:err});
             }
         });
     }
@@ -649,6 +670,7 @@ personrouter.post('/getAllDepartments', getAllDepartments);//提交
 personrouter.post('/getAllDepartment', getAllDepartment);//提交
 personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//提交
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
+personrouter.post('/getpersontitlelevel',getpersontitlelevel);
 personrouter.post('/sendpersontitle', sendpersontitle);//提交
 personrouter.post('/getUserPicById', getUserPicById);
 personrouter.post('/getUserInfoById', getUserInfoById);

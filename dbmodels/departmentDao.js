@@ -60,210 +60,210 @@ DepartmentDAO.prototype.save = function (obj, callback) {
   //Departmentmodel.create();
   // 终端打印如下信息
   var instance = new Departmentmodel(obj);
-  instance.save(function (err,iobj) {
-    if(err){
+  instance.save(function (err, iobj) {
+    if (err) {
       callback(err);
-    }else{
-      callback(null,iobj)
+    } else {
+      callback(null, iobj)
     }
   });
   //return instance.get('_id');
 };
 //获取上级部门ID
 DepartmentDAO.prototype.getParent = function (obj, callback) {
-  Departmentmodel.find({_id:obj},'path',function (err,obj) {
-    if(err){
+  Departmentmodel.find({_id: obj}, 'path', function (err, obj) {
+    if (err) {
       callback(err);
-    }else{
-      callback(null,obj);
+    } else {
+      callback(null, obj);
     }
   })
 };
 //添加上级部门path
-DepartmentDAO.prototype.addparentpath=function(_id,path,callback){
-  Departmentmodel.update({_id:_id},{path:path}, function (err,obj) {
-    if(err){
+DepartmentDAO.prototype.addparentpath = function (_id, path, callback) {
+  Departmentmodel.update({_id: _id}, {path: path}, function (err, obj) {
+    if (err) {
       callback(err)
-    }else{
-      callback(null,obj)
+    } else {
+      callback(null, obj)
     }
   })
 }
 /*
-DepartmentDAO.prototype.analysisXml = function (xml) {
-  fs.readFile(xml, function (err, data) {
-    if (err) {
-      return console.log(err);
-    }
-    var xml = data.toString();
-    var doc = new dom().parseFromString(xml)
-    var newXml = select(doc, "//Data");
-    var leader = [], isfor = false;
-    for (var i = 0; i < newXml.length; i++) {
-      var con = newXml[i].firstChild.data;
-      var value = newXml[i].attributes[0].nodeValue;
-      if (con.slice(0, 5) === '崖州区城市') {
-        isfor = true;
-        if (leader.length !== 0) {
-          analysisXml(leader)
-        }
-        leader = [];
-        leader.push(con)
-      } else {
-        leader.push(con)
-      }
-    }
-    analysisXml(leader)
+ DepartmentDAO.prototype.analysisXml = function (xml) {
+ fs.readFile(xml, function (err, data) {
+ if (err) {
+ return console.log(err);
+ }
+ var xml = data.toString();
+ var doc = new dom().parseFromString(xml)
+ var newXml = select(doc, "//Data");
+ var leader = [], isfor = false;
+ for (var i = 0; i < newXml.length; i++) {
+ var con = newXml[i].firstChild.data;
+ var value = newXml[i].attributes[0].nodeValue;
+ if (con.slice(0, 5) === '崖州区城市') {
+ isfor = true;
+ if (leader.length !== 0) {
+ analysisXml(leader)
+ }
+ leader = [];
+ leader.push(con)
+ } else {
+ leader.push(con)
+ }
+ }
+ analysisXml(leader)
 
-  });
-  var analysisXml = function (e) {
-    var classification = e[0].slice(8, 11);
-    //console.log(classification)
-    var b = 0, newtem = [], ks;
-    for (var a = 0; a < e.length; a++) {
-      if ((e[a] - 0 >= 1) && (e[a] - 0) < 10000) {//j如果是数字id
-        var temporary = {};
-        var post = ['局领导', '办公室', '法规办', '综合办', '巩卫办', '借调市巩卫办', '借调武装部', '办公室', '一中队', '二中队', '三中队', '四中队', '违停组'];
-        if (post.indexOf(e[a + 1]) + 1) {
-          ks = e[a + 1];
-          temporary.ks = ks;
-          a++;
-        }
-        temporary.name = e[a + 1];
-        // temporary.role = e[a + 3];//职务
-        if (e[a + 4].length === 11) {
-          temporary.mobile = e[a + 4];//手机号
-        }
-        if (e[a + 5].length === 18) {
-          temporary.idNum = e[a + 5];
-        }
-        if (e[a + 6] && (e[a + 6].length === 18)) {
-          temporary.idNum = e[a + 6];
-        }
+ });
+ var analysisXml = function (e) {
+ var classification = e[0].slice(8, 11);
+ //console.log(classification)
+ var b = 0, newtem = [], ks;
+ for (var a = 0; a < e.length; a++) {
+ if ((e[a] - 0 >= 1) && (e[a] - 0) < 10000) {//j如果是数字id
+ var temporary = {};
+ var post = ['局领导', '办公室', '法规办', '综合办', '巩卫办', '借调市巩卫办', '借调武装部', '办公室', '一中队', '二中队', '三中队', '四中队', '违停组'];
+ if (post.indexOf(e[a + 1]) + 1) {
+ ks = e[a + 1];
+ temporary.ks = ks;
+ a++;
+ }
+ temporary.name = e[a + 1];
+ // temporary.role = e[a + 3];//职务
+ if (e[a + 4].length === 11) {
+ temporary.mobile = e[a + 4];//手机号
+ }
+ if (e[a + 5].length === 18) {
+ temporary.idNum = e[a + 5];
+ }
+ if (e[a + 6] && (e[a + 6].length === 18)) {
+ temporary.idNum = e[a + 6];
+ }
 
-        temporary.role = 'worker';
-        ks ? (temporary.title = {department: e[0].substring(8, e[0].length - 3), post: ks, job: e[a + 3]}):(temporary.title = {department: e[0].substring(8, e[0].length - 3),job: e[a + 3]});
-        newtem.push(temporary);
-        b++;
-      }
-    }
-    //console.log(newtem);
-    switch (classification) {
-      case '机关通':
-        analysisLeader(newtem);
-        break;
-      case '执法一':
-        analysislegalone(newtem);
-        break;
-      case '执法二':
-        analysislegaltwo(newtem);
-        break;
-      case '执法三':
-        analysislegalthree(newtem);
-        break;
-      case '执法机':
-        analysisManeuver(newtem);
-        break;
-      case '市容督':
-        analysisinspect(newtem);
-        break;
-    }
-  }
-  var addpersonfun = function (data,two) {
-    var twogroup=[],threegroup=[];
-    data.forEach(function(val,key) {
-      if (val.title.post===undefined) {
-          twogroup.push(val);
-      } else {
-        if (val.title.post === two) {
-          twogroup.push(val);
-        } else {
-          threegroup.push(val);
-        }
-      }
-    })
-    //console.log(threegroup)
-    addperson('崖州区的城市管理机构',twogroup);
-    if(threegroup.length) {
-      addperson('崖州区的城市管理机构下属部门',threegroup);
-    }
-  }
-  var addperson=function(info,dement){
-    var count=0;
-    var tianjia=function(){
-      DepartmentDAO.prototype.addperson(info, dement[count],function(err,obj){
-        if(!err){
-          count++;
-          console.log(obj);
-          if(count<dement.length) {
-            console.log('再次执行')
-            tianjia();
-          }else{
-            console.log('添加完成')
-          }
-        }
-      })
-    }
-    tianjia();
-  }
-  var analysisLeader = function (data) {
-    //var onegroup=[],twogroup=[];
-    ////addperson('崖州区的行政管理最高机构',a.局领导)
-    //data.forEach(function(val,key){
-    //  if(val.title.post==='局领导') {
-    //    onegroup.push(val);
-    //  }else{
-    //    twogroup.push(val);
-    //  }
-    //})
-    //addperson('崖州区的行政管理最高机构',onegroup);
-    //addperson('崖州区的城市管理机构',twogroup);
-  }
-  var analysislegalone = function (data) {
-    //addpersonfun(data,'办公室')
-  };
-  var analysislegaltwo = function (data) {
-    //addpersonfun(data,'办公室')//办公室为二级导入数据
-  };
-  var analysislegalthree = function (data) {
-    //addpersonfun(data,'办公室')
-  };
-  var analysisManeuver = function (data) {
-    //addpersonfun(data,'办公室')
-  };
-  var analysisinspect = function (data) {
-    //addpersonfun(data)
-  };
-};
-DepartmentDAO.prototype.addperson = function (info, obj, callback) {
+ temporary.role = 'worker';
+ ks ? (temporary.title = {department: e[0].substring(8, e[0].length - 3), post: ks, job: e[a + 3]}):(temporary.title = {department: e[0].substring(8, e[0].length - 3),job: e[a + 3]});
+ newtem.push(temporary);
+ b++;
+ }
+ }
+ //console.log(newtem);
+ switch (classification) {
+ case '机关通':
+ analysisLeader(newtem);
+ break;
+ case '执法一':
+ analysislegalone(newtem);
+ break;
+ case '执法二':
+ analysislegaltwo(newtem);
+ break;
+ case '执法三':
+ analysislegalthree(newtem);
+ break;
+ case '执法机':
+ analysisManeuver(newtem);
+ break;
+ case '市容督':
+ analysisinspect(newtem);
+ break;
+ }
+ }
+ var addpersonfun = function (data,two) {
+ var twogroup=[],threegroup=[];
+ data.forEach(function(val,key) {
+ if (val.title.post===undefined) {
+ twogroup.push(val);
+ } else {
+ if (val.title.post === two) {
+ twogroup.push(val);
+ } else {
+ threegroup.push(val);
+ }
+ }
+ })
+ //console.log(threegroup)
+ addperson('崖州区的城市管理机构',twogroup);
+ if(threegroup.length) {
+ addperson('崖州区的城市管理机构下属部门',threegroup);
+ }
+ }
+ var addperson=function(info,dement){
+ var count=0;
+ var tianjia=function(){
+ DepartmentDAO.prototype.addperson(info, dement[count],function(err,obj){
+ if(!err){
+ count++;
+ console.log(obj);
+ if(count<dement.length) {
+ console.log('再次执行')
+ tianjia();
+ }else{
+ console.log('添加完成')
+ }
+ }
+ })
+ }
+ tianjia();
+ }
+ var analysisLeader = function (data) {
+ //var onegroup=[],twogroup=[];
+ ////addperson('崖州区的行政管理最高机构',a.局领导)
+ //data.forEach(function(val,key){
+ //  if(val.title.post==='局领导') {
+ //    onegroup.push(val);
+ //  }else{
+ //    twogroup.push(val);
+ //  }
+ //})
+ //addperson('崖州区的行政管理最高机构',onegroup);
+ //addperson('崖州区的城市管理机构',twogroup);
+ }
+ var analysislegalone = function (data) {
+ //addpersonfun(data,'办公室')
+ };
+ var analysislegaltwo = function (data) {
+ //addpersonfun(data,'办公室')//办公室为二级导入数据
+ };
+ var analysislegalthree = function (data) {
+ //addpersonfun(data,'办公室')
+ };
+ var analysisManeuver = function (data) {
+ //addpersonfun(data,'办公室')
+ };
+ var analysisinspect = function (data) {
+ //addpersonfun(data)
+ };
+ };
+ DepartmentDAO.prototype.addperson = function (info, obj, callback) {
 
-  //for(var i=0;i<obj.length;i++) {
-    Personmodel.find({$or: [{idNum: obj.idNum}, {mobile: obj.mobile}]},{personlocations: 0}, function(err, coo) {
-      if (!err) {
-        var personID = coo[0]._id;
-        Departmentmodel.find({info: info}, function (err, obj) {
-          if (!err) {
-            var person = obj[0].persons;
-            person.push({person:personID,role: 'worker'})
-            //console.log(person)
-            // 将此人加入此单位
-            Departmentmodel.update({info: info}, {persons:person}, function (err, docs) {//更新
-              if (err) {
-                //callback(err, null);
-              }
-              else {
-                //Personmodel.saveandRegister(coo[0],obj[0]._id)
-                //console.log(obj[0]._id)
-                callback(null, docs);
-              }
-            })
-          }
-        })
-      }
-    })
-}
-//DepartmentDAO.prototype.analysisXml('allperson.xml');
-*/
+ //for(var i=0;i<obj.length;i++) {
+ Personmodel.find({$or: [{idNum: obj.idNum}, {mobile: obj.mobile}]},{personlocations: 0}, function(err, coo) {
+ if (!err) {
+ var personID = coo[0]._id;
+ Departmentmodel.find({info: info}, function (err, obj) {
+ if (!err) {
+ var person = obj[0].persons;
+ person.push({person:personID,role: 'worker'})
+ //console.log(person)
+ // 将此人加入此单位
+ Departmentmodel.update({info: info}, {persons:person}, function (err, docs) {//更新
+ if (err) {
+ //callback(err, null);
+ }
+ else {
+ //Personmodel.saveandRegister(coo[0],obj[0]._id)
+ //console.log(obj[0]._id)
+ callback(null, docs);
+ }
+ })
+ }
+ })
+ }
+ })
+ }
+ //DepartmentDAO.prototype.analysisXml('allperson.xml');
+ */
 //根据名字找单位
 DepartmentDAO.prototype.findByName = function (name, callback) {
   Departmentmodel.findOne({name: name}, function (err, obj) {
@@ -402,15 +402,15 @@ DepartmentDAO.prototype.getLeadersByDepartmentID = function (id, callback) {
 DepartmentDAO.prototype.getPersonsByDepartmentID = function (id, callback) {
   Departmentmodel.findOne({_id: id}, function (err, departmentObt) {
     if (!err) {
-      var person=departmentObt.persons;
-      for(var i=0,arr=[];i<person.length;i++){
+      var person = departmentObt.persons;
+      for (var i = 0, arr = []; i < person.length; i++) {
         arr.push(person[i].person)
       }
-      Personmodel.find({_id:{$in:arr}},{personlocations:0,pwd:0},function(err,person){
-        if(err){
+      Personmodel.find({_id: {$in: arr}}, {personlocations: 0, pwd: 0}, function (err, person) {
+        if (err) {
           callback(err, null);
-        }else{
-          callback(null,person);
+        } else {
+          callback(null, person);
         }
       })
     } else {
@@ -440,21 +440,48 @@ DepartmentDAO.prototype.getSubsByDepartmentID = function (id, callback) {
 //得到所有部门
 DepartmentDAO.prototype.getAllDepartment = function (callback) {
 
-  Departmentmodel.find({},function (err, obj) {
+  Departmentmodel.find({}, function (derr, dobj) {
 
     //console.info('查询出来的单位总数：'+obj);
-    //var rootdpts = new Array();
-    //if (obj.length && obj.length > 0) {
-    //  for (var index = 0; index < obj.length; index++) {
-    //    if (obj[index].level != 0) {
-    //
-    //    } else {
-    //      rootdpts.push(obj[index]);
-    //    }
-    //  }
-    //}
+    var departlength = dobj.length,
+      departcount = 0,
+    newdepartment=[];
+    var departfun = function () {
+      var newobj={};
+      if (dobj[departcount].persons.length != 0) {
+        // console.log(dobj[departcount].persons.length)
+        for (var index = 0,personid=[]; index < dobj[departcount].persons.length; index++) {
+          personid.push(dobj[departcount].persons[index].person)
+        }
+        dobj[departcount].persons=personid;
+        // console.log(personid);
+      }
+      Personmodel.find({_id:{$in:personid}},'name sex birthday status',function(perr,pobj){
+        if(pobj){
+          newobj.name=dobj[departcount].name;
+          newobj.create=dobj[departcount].create;
+          newobj.info=dobj[departcount].info;
+          newobj.path=dobj[departcount].path;
+          newobj.infoLink=dobj[departcount].infoLink;
+          newobj.persons=pobj;
+          newobj.status=dobj[departcount].status;
+          newobj._id=dobj[departcount]._id;
+          newdepartment.push(newobj);
+          departcount++;
+          if(departcount<departlength){
+            departfun();
+          }else{
+            callback(null,newdepartment)
+            return;
+          }
+        }
+      })
+
+    }
+    departfun();
     //此时才能用Model操作，否则报错
-    callback(err, obj);
+
+    // callback(derr,dobj);
   });
 };
 
@@ -523,8 +550,8 @@ var recursiveGetAllChildren = Promise.promisify(function (curDepart, callback) {
           recursiveGetAllChildren(item, callback).then(function (data) {
             }
           ).catch(function (err) {
-              //console.log('promise调用：'+err);
-            });
+            //console.log('promise调用：'+err);
+          });
         }
         // parent.Departments=childrendeparts;
         // //console.log("把整个单位秀一下：" + parent);
@@ -561,8 +588,8 @@ DepartmentDAO.prototype.getAllByUserid = function (userId, outcallback) {
           outcallback(alljson);
         }
       ).catch(function (err) {
-          //console.log('promise调用：'+err);
-        });
+        //console.log('promise调用：'+err);
+      });
     }
     // callback(err,outputJson);
   }).then(function () {
@@ -624,7 +651,7 @@ DepartmentDAO.prototype.getAllchildrenDepartmentsByDobj = function (curDepartId,
       function (err, departs) {
 
         var curDepart = departs[0];
-        if (!curDepart.Departments)curDepart.Departments = new Array();
+        if (!curDepart.Departments) curDepart.Departments = new Array();
         curDepart.getChildren(false
           , function (err, childrendeparts) {
             // childrendeparts.
@@ -651,7 +678,7 @@ DepartmentDAO.prototype.getAllchildrenDepartmentsByDobj = function (curDepartId,
     );
   } else {
     var curDepart = curDepartId;
-    if (!curDepart.Departments)curDepart.Departments = new Array();
+    if (!curDepart.Departments) curDepart.Departments = new Array();
     var opts = [{
       path: 'persons.person'
       //上下两种写法效果一样，都可以将关联查询的字段进行筛选
@@ -724,7 +751,7 @@ DepartmentDAO.prototype.getAllchildrenDepartments = function (parentID, outcallb
     Departmentmodel.find(
       {parent: null}).exec(function (err, departs) {
         var curDepart = {};
-        if (!curDepart.Departments)curDepart.Departments = new Array();
+        if (!curDepart.Departments) curDepart.Departments = new Array();
         for (var index = 0; index < departs.length; index++) {
           var item = departs[index];
           curDepart.Departments.push(item);
@@ -804,62 +831,62 @@ DepartmentDAO.prototype.getAllpersonsByDepartIdOneStep = function (curDepartId, 
 
 // 不递归，得到一组部门的下一级部门和人员，单异步操作,curDepartIds是部门id数组
 DepartmentDAO.prototype.getAllpersonsByDepartIds = function (curDepartIds, outcallback) {
-    //console.log('得到一个部门的下一级部门和人员，单异步操作called DepartmentDAO getAllchildrenDepartmentsByDobj userId:'+curDepartId);
-    var callback = outcallback ? outcallback : function (err, obj) {
-            if (err) {
-                //console.log('callback getAllpersonsByDepartIdOneStep 出错：'+'<>'+err);
-            } else {
-                if (obj) {
-                    if (obj.Departments) {
-                        for (var index = 0; index < obj.Departments.length; index++) {
-                            // console.log('callback getAllpersonsByDepartIdOneStep 成功：'+'<>'+obj.Departments[index].name);
-                        }
+  //console.log('得到一个部门的下一级部门和人员，单异步操作called DepartmentDAO getAllchildrenDepartmentsByDobj userId:'+curDepartId);
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      //console.log('callback getAllpersonsByDepartIdOneStep 出错：'+'<>'+err);
+    } else {
+      if (obj) {
+        if (obj.Departments) {
+          for (var index = 0; index < obj.Departments.length; index++) {
+            // console.log('callback getAllpersonsByDepartIdOneStep 成功：'+'<>'+obj.Departments[index].name);
+          }
 
-                    }
-                    if (obj.persons) {
-                        // console.log('callback getAllpersonsByDepartIdOneStep persons成功：'+'<>'+obj.persons);
-                    }
-                }
-            }
-        };
-    console.log('callback getAllpersonsByDepartIdOneStep curDepartIds[0]：'+'<>'+curDepartIds[0]);
-    var opts = [{
-        path: 'persons.person'
-        ,
-        //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-        // ,
-        // select : '-personlocations'images:0,
-        match: {status: {$gt: 0}}
-        ,
-        select: {personlocations: 0, departments: 0, images: 0}
-    }];
-    Departmentmodel.find({_id:{$in:curDepartIds}}).populate(opts).exec(
-        function (err, departs) {
-            if (!err) {
-                if (departs.length > 0){
-                    var personsArray=new Array();
-                    for (var index = 0; index < departs.length; index++) {
-                        // console.log('callback Departmentmodel 成功[index]：'+'<>'+JSON.stringify(departs[index].persons));
-                        for (var itt = 0; itt < departs[index].persons.length; itt++) {
-                          personsArray.push(departs[index].persons[itt]);
-                        }
-                    };
-                    console.log('callback Departmentmodel 成功：'+'<>'+JSON.stringify(personsArray));
-                    callback(err, personsArray);
-
-                }
-                else
-                {
-                    console.log('callback Departmentmodel 成功：'+'<>'+JSON.stringify(personsArray));
-                    callback(err, departs.persons);
-                }
-            }
-            else {
-
-                callback(err, null);
-            }
         }
-    );
+        if (obj.persons) {
+          // console.log('callback getAllpersonsByDepartIdOneStep persons成功：'+'<>'+obj.persons);
+        }
+      }
+    }
+  };
+  console.log('callback getAllpersonsByDepartIdOneStep curDepartIds[0]：' + '<>' + curDepartIds[0]);
+  var opts = [{
+    path: 'persons.person'
+    ,
+    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
+    // ,
+    // select : '-personlocations'images:0,
+    match: {status: {$gt: 0}}
+    ,
+    select: {personlocations: 0, departments: 0, images: 0}
+  }];
+  Departmentmodel.find({_id: {$in: curDepartIds}}).populate(opts).exec(
+    function (err, departs) {
+      if (!err) {
+        if (departs.length > 0) {
+          var personsArray = new Array();
+          for (var index = 0; index < departs.length; index++) {
+            // console.log('callback Departmentmodel 成功[index]：'+'<>'+JSON.stringify(departs[index].persons));
+            for (var itt = 0; itt < departs[index].persons.length; itt++) {
+              personsArray.push(departs[index].persons[itt]);
+            }
+          }
+          ;
+          console.log('callback Departmentmodel 成功：' + '<>' + JSON.stringify(personsArray));
+          callback(err, personsArray);
+
+        }
+        else {
+          console.log('callback Departmentmodel 成功：' + '<>' + JSON.stringify(personsArray));
+          callback(err, departs.persons);
+        }
+      }
+      else {
+
+        callback(err, null);
+      }
+    }
+  );
 
 };
 
@@ -916,36 +943,36 @@ DepartmentDAO.prototype.findByMobile = function (mobile, callback) {
   });
 };
 //获取部门的网格区域
-DepartmentDAO.prototype.getDepartmentgird=function(callback){
+DepartmentDAO.prototype.getDepartmentgird = function (callback) {
 
 }
 //修改部门名称
-DepartmentDAO.prototype.updatedepartmentname=function(id,name,callback){
-  Departmentmodel.update({_id:id},{name:name},function(err,obj){
-    if(err){
+DepartmentDAO.prototype.updatedepartmentname = function (id, name, callback) {
+  Departmentmodel.update({_id: id}, {name: name}, function (err, obj) {
+    if (err) {
       callback(null)
-    }else{
-      callback(null,obj)
+    } else {
+      callback(null, obj)
     }
   })
 }
 //修改部门信息
-DepartmentDAO.prototype.updatedepartmentinfo=function(id,newInfo,callback){
-  Departmentmodel.update({_id:id},newInfo,function(err,obj){
-    if(err){
+DepartmentDAO.prototype.updatedepartmentinfo = function (id, newInfo, callback) {
+  Departmentmodel.update({_id: id}, newInfo, function (err, obj) {
+    if (err) {
       callback(null)
-    }else{
-      callback(null,obj)
+    } else {
+      callback(null, obj)
     }
   })
 }
 //修改部门状态
-DepartmentDAO.prototype.updatedepartmentinfo=function(id,status,callback){
-  Departmentmodel.update({_id:id},{status:status},function(err,obj){
-    if(err){
+DepartmentDAO.prototype.updatedepartmentinfo = function (id, status, callback) {
+  Departmentmodel.update({_id: id}, {status: status}, function (err, obj) {
+    if (err) {
       callback(null)
-    }else{
-      callback(null,obj)
+    } else {
+      callback(null, obj)
     }
   })
 }

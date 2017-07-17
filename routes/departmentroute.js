@@ -332,10 +332,10 @@ var getAllDepartment = function (req, res) {
     department.getAllDepartment(function (err, obj) {
         if (!err) {
             // //console.log('getAllDepartment 查询所有部门数量和首单位名称:'+obj.length+'<>'+obj[0].name);
-            res.send(obj);
+            res.send({success:obj});
         } else {
             // //console.log('getAllDepartment 查询所有下级失败或部门为空:'+err);
-            res.send(null);
+            res.send({error:null});
         }
     });
 };

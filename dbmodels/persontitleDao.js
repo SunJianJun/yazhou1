@@ -35,7 +35,7 @@ Persontitle.prototype.sendpersonparent=function(id,parent,callback){
     }
   })
 }
-//根据职务获取上级职务
+//根据职务获取直接职务信息
 Persontitle.prototype.getpersontitle=function(id,callback){
   Persontitlemodel.findOne({_id:id},'parentTitle',function(err,obj){
     if(err){
@@ -45,6 +45,22 @@ Persontitle.prototype.getpersontitle=function(id,callback){
     }
   })
 }
+//获取当前人员的直接上级
+Persontitle.prototype.getpersontitlelevel=function(title,callback){
+  console.log(title);
+  Persontitlemodel.findOne({_id:title},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      // console.log(obj);
+      // callback(err,obj)
+      Persontitlemodel.find({_id:obj.parentTitle},'name grade',function(perr,pobj){
+        callback(null,pobj)
+      })
+    }
+  })
+}
+
 //获取某一状态的人员
 Persontitle.prototype.getpersonstate= function (status,callback) {
   Persontitlemodel.find({status:status},{personlocations:0},function(err,obj){

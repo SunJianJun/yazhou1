@@ -1,6 +1,7 @@
 ﻿﻿var mongodb = require('./mongodb');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var departmentModule = require('./departmentschema');
+var persontitleDAO=require('./persontitleDao');
 var select = require('xpath.js'),
   dom = require('xmldom').DOMParser;
 var fs = require('fs');
@@ -1042,27 +1043,17 @@ PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
 
 
 //获取人员信息
-PersonDAO.prototype.getUserInfoById = function (personId, outcallback) {
-    var callback = outcallback ? outcallback : function (err, obj) {
-            if (err) {
-                //console.log('callback getUserPicById 得到照片出错：'+'<>'+err);
-            } else {
-                //console.log('callback getUserPicById 得到照片成功：'+'<>'+obj);
-            }
-        };
+PersonDAO.prototype.getUserInfoById = function (personId,callback) {
+    console.log(personId)
     Personmodel.findOne({_id: personId}, {images: 0,personlocations:0}, function (err, obj) {
-        if (!err) {
+        if (obj) {
             if (obj && obj.name && obj.sex) {
-                callback(err, obj);
-                return;
+                callback(null,obj);
             }else {
-
                 callback({error:"查无此人"}, null);
             }
         }else {
-
             callback(err, null);
-            return;
         }
     });
 };
