@@ -33,9 +33,8 @@ var AbstractstepSchema = new Schema({//抽象表
     wordTemplate: String,//word
     author: String,//id//谁制作的
     power: { //设置审核人员
-        new: String,
-        backoff: String,
-        go: String
+        new: String, //基本新建和编辑权限
+        audit: String //审核权限
     },
     status:Number
 });

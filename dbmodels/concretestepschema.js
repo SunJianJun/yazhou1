@@ -10,10 +10,9 @@ var ConcretestepSchema = new Schema({//事件详情步骤表
   argu:[String],//详细参数
   wordTemplate:String,//含有变量序号的word模板，是从这个步骤的type定义中复制过来的，显示时会从【argu数组】中读取值，自动嵌入
 
-  power: { //步骤审核人员
-    new: String,
-    backoff: String,
-    go: String
+  power: { //审核人员
+    new: String, //基本新建和编辑权限
+    audit: String //审核权限
   },
   responsible:String,//这个步骤当前的责任人，发起人员，负责填写
   currentPusher:String//推动者，步骤审核人员，//只记录title
