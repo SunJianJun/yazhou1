@@ -402,17 +402,21 @@ DepartmentDAO.prototype.getLeadersByDepartmentID = function (id, callback) {
 DepartmentDAO.prototype.getPersonsByDepartmentID = function (id, callback) {
   Departmentmodel.findOne({_id: id}, function (err, departmentObt) {
     if (!err) {
-      var person = departmentObt.persons;
-      for (var i = 0, arr = []; i < person.length; i++) {
-        arr.push(person[i].person)
-      }
-      Personmodel.find({_id: {$in: arr}}, {personlocations: 0, pwd: 0}, function (err, person) {
-        if (err) {
-          callback(err, null);
-        } else {
-          callback(null, person);
-        }
-      })
+    	try {
+      	var person=departmentObt.persons;
+	      for(var i=0,arr=[];i<person.length;i++){
+	        arr.push(person[i].person)
+	      }
+	      Personmodel.find({_id:{$in:arr}},{personlocations:0,pwd:0},function(err,person){
+	        if(err){
+	          callback(err, null);
+	        }else{
+	          callback(null,person);
+	        }
+	      })
+      } catch (e) {
+    		callback('获取人员出错');
+    	}
     } else {
       callback(err, null);
     }

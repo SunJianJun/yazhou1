@@ -1,7 +1,6 @@
 ﻿﻿var mongodb = require('./mongodb');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var departmentModule = require('./departmentschema');
-var persontitleDAO=require('./persontitleDao');
 var select = require('xpath.js'),
   dom = require('xmldom').DOMParser;
 var fs = require('fs');
