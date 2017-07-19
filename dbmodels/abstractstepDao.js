@@ -25,7 +25,7 @@ AbstractstepDAO.prototype.getpersonTiele=function (callback) {
 };
 AbstractstepDAO.prototype.getstepsName=function(id,callback) {
   //console.log('查询数组')
-  console.log(id)
+  // console.log(id)
   var query=Abstractstepmodel.find({'_id':{$in:id}},'type');
   var ops='type';
   query.sort({_id:1});
@@ -44,21 +44,23 @@ AbstractstepDAO.prototype.getstepsName=function(id,callback) {
 AbstractstepDAO.prototype.updatepersonpower=function(id,json,callback) {
   Abstractstepmodel.update({'_id':id},json,function(err,obj){
     if(err){
-
+      callback(err)
     }else{
       //var newS=new Abstractstepmodel(json)
       //newS.save(function (err, obj) {
-        callback(err, obj);
+        callback(null, obj);
       //});
     }
   })
 };
+
+
 AbstractstepDAO.prototype.removepersonpower=function(id,callback) {
   Abstractstepmodel.update({'_id':id},{'status':0},function(err,obj){
     if(err){
-
+      callback(err)
     }else{
-      callback(obj);
+      callback(null,obj);
     }
   })
 };
@@ -96,6 +98,7 @@ AbstractstepDAO.prototype.sendAAbstractstep = function (abstractstepObj, outcall
 
   // abstractstepObj.receiver=receiverID;
   abstractstepObj.status = 1;
+  abstractstepObj.createTime =new Date();
   console.log(abstractstepObj);
   var newM = new Abstractstepmodel(abstractstepObj);
   newM.save(function (err, uobj) {

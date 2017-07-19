@@ -1046,7 +1046,7 @@ PersonDAO.prototype.getUserInfoById = function (personId,callback) {
     console.log(personId)
     Personmodel.findOne({_id: personId}, {images: 0,personlocations:0}, function (err, obj) {
         if (obj) {
-            if (obj && obj.name && obj.sex) {
+            if (obj) {
                 callback(null,obj);
             }else {
                 callback({error:"查无此人"}, null);

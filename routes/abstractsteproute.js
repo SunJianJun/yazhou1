@@ -76,8 +76,9 @@ var getstepsName = function (req, res) {
 var updatepersonpower= function (req, res) {
     var idArr=req.body.id;
     var pagscon=req.body.pagscon;
+  pagscon.updatetime=new Date();
     abstractstepDAO.updatepersonpower(idArr,pagscon,function(err,obj){
-        console.log(err,obj)
+        // console.log(err,obj)
         if(err){
             res.send(err);
         }else{

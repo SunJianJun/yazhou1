@@ -15,7 +15,8 @@ var ConcretestepSchema = new Schema({//事件详情步骤表
     audit: String //审核权限
   },
   responsible:String,//这个步骤当前的责任人，发起人员，负责填写
-  currentPusher:String//推动者，步骤审核人员，//只记录title
+  currentPusher:String,//推动者，步骤审核人员，//只记录title
+  updatetime:Date
 })
 
 console.log('mongodb ConcretestepSchema load is ok!:' + ConcretestepSchema);

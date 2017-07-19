@@ -158,12 +158,42 @@ var sendpersoninfoerr = function (req, res) {
 
 }
 /**
- * 二维码扫描，登录桌面端 - 待完善
- * @param {json} req - 客户端提交json，例如{_id:'用户id',idNum:'用户身份证'}
+ * 手机二维码扫描，登录桌面端
+ * @param {json} req - 客户端提交人员账号密码 {UUID:'识别ID',_id:'人员ID',pwd:'人员密码'[idNum:'没有密码提交身份证号']}
  * @param {json} res - 手机自动填入登陆信息，登陆客户端界面
  */
-var getpersontwocode = function (req, res) {
-
+var phoneBypclogin= {
+  islogin:false,
+  sendphoneBypclogin:function (req, res) {
+    var datt = req.body,
+      name = req.body.name,
+      pwd = req.body.pwd,
+      UUID = req.body.UUID;
+    if (UUID && name && pwd) {
+      personDAO.findByNameAndPwd(name, pwd, function (err, obj) {
+        console.log(obj)
+        if (err) {
+          res.send({'error': err});
+        } else if (obj) {
+          phoneBypclogin.islogin=obj;
+          res.send({success:obj});
+        } else {
+          res.send({'error': err});
+        }
+      });
+    } else {
+      res.send({'error': err});
+    }
+  },
+  getphoneBypclogin:function (req, res) {
+    if(phoneBypclogin.islogin){
+      res.send({success:phoneBypclogin.islogin})
+      phoneBypclogin.islogin=null;
+      console.log(phoneBypclogin.islogin)
+    }else{
+      res.send({error:null})
+    }
+  }
 }
 
 personinfo.post('/sendpersonshift', sendpersonshift);
@@ -172,6 +202,7 @@ personinfo.post('/getpersonrecordTodepartment', getpersonrecordTodepartment)
 personinfo.post('/updatepersonpassword', updatepersonpassword);
 personinfo.post('/ispersonpassword',ispersonpassword);
 personinfo.post('/sendpersoninfoerr', sendpersoninfoerr);
-personinfo.post('/getpersontwocode', getpersontwocode)
+personinfo.post('/sendphoneBypclogin',phoneBypclogin.sendphoneBypclogin);//发送
+personinfo.post('/getphoneBypclogin',phoneBypclogin.getphoneBypclogin);//获取
 
 module.exports = personinfo;

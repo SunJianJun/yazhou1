@@ -36,6 +36,7 @@ var AbstractstepSchema = new Schema({//抽象表
         new: String, //基本新建和编辑权限
         audit: String //审核权限
     },
+    createTime:Date,
     status:Number
 });
 // console.log(AbstractstepSchema);
