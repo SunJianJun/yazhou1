@@ -8,6 +8,7 @@ var personinfo = express.Router();
 var personDAO = require('../dbmodels/personDAO.js');
 var depertmentDAO = require('../dbmodels/departmentDao.js');
 var attendanceRecordDao = require('../dbmodels/attendanceRecordDao.js');
+var phoneloginpcDAO=require('../dbmodels/phoneloginpcDao');
 //console.log(attendanceRecordDao)
 
 
