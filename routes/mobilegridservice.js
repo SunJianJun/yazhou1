@@ -209,6 +209,14 @@ var geteventTimestatistics = function (req, res) {
     }
   })
 };
+
+//随机生成一个位置点 测试使用
+var getRadomPt = function () {
+  var resultPt =[];
+  resultPt.push(116.40106141351825 + Math.random() / 25 * (Math.random() > 0.5 ? -1 : 1));
+  resultPt.push(39.994762731321174 + Math.random() / 25 * (Math.random() > 0.5 ? -1 : 1));
+  return resultPt;
+};
 /**
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
  * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,新建人
@@ -223,7 +231,7 @@ var sendnewEvent = function (req, res) {
   var depart=req.body.departmentID;
   var position=req.body.position;
   var newwho=req.body.newwho;
-  position=position?position:[116.396359,39.910651];
+  position=position?position:getRadomPt();
   if (!name || !typeID||!depart) {
     res.send({error: '参数提交错误'});
     return;
@@ -286,7 +294,7 @@ var sendnewEvent = function (req, res) {
                 console.log('返回数据'+Allobj.onestepID)
                 res.send({success:Allobj.onestepID});
               }else {
-                console.log('调了几次'+stepcount)
+                // console.log('调了几次'+stepcount)
                 argu1.name = stepobj[stepcount].type;
                 argu1.type = obj.typeName;
                 argu1.status=1;
@@ -309,7 +317,7 @@ var sendnewEvent = function (req, res) {
                 argu1.power = stepobj[stepcount].power;//从抽象步骤中获取到添加到具体步骤中
                 argu1.currentPusher = 'null';
                 argu1.argu = [];
-                //console.log(stepobj[stepcount]); //得到抽象表步骤 实例化成具体步骤和参数
+                // console.log(stepobj[stepcount]); //得到抽象表步骤 实例化成具体步骤和参数
                 sendAConcretestep(argu1, stepobj[stepcount], stepcount, function (a) {
                   if (stepcount < steplength) {
                     stepcount++;
@@ -332,7 +340,7 @@ var sendnewEvent = function (req, res) {
             if(argu1.status==2){
               Allobj.onestepID=Concretestepobj._id;
             }
-            console.log("第一步的ID"+Allobj.onestepID)
+            // console.log("第一步的ID"+Allobj.onestepID)
             Allobj.eventstepID.push(Concretestepobj._id);
             Allobj.iseventstep = Concretestepobj._id;
             Allobj.eventargu = [];
@@ -388,18 +396,15 @@ var sendnewEvent = function (req, res) {
 
       }
       var sendAllConcreteargu = function (ARR, call) {
-        //console.log('次数')
-        //console.log(ARR)
-        var arguID = [];
+        // console.log('次数')
+        // console.log(ARR)
         concretearguDAO.sendAllConcreteargu(ARR, function (err, obj) { //具体参数表
           if (err) {
             console.log(err);
           } else {
-            arguID.push(obj._id)
-            //console.log(arguID)
 
             //for (var i = 0; i < Allobj.eventstepID.length; i++) {
-            updateaddargu(Allobj.iseventstep, arguID, function (id, argu) {
+            updateaddargu(Allobj.iseventstep, obj, function (id, argu) {
               call()
             })//步骤表添加参数id
             //}

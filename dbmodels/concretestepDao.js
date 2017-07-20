@@ -38,7 +38,6 @@ ConcretestepDAO.prototype.findByName = function (name, callback) {
 
 ConcretestepDAO.prototype.sendAConcretestep = function (concretestepObj, outcallback) {
 
-  //console.log('添加数据');
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback sendAConcretestep 出错：-' + '<>' + err);
@@ -55,10 +54,8 @@ ConcretestepDAO.prototype.sendAConcretestep = function (concretestepObj, outcall
   var newM = new Concretestepmodel(concretestepObj);
   newM.save(function (err, uobj) {
     if (err) {
-      console.log('callback sendAConcretestep 出错：' + '<>' + err);
       callback(err, null);
     } else {
-      console.log('callback sendAConcretestep 成功：' + '<>' + uobj._id);
       callback(err, uobj);
     }
   });

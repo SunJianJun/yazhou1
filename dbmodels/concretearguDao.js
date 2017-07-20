@@ -124,22 +124,36 @@ ConcretearguDAO.prototype.sendAllConcreteargu = function (concretearguObj, outca
       console.log('callback sendAllConcreteargu 成功：-' + '<>' + obj);
     }
   };
-  for(var i=0;i<concretearguObj.length;i++) {
-    // concretearguObj.sender=senderID;
-
-    // concretearguObj.receiver=receiverID;
-    //console.log(concretearguObj);
-    var newM = new Concreteargumodel(concretearguObj[i]);
-    newM.save(function (err, uobj) {
-      if (err) {
-        //console.log('callback sendAllConcreteargu 出错：' + '<>' + err);
-        callback(err, null);
-      } else {
-        //console.log('callback sendAllConcreteargu 成功：' + '<>' + uobj);
-        callback(err, uobj);
-      }
-    });
-  }
+  // for(var i=0;i<concretearguObj.length;i++) {
+  //   var newM = new Concreteargumodel(concretearguObj[i]);
+  //   newM.save(function (err, uobj) {
+  //     if (err) {
+  //       callback(err, null);
+  //     } else {
+  //       callback(err, uobj);
+  //     }
+  //   });
+  // }
+  var argulength=concretearguObj.length,
+  argucount=0,arguID=[];
+  var argufunction=function(){
+      var newM = new Concreteargumodel(concretearguObj[argucount]);
+      newM.save(function (err, uobj) {
+        if (err) {
+          callback(err, null);
+        } else {
+          arguID.push(uobj._id)
+          argucount++;
+          if(argucount<argulength){
+            // console.log('再次执行'+argucount)
+            argufunction()
+          }else{
+            callback(err,arguID);
+          }
+        }
+      });
+  };
+  argufunction();
 };
 
 ConcretearguDAO.prototype.concretearguDelete = function (name, outcallback) {

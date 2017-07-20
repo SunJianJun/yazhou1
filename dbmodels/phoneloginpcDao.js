@@ -26,9 +26,9 @@ PhoneloginPCDAO.prototype.save = function (obj, callback) {
   });
   //return instance.get('_id');
 };
-//获取上级部门ID
-PhoneloginPCDAO.prototype.getParent = function (obj, callback) {
-  PhoneloginPCmodel.find({_id: obj}, 'path', function (err, obj) {
+
+PhoneloginPCDAO.prototype.getlanglogin= function (obj, callback) {
+  PhoneloginPCmodel.findOne({_id: obj},function (err, obj) {
     if (err) {
       callback(err);
     } else {
@@ -36,9 +36,9 @@ PhoneloginPCDAO.prototype.getParent = function (obj, callback) {
     }
   })
 };
-//添加上级部门path
-PhoneloginPCDAO.prototype.addparentpath = function (_id, path, callback) {
-  PhoneloginPCmodel.update({_id: _id}, {path: path}, function (err, obj) {
+//移动端扫描，修改信息
+PhoneloginPCDAO.prototype.sendphonelogin = function (_id,person, callback) {
+  PhoneloginPCmodel.update({_id: _id},{person:person},function (err, obj) {
     if (err) {
       callback(err)
     } else {
@@ -46,34 +46,12 @@ PhoneloginPCDAO.prototype.addparentpath = function (_id, path, callback) {
     }
   })
 }
-
-//修改部门名称
-PhoneloginPCDAO.prototype.updatephoneloginPCname = function (id, name, callback) {
-  PhoneloginPCmodel.update({_id: id}, {name: name}, function (err, obj) {
-    if (err) {
-      callback(null)
-    } else {
-      callback(null, obj)
-    }
-  })
-}
-//修改部门信息
-PhoneloginPCDAO.prototype.updatephoneloginPCinfo = function (id, newInfo, callback) {
-  PhoneloginPCmodel.update({_id: id}, newInfo, function (err, obj) {
-    if (err) {
-      callback(null)
-    } else {
-      callback(null, obj)
-    }
-  })
-}
-//修改部门状态
-PhoneloginPCDAO.prototype.updatephoneloginPCinfo = function (id, status, callback) {
-  PhoneloginPCmodel.update({_id: id}, {status: status}, function (err, obj) {
-    if (err) {
-      callback(null)
-    } else {
-      callback(null, obj)
+PhoneloginPCDAO.prototype.removeoverduetime=function(id,callback){
+  PhoneloginPCmodel.remove({_id:{$in:id}},function(err,obj){
+    if(err){
+      // callback(err)
+    }else{
+      // callback(null,obj)
     }
   })
 }

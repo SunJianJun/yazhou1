@@ -119,7 +119,7 @@ var getspotarea = function (req, res) {
     });
 }
 /**
- * 获取同部门人员的信息--未完成
+ * 获取同部门人员的信息
  * @param {json} req - 客户端提交JSON 例如{_id:"当前人员ID"}
  * @param {json} res - 返回json ，例如[{_id:"同事ID",name:"张三",position:["116.446587","39.899989"],status:1}]
  */
@@ -134,19 +134,38 @@ var getworkmateinfo = function (req, res) {
             if (err) {
                 res.send({error: null})
             } else {
-                console.log(obj)
-                for(var i= 0,narr=[];i<obj.length;i++){
-                    nobj={};
-                    nobj.position=getRadomPt();
-                    nobj._id=obj[i]._id;
-                    nobj.status=1;
-                    nobj.name=obj[i].name;
-                    nobj.sex=obj[i].sex;
-                    nobj.mobile=obj[i].mobile;
-                    nobj.images=obj[i].images;
-                    narr.push(nobj)
+              res.send({success:obj})
+                // console.log(obj)
+              /*获取同事同时获取同事位置，
+              var personlength=obj.length,
+              personcount=0,narr=[];
+                var personfun=function(){
+                  person.getPersonLatestPosition(obj[personcount]._id,function(perr,pobj){
+                    if(!err){
+                      nobj={};
+                      nobj._id=obj[personcount]._id;
+                      nobj.name=obj[personcount].name;
+                      nobj.sex=obj[personcount].sex;
+                      if(pobj) {
+                        nobj.position = pobj.geolocation ? pobj.geolocation : null;
+                        nobj.positioningdate = pobj.positioningdate ? pobj.positioningdate : null;
+                      }
+                      nobj.images=obj[personcount].images;
+                      narr.push(nobj);
+                      personcount++;
+                      if(personcount<personlength){
+                          personfun();
+                      }else{
+                        res.send({success: narr})
+                      }
+                    }else{
+                      console.log('出错')
+                      res.send({error: narr})
+                    }
+                  })
                 }
-                res.send({success: narr})
+                personfun();
+                */
             }
         })
     }

@@ -158,44 +158,77 @@ var ispersonpassword = function (req, res) {
 var sendpersoninfoerr = function (req, res) {
 
 }
-/**
- * 手机二维码扫描，登录桌面端
- * @param {json} req - 客户端提交人员账号密码 {UUID:'识别ID',_id:'人员ID',pwd:'人员密码'[idNum:'没有密码提交身份证号']}
- * @param {json} res - 手机自动填入登陆信息，登陆客户端界面
- */
-var phoneBypclogin= {
-  islogin:false,
-  sendphoneBypclogin:function (req, res) {
-    var datt = req.body,
-      name = req.body.name,
-      pwd = req.body.pwd,
-      UUID = req.body.UUID;
-    if (UUID && name && pwd) {
-      personDAO.findByNameAndPwd(name, pwd, function (err, obj) {
+var sendphoneBypcloginuuid=function(req,res){
+  UUID = req.body.UUID;//客户端生成ID用于建数据使用
+  console.log('获取到的id'+UUID);
+  if(UUID){
+    phoneloginpcDAO.save({checkcode:UUID,createTime:new Date()},function(err,obj){
+      if(obj){
         console.log(obj)
-        if (err) {
-          res.send({'error': err});
-        } else if (obj) {
-          phoneBypclogin.islogin=obj;
-          res.send({success:obj});
-        } else {
-          res.send({'error': err});
-        }
-      });
-    } else {
-      res.send({'error': err});
-    }
-  },
-  getphoneBypclogin:function (req, res) {
-    if(phoneBypclogin.islogin){
-      res.send({success:phoneBypclogin.islogin})
-      phoneBypclogin.islogin=null;
-      console.log(phoneBypclogin.islogin)
-    }else{
-      res.send({error:null})
-    }
+        res.send({success:obj});
+      }else{
+        res.send({'error':null});
+      }
+    })
+  }else {
+    res.send({'error':null});
   }
 }
+/**
+ * 手机二维码扫描，登录桌面端
+ * @param {json} req - 客户端提交人员账号密码 {uuid:'图片识别ID',personID:'人员ID']}
+ * @param {json} res - 手机自动填入登陆信息，登陆客户端界面
+ */
+var sendphoneBypclogin=function (req, res) {
+  var datt = req.body,
+    uuid = req.body.uuid,
+    personID = req.body.personID;
+  if (uuid && personID) {
+    personDAO.getUserInfoById(personID,function (perr,pobj) {
+      if(perr){
+        res.send({error: '失败'})
+      }else{
+        phoneloginpcDAO.sendphonelogin(uuid, personID, function (serr, sobj) {
+          if (!serr) {
+            res.send({success:'扫码成功'})
+          } else {
+            res.send({error: '失败'})
+          }
+        })
+      }
+    })
+  } else {
+    res.send({'error':null});
+  }
+}
+//pc端获取是否存在人员信息，如果有就登陆
+var getphoneBypclogin=function (req, res) {
+  id=req.body._id;//登陆id
+  var overdue=20;//过期时间 单位秒
+    if(id) {
+      phoneloginpcDAO.getlanglogin(id,function(err,obj){
+        if(err){
+          res.send({error: null})
+        }else{
+          if((new Date()-obj.createTime)/1000>=overdue){
+            res.send({error:'过期了'});
+            phoneloginpcDAO.removeoverduetime(obj._id,function (rerr,robj) {})
+            return;
+          }
+          console.log(new Date()-obj.createTime)
+          personDAO.getUserInfoById(obj.person,function (perr,pobj) {
+            if(perr){
+              res.send({error:null})
+            }else{
+              res.send({success:obj})
+            }
+          })
+        }
+      })
+      // }
+    }
+  }
+
 
 personinfo.post('/sendpersonshift', sendpersonshift);
 personinfo.post('/getpersonrecordtoid', getpersonrecordtoid);
@@ -203,7 +236,8 @@ personinfo.post('/getpersonrecordTodepartment', getpersonrecordTodepartment)
 personinfo.post('/updatepersonpassword', updatepersonpassword);
 personinfo.post('/ispersonpassword',ispersonpassword);
 personinfo.post('/sendpersoninfoerr', sendpersoninfoerr);
-personinfo.post('/sendphoneBypclogin',phoneBypclogin.sendphoneBypclogin);//发送
-personinfo.post('/getphoneBypclogin',phoneBypclogin.getphoneBypclogin);//获取
+personinfo.post('/sendphoneBypcloginuuid',sendphoneBypcloginuuid);
+personinfo.post('/sendphoneBypclogin',sendphoneBypclogin);//发送
+personinfo.post('/getphoneBypclogin',getphoneBypclogin);//获取
 
 module.exports = personinfo;

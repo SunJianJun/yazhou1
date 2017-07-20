@@ -16,7 +16,6 @@ var getpersonTiele = function (req, res) {
     var deparment=req.body.departmentID;
     deparment=deparment?deparment:'58c3a5e9a63cf24c16a50b8c';
   persontitleDAO.getpersontitleTodepartment(deparment,function(err,obj){
-        console.log(err,obj)
         if(err){
             res.send({error:err});
         }else{
@@ -89,7 +88,6 @@ var updatepersonpower= function (req, res) {
 var removepersonpower= function (req, res) {
     var idArr=req.body.id;
     abstractstepDAO.removepersonpower(idArr,function(err,obj){
-        console.log(err,obj)
         if(err){
             res.send(err);
         }else{
@@ -109,10 +107,8 @@ var getMyNewestAbstractstepFromWho = function (req, res) {
     // console.log('senderID:'+senderID);
     abstractstepDAO.getMyNewestAbstractstepFromWho(receiverID, senderID, isAbstract, function (err, obj) {
         if (!err) {
-            // //console.log('getMyNewestAbstractstepFromWho 查询所有'+senderID+'发送的消息:'+obj);
             res.send(obj);
         } else {
-            // //console.log('getMyNewestAbstractstepFromWho 查询所有'+senderID+'发送的消息为空:'+err);
             res.send(null);
         }
     });
@@ -125,10 +121,8 @@ var abstractstepDelete = function (req, res) {
     console.log('删除' + name);
     abstractstepDAO.abstractstepDelete(name, function (err, obj) {
         if (!err) {
-            console.log('readtAbstractstep 查询所有' + name + '发送的消息:' + obj);
             res.send(name);
         } else {
-            console.log('readtAbstractstep 查询所有' + name + '发送的消息为空:' + err);
             res.send(null);
         }
     })
@@ -138,10 +132,8 @@ var abstractsteppeopleDelete = function (req, res) {
     var position = req.body.position;
     abstractstepDAO.abstractsteppeopleDelete(areaID, position, function (err, obj) {
         if (!err) {
-            console.log('readtAbstractstep 查询所有' + areaID + '发送的消息:' + obj);
             res.send(areaID);
         } else {
-            console.log('readtAbstractstep 查询所有' + areaID + '发送的消息为空:' + err);
             res.send(null);
         }
     })
@@ -151,9 +143,9 @@ var getoneeventstep = function (req, res) {
     abstractstepDAO.getoneeventstep(ID,function (err, obj) {
         if (!err) {
             res.send(obj);
-            console.log(obj);
+            // console.log(obj);
         } else {
-            console.log(err);
+            // console.log(err);
             res.send(null);
         }
     })
@@ -163,9 +155,7 @@ var geteventsteps= function (req, res) {
     abstractstepDAO.geteventsteps(ID,function (err, obj) {
         if (!err) {
             res.send(obj);
-            console.log(obj);
         } else {
-            console.log(err);
             res.send(null);
         }
     })
@@ -185,40 +175,33 @@ var readtAbstractstep = function (req, res) {
     // console.log('messID:'+messID);
     abstractstepDAO.readtAbstractstep(name, function (err, obj) {
         if (!err) {
-            // console.log('没有错误')
-            console.log('readtAbstractstep 查询所有' + name + '发送的消息:' + obj);
-            // console.log(obj);
             res.send(name);
         } else {
-            console.log('readtAbstractstep 查询所有' + name + '发送的消息为空:' + err);
             res.send(null);
         }
     });
 };
 var getAllAbstractstep = function (req, res) {
 
-    console.log('获取所有步骤')
+    // console.log('获取所有步骤')
     var department=req.body.department;
-    console.log(department)
+    // console.log(department)
     abstractstepDAO.getAllAbstractstep(department,function (err, obj) {
         if (!err) {
             res.send(obj);
-            console.log(obj);
         } else {
             res.send(null);
-            //console.log(err);
         }
     })
 }
 var geteventstepname=function (req, res) {
 
-    console.log('获取步骤名称')
+    // console.log('获取步骤名称')
     var department=req.body.department;
-    console.log(department)
+    // console.log(department)
     abstractstepDAO.geteventstepname(department,function (err, obj) {
         if (!err) {
             res.send(obj);
-            console.log(obj);
         } else {
             res.send(null);
             //console.log(err);
@@ -235,10 +218,8 @@ var sendAAbstractstep = function (req, res) {
     }
     abstractstepDAO.sendAAbstractstep(datt, function (err, obj) {
         if (!err) {
-            console.log('sendAAbstractstep 查询所有发送的消息:' + obj._id);
             res.send(obj);
         } else {
-            console.log('sendAAbstractstep 查询所有发送的消息为空:' + err);
             res.send(null);
         }
     });

@@ -1,4 +1,4 @@
-﻿﻿var mongodb = require('./mongodb');
+﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
 
@@ -17,6 +17,10 @@ var ConcretearguSchema = new Schema({//word模板参数
   type:String,
   setTime:Date,
   setByWho:String,//这个参数是谁设置的
+
+  image:String,
+  voice :String,
+  video:String,
 
   updateRecord:[{ //修改过此参数的人员记录
     person:String,

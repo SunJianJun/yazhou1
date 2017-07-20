@@ -242,15 +242,20 @@ var getPersonLatestPosition = function(req, res) {
     var personID=req.body.personID;
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
-    // console.log('personID:'+personID);
-    person.getPersonLatestPosition(personID,function( err,obj){
-        if(!err) {
-            // console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+obj);
-            res.send(obj);
-        } else{
-            // //console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+err);
-            res.send(null);
-        }});
+    console.log('personID:'+personID);
+  if(personID) {
+    person.getPersonLatestPosition(personID, function (err, obj) {
+      if (!err) {
+        // console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+obj);
+        res.send(obj);
+      } else {
+        // //console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+err);
+        res.send(null);
+      }
+    });
+  }else{
+    res.send({error:null});
+  }
 }
 // 得到用户一段时间内的位置
 var getPersonPositionInTimespan = function(req, res) {
@@ -384,6 +389,7 @@ var personPic = function(req, response) {
 
     );
 }
+
 personrouter.get('/add',personAdd);//增加
 personrouter.post('/add',dopersonAdd);//提交
 personrouter.post('/edit',dopersonEdit);//提交

@@ -86,7 +86,7 @@ app.use('/spotarea', spotarearoute);
 
 app.use('/mobilegrid', mobilegridservice);
 app.use('/personadminroute',personadminroute);
-app.use('/map',maproute);
+app.use('/maproute',maproute);
 app.use('/personalinfo',personalinfo);
 
 app.use('/concreteeventroute', concreteeventroute);

@@ -577,7 +577,7 @@ PersonDAO.prototype.changePersonStatus = function (personid, status, callback, r
 // 得到人员的最新位置
 PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
-    //console.log('callback得到人员最新位置：'+obj.geolocation);
+    console.log('callback得到人员最新位置：'+obj.geolocation);
   };
   // 终端打印如下信息
   //console.log('called Person getPersonLatestPosition');
@@ -591,8 +591,12 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
     // called when the `query.complete` or `query.error` are called
     // internally
     if (!err) {
-      //console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].personlocations.length-1]);//+"<>"+docs[0].personlocations
-      callback(err, docs[0].personlocations[docs[0].personlocations.length - 1]);
+      if(docs[0].personlocations) {
+        //console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].personlocations.length-1]);//+"<>"+docs[0].personlocations
+        callback(err, docs[0].personlocations[docs[0].personlocations.length - 1]);
+      }else{
+        callback(err,null);
+      }
     }
     else {
       //console.log('获取人员位置失败：'+docs);
@@ -1044,7 +1048,7 @@ PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
 //获取人员信息
 PersonDAO.prototype.getUserInfoById = function (personId,callback) {
     console.log(personId)
-    Personmodel.findOne({_id: personId}, {images: 0,personlocations:0}, function (err, obj) {
+    Personmodel.findOne({_id: personId}, {personlocations:0}, function (err, obj) {
         if (obj) {
             if (obj) {
                 callback(null,obj);

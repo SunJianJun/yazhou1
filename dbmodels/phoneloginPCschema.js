@@ -6,8 +6,10 @@ var tree = require('mongoose-tree');
 var phoneloginPCSchema = new Schema({
 	//部门名称
     person:String,//登录人ID
+    status:Number,//手机确认是否登陆
     location:[Number],//登录人位置
     loginTime:Date,//登录时间
+    createTime:Date,
     checkcode:String//校验码，服务器端生成
 });
 
