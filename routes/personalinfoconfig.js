@@ -210,6 +210,7 @@ var getphoneBypclogin=function (req, res) {
         if(err){
           res.send({error: null})
         }else{
+          if(obj){
           if((new Date()-obj.createTime)/1000>=overdue){
             res.send({error:'过期了'});
             phoneloginpcDAO.removeoverduetime(obj._id,function (rerr,robj) {})
@@ -223,6 +224,7 @@ var getphoneBypclogin=function (req, res) {
               res.send({success:obj})
             }
           })
+        }
         }
       })
       // }

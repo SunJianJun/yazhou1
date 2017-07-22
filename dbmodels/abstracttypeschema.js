@@ -1,4 +1,4 @@
-﻿﻿﻿var mongodb = require('./mongodb');
+﻿var mongodb = require('./mongodb');
 var Schema = mongodb.mongoose.Schema;
 
 ////网格化区域，geojson导入，后期要支持他们的编辑

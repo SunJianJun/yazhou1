@@ -34,7 +34,10 @@ var AbstractstepSchema = new Schema({//抽象表
     author: String,//id//谁制作的
     power: { //设置审核人员
         new: String, //基本新建和编辑权限
-        audit: String //审核权限
+        audit: [{//审核权限
+            no:Number,
+            title:String
+        }]
     },
     createTime:Date,
     status:Number

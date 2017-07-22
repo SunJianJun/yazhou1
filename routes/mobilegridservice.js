@@ -639,8 +639,28 @@ var getoneeventstep = function (req, res) {
   var ID = req.body.id;
   concretestepDAO.getoneeventstep(ID,function (err, obj) {
     if (!err) {
-      res.send({success:obj});
-      // console.log(obj);
+      console.log(obj.power)
+      var newobj={}
+      newobj.argu=obj.argu;
+      newobj._id=obj._id;
+      newobj.name=obj.name;
+      newobj.no=obj.no;
+      newobj.responsible=obj.responsible;
+      newobj.type=obj.type;
+      newobj.wordTemplate=obj.wordTemplate;
+      console.log('获取到人员权限')
+      !function(){
+        for(var i=0;i<obj.power.audit.length;i++){
+        if(obj.power.audit[i].no==1){
+          console.log('修改权限'+obj.power.audit[i].title)
+          var audit=obj.power.audit[i].title;
+          newobj.power={new:obj.power.new,audit:audit};
+          return;
+        }
+      }
+      }()
+       console.log(newobj.power);
+      res.send({success:newobj});
     } else {
       // console.log(err);
       res.send({error:null});
@@ -748,7 +768,7 @@ var getpersonpower=function(req,res){
       //console.log(pertitiobj)
       var titcount= 0,iscurrentlength=iscurrent.length;    if(!iscurrentlength){return;}
       var titlejiazai=function(){
-        console.log(power[iscurrent[titcount]])
+        //console.log(power[iscurrent[titcount]])
         persontitleDAO.getpersontitleno(power[iscurrent[titcount]],function(powtiterr,powtitiobj){//获取设置的权限
           if(pertiterr){
             res.send({error:"获取当前权限职务出错"})
