@@ -254,68 +254,24 @@ ConcretestepDAO.prototype.concretesteppeopleDelete = function (areaID, position,
     }
   });
 }
-
-ConcretestepDAO.prototype.getConcretestepsInATimeSpanFromWho = function (receiverID, senderID, startTime, endtime, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      //console.log('callback getConcretestepsInATimeSpanFromWho 出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getConcretestepsInATimeSpanFromWho 成功：'+'<>'+obj[index]);
-      }
-      if (obj.abstract) {
-
-        //console.log('callback getConcretestepsInATimeSpanFromWho 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
-      }
-
-    }
-  };
-
-  var query = Concretestepmodel.find();
-  query.or([{
-    'receiver': receiverID, sender: senderID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }, {
-    'receiver': senderID, sender: receiverID, create_date: {
-      "$gte": new Date(startTime),
-      "$lt": new Date(endtime)
-    }
-  }]);
-  var opts = [{
-    path: 'sender'
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,'images':0
-    ,
-    select: {'name': 1}
-  }];
-  query.populate(opts);
-  // 排序，不过好像对子文档无效
-  query.sort({'create_date': 1});//desc asc
-  // query.limit(1);
-
-  query.exec(function (err, docs) {
+//发生审核信息
+ConcretestepDAO.prototype.sendstepgo= function (stepID,audit, callback) {
+  Concretestepmodel.update({_id:stepID},{power:audit},function (err, docs) {
     if (!err) {
-      // 如果是需要摘要信息，而且指定来源的消息数量》0
-      if (docs.length > 0) {
-        // var count=docs.length;
-        // var abstract=docs[docs.length-1].text?docs[docs.length-1].text.substr(0,6)+'...':(docs[docs.length-1].image?'图片消息...':(docs[docs.length-1].video?'视频消息...':'....'));
-        // var output={sender:docs[docs.length-1].sender,count:count,abstract:abstract,
-        //     firstTime:docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     lastTime:docs[docs.length-1].create_date.Format("yyyy-MM-dd hh:mm:ss"),
-        //     unreadconcretesteps:docs
-        // };
-        callback(err, docs);
-      }
-      else {
-        // 虽然没有错，但是也没有消息
-        callback(err, null);
-      }
+      callback(null,docs)
     }
     else {
+      callback(err, null);
+    }
+  });
+};
+ConcretestepDAO.prototype.updatestepstatus= function (stepID,status, callback) {
+  Concretestepmodel.update({_id:stepID},{status:status},function (err, docs) {
+    if (!err) {
+      callback(null,docs)
+    }
+    else {
+      callback(err, null);
     }
   });
 };
@@ -475,188 +431,6 @@ var concretestepObj = new ConcretestepDAO();
 // </p>`,
 //   currentPusher:'张三'
 // });
-
-
-
-
-// concretestepObj.sendAConcretestep({
-//   name: '2.现场检查记录',
-//   info: null,
-//   persons: [{
-//     name: '执法人员'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'现场检查，填写记录',
-//     status:0,
-//     prev_step:null,
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '3.扣押物品',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'下发扣押物品决定书',
-//     status:0,
-//     prev_step:null,
-//     next_step:'扣押物品现场笔录'
-//   },{
-//     'types':'扣押物品现场笔录',
-//     status:0,
-//     prev_step:'下发扣押物品决定书',
-//     next_step:'扣押物品清单'
-//   },{
-//     'types':'扣押物品清单',
-//     status:0,
-//     prev_step:'扣押物品现场笔录',
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '4.接受调查询问',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'下发扣押物品决定书',
-//     status:0,
-//     prev_step:null,
-//     next_step:'扣押物品现场笔录'
-//   },{
-//     'types':'扣押物品现场笔录',
-//     status:0,
-//     prev_step:'下发扣押物品决定书',
-//     next_step:'扣押物品清单'
-//   },{
-//     'types':'扣押物品清单',
-//     status:0,
-//     prev_step:'扣押物品现场笔录',
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '5.询问（调查）笔录',
-//   info: 'null',
-//   persons: [{
-//     name: '执法人员'},
-//     {name:'副队长'},
-//     {name:'队长'}],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'填写询问笔录',
-//     status:0,
-//     prev_step:null,
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '6.现场示意图',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'拍现场照片',
-//     status:0,
-//     prev_step:null,
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '6.行政处罚告知',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'行政处罚告知书呈批表',
-//     status:0,
-//     prev_step:null,
-//     next_step:'行政处罚告知书'
-//   },{
-//     'types':'行政处罚告知书',
-//     status:0,
-//     prev_step:'行政处罚告知书呈批表',
-//     next_step:'送达回证'
-//   },{
-//     'types':'扣押物品清单',
-//     status:0,
-//     prev_step:'扣押物品现场笔录',
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '7.行政处罚决定',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'行政处罚决定书呈批表',
-//     status:0,
-//     prev_step:null,
-//     next_step:'行政处罚决定书'
-//   },{
-//     'types':'行政处罚决定书',
-//     status:0,
-//     prev_step:'行政处罚决定书呈批表',
-//     next_step:'送达回证'
-//   },{
-//     'types':'送达回证',
-//     status:0,
-//     prev_step:'行政处罚决定书',
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '8.解除扣押物品决定书',
-//   info: 'null',
-//   persons: [{
-//     name: '李四'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'解除扣押物品决定书呈批表',
-//     status:0,
-//     prev_step:null,
-//     next_step:'解除扣押物品决定书'
-//   },{
-//     'types':'解除扣押物品决定书',
-//     status:0,
-//     prev_step:'解除扣押物品决定书呈批表',
-//     next_step:'送达回证'
-//   },{
-//     'types':'送达回证',
-//     status:0,
-//     prev_step:'解除扣押物品决定书',
-//     next_step:null
-//   }]
-// });
-// concretestepObj.sendAConcretestep({
-//   name: '9.行政处罚案件结案报告',
-//   info: 'null',
-//   persons: [{
-//     name: '局领导'
-//   }],
-//   create_date:new Date(),
-//   steps:[{
-//     'types':'审批结案报告',
-//     status:0,
-//     prev_step:null,
-//     next_step:null
-//   }]
-// });
-
 
 
 

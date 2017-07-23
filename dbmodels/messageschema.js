@@ -5,11 +5,11 @@ var locationSchema=locationModuler.LocationSchema;
 
 var MessageSchema = new Schema({
 text : String,
-type:String,//broadcast 或者 message(默认) 或者abnormal
+type:String,//broadcast 或者 message(默认) 或者abnormal  或者 event
 create_date : { type: Date, default: Date.now},
 images :{
 coverSmall:String,
-coverBig:String,
+coverBig:String
 },
 //异常状态也是一种消息
 abnormaldecision :String,//approve；reject,

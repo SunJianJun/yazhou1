@@ -20,6 +20,7 @@ var concretearguDAO = require('../dbmodels/concretearguDao');//具体参数表
 var departmentDAO = require('../dbmodels/departmentDAO.js');
 var personDAO = require('../dbmodels/personDao');
 var persontitleDAO = require('../dbmodels/persontitleDao');
+var messageDAO = require('../dbmodels/messageDao')
 
 /**
  *
@@ -475,13 +476,15 @@ var geteventstep = function (req, res) {
 };
 /**
  * 填写参数完成，提交审核
- * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组 例如{eventID:"事件ID",stepID:'步骤ID',arguments:[{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"}],setwho:'当前人员ID'}
+ * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组
+ * 例如{eventID:"事件ID",stepID:'步骤ID',arguments:[{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"}],setwho:'当前人员ID',power:'审核人员'}
  * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
  */
 var sendeventargumentpush = function (req, res) {
   var eventid = req.body.eventID;
   var stepid=req.body.stepID;
   var argu=req.body.arguments;
+  var power=req.body.power;
   var setwho=req.body.setwho;
   console.log(eventid,argu)
   if(argu&&eventid&&setwho&&stepid){
@@ -500,8 +503,13 @@ var sendeventargumentpush = function (req, res) {
               if(nererr){
                 res.send({error: null});
               }else{
-
-                res.send({success:'is OK!'});
+                concretestepDAO.updatestepstatus(stepid,3, function (steperr,stepobj) {//修改步骤状态改为正在审核中，不允许修改参数了
+                  if(stepobj){
+                    res.send({success:'is OK!'});
+                  }else{
+                    res.send({error:'修改当前流程状态出错'});
+                  }
+                })
               }
             })
           }
@@ -610,25 +618,57 @@ var geteventSearch = function (req, res) {
   //concreteeventDAO.
 };
 
-var getConcretestepsInATimeSpanFromWho = function (req, res) {
-  // //console.log('call getConcretestepsInATimeSpanFromWho');
-  //for(var i in req.body){ //console.log("getConcretestepsInATimeSpanFromWho 请求内容body子项："+i+"<>\n")};
-  var receiverID = req.body.receiverID,
-    senderID = req.body.senderID,
-    startTime = req.body.startTime,
-    lastTime = req.body.lastTime;
-  // 调用方法
-  // concretestepObj.getConcretestepsInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
-  // //console.log('senderID:'+senderID);
-  concretestepDAO.getConcretestepsInATimeSpanFromWho(receiverID, senderID, startTime, lastTime, function (err, obj) {
-    if (!err) {
-      // console.log('getConcretestepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
-      res.send(obj);
-    } else {
-      //console.log('getConcretestepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
-      res.send(null);
+/**
+ * 审核通过，推进流程
+ * @param {json} req - {stepID:'步骤id',person:'人员ID',personTitle:'人员职务ID',text:''}
+ * @param {json} res -
+ */
+var sendstepgo= function (req, res) {
+  var stepID = req.body.stepID,
+    person = req.body.person,
+    text = req.body.text,
+    personTitle=req.body.personTitle;
+  concretestepDAO.getoneeventstep(stepID,function(steperr,stepobj){
+    if(steperr){
+
+    }else {
+      if(stepobj) {
+        var nexttitle='';//通知的下一级领导
+        var audit=stepobj.power.audit;
+        for(var i=0;i<audit.length;i++){
+          if(audit[i].title==personTitle){
+            audit[i].text=text;
+            audit[i].powertime=new Date();
+            audit[i].person=person;
+            nexttitle=audit[i].no+1;
+          }
+        }
+        !function(){
+        for(var j=0,isnull='';j<audit.length;j++){
+          if(audit[j].no==nexttitle){
+            nexttitle=audit[j];
+            isnull=true;
+            return;
+          }else{
+            if(!isnull){isnull=false}
+          }
+          if(!isnull){nexttitle=null;}
+        }}()
+        console.log(nexttitle)
+        //res.send(stepobj)
+        concretestepDAO.sendstepgo(stepID,stepobj.power, function (err, obj) {//发送审核信息
+          if (!err) {
+            messageDAO.send(nexttitle, function () {//向下一级领导发送审批请求
+
+            })
+            res.send({success:obj});
+          } else {
+            res.send({error:null});
+          }
+        });
+      }
     }
-  });
+  })
 };
 /**
  * 根据步骤ID获取步骤
@@ -639,7 +679,7 @@ var getoneeventstep = function (req, res) {
   var ID = req.body.id;
   concretestepDAO.getoneeventstep(ID,function (err, obj) {
     if (!err) {
-      console.log(obj.power)
+      //console.log(obj.power)
       var newobj={}
       newobj.argu=obj.argu;
       newobj._id=obj._id;
@@ -648,18 +688,18 @@ var getoneeventstep = function (req, res) {
       newobj.responsible=obj.responsible;
       newobj.type=obj.type;
       newobj.wordTemplate=obj.wordTemplate;
-      console.log('获取到人员权限')
+      //console.log('获取到人员权限')
       !function(){
         for(var i=0;i<obj.power.audit.length;i++){
         if(obj.power.audit[i].no==1){
-          console.log('修改权限'+obj.power.audit[i].title)
+          //console.log('修改权限'+obj.power.audit[i].title)
           var audit=obj.power.audit[i].title;
           newobj.power={new:obj.power.new,audit:audit};
           return;
         }
       }
       }()
-       console.log(newobj.power);
+       //console.log(newobj.power);
       res.send({success:newobj});
     } else {
       // console.log(err);
@@ -743,64 +783,39 @@ var sendstepadvance= function (req, res) {
 };
 /**
  * 获取当前用户编辑文档的权限
- * @param {json} req - 客户端传入案件设置的权限，人员职务 <br>{power：{backoff:"59520e5d7b6d7fa011adcc73",go:"59520e5d7b6d7fa011adcc73",new:"all"},title:'当前人员职务'}
+ * @param {json} req - 客户端传入案件设置的权限，人员职务 <br>{power:{audit:"59520e5d7b6d7fa011adcc73",new:'1234654'},title:'当前人员职务'}
  * @param {json} res - 服务器返回,当前用户可以使用的权限 {[backoff,go]}
  */
 var getpersonpower=function(req,res){
   var power = req.body.power;
   var title=req.body.title;
-  var back=[],iscurrent=[];
+  var back=[];
   if(!power){res.send({error:'参数传入错误'});return;}
   for(var isnot in power){
     if(power[isnot]=='all'){
       delete power[isnot]
       back.push(isnot)
-    }else{
-      iscurrent.push(isnot)
     }
   }
   if(!title){res.send({success:back});return;}
-  persontitleDAO.getpersontitleno(title,function(pertiterr,pertitiobj){
+  persontitleDAO.getetitle(power.audit,function(pertiterr,pertitiobj){
     if(pertiterr){
       res.send({error:"获取当前用户职务出错"})
     }else{
-      //console.log("获取用户级别")
-      //console.log(pertitiobj)
-      var titcount= 0,iscurrentlength=iscurrent.length;    if(!iscurrentlength){return;}
-      var titlejiazai=function(){
-        //console.log(power[iscurrent[titcount]])
-        persontitleDAO.getpersontitleno(power[iscurrent[titcount]],function(powtiterr,powtitiobj){//获取设置的权限
-          if(pertiterr){
-            res.send({error:"获取当前权限职务出错"})
-          }else{
-            //console.log("获取权限级别")
-            //console.log(powtitiobj)
-            if(powtitiobj&&powtitiobj.grade) {
-              if (pertitiobj.grade >= powtitiobj.grade) {
-                back.push(iscurrent[titcount])
-              }
-            }
-            titcount++;
-            if (titcount < iscurrentlength) {
-              titlejiazai();
-            } else {
-              //console.log("获取完毕")
-              res.send({success: back});
-              return;
-            }
-          }
-        })
+      if(pertitiobj._id==title){
+        back.push('power');
       }
-      titlejiazai();
+      res.send({success:back});
     }
   })
 }
 /**
- * 判断当前人员是否有审核权利（删除事件，案件审理包括结案）
+ * 判断当前人员是否有审核权利（删除事件，案件审理包括结案）--未完成
  * @param {json} req
  * @param {json} res
  */
 var getpersonreviewedpower=function(req,res){}
+
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
 mobilegridservice.post('/getDepartmentparson', getDepartmentparson);
@@ -818,6 +833,8 @@ mobilegridservice.post('/geteventstep',geteventstep);
 
 mobilegridservice.post('/sendeventargumentpush', sendeventargumentpush);
 mobilegridservice.post('/sendeventargument', sendeventargument);
+mobilegridservice.post('/sendstepgo',sendstepgo)
+
 mobilegridservice.post('/getEventtype',getEventtype);
 mobilegridservice.post('/geteventSearch',geteventSearch);
 mobilegridservice.post('/getoneeventstep',getoneeventstep);
