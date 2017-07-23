@@ -5,7 +5,7 @@ var Schema = mongodb.mongoose.Schema;
 var ConcretestepSchema = new Schema({//事件详情步骤表
   name:String,
   type:String,//从哪个事件步骤来的
-  status:Number,//1：表示有效步骤  2：正在进行的步骤 3：已完成的步骤
+  status:Number,//1：表示有效步骤  2：正在进行的步骤 3:正在审核的步骤 4：已完成的步骤
   no:Number,
   argu:[String],//详细参数
   wordTemplate:String,//含有变量序号的word模板，是从这个步骤的type定义中复制过来的，显示时会从【argu数组】中读取值，自动嵌入

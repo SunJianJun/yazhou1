@@ -92,12 +92,11 @@ var sendpersonreGister = function (req, res) {
 };
 /**
  * 用身份证信息验证一个人员是否已经导入,参数必须有身份证
- * @param {json} req - 客户端提交json 例如{"name":"admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号'};
- * @param {json} res - 返回bool值，true：激活用户，false：客户端提示是否需要管理员审核
+ * @param {json} req - 客户端提交json 例如{"name":"admin","sex":'男',"idNum":'身份证号'};
+ * @param {json} res - 返回已有的人员信息{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456",IMid:'极光ID'};
  */
 var sendispersonAdd = function (req, res) {
-  //var json=req.body;
-  var json = req,
+  var json=req.body;
     idNum = json.idNum,
     name = json.name,
     sex = json.sex;
@@ -111,14 +110,55 @@ var sendispersonAdd = function (req, res) {
   } else {
     personDAO.provingperson(idNum, name, sex, function (err, obj) {
       if (err) {
-        res.send({error: null});
+        res.send({error:err});
       } else {
-        //res.send({success:obj}
-        res.send(obj)
+        res.send({success:obj})
       }
     })
   }
 };
+/**
+ * 服务器存在此人数据，并且密码验证成功，修改此人的手机id
+ * @param {json} req - 客户端提交json {_id:'人员id',newmobile:'新的手机id'}
+ * @param {json} res - 返回提示 {success:'chenggon'}
+ */
+var sendupdatemobileuuid=function(req,res){
+  var id=req.body._id;
+  var mobile=req.body.newmobile;
+  if(id&&mobile) {
+    personDAO.sendupdatemobileuuid(id,mobile,function (err,obj) {
+      if(obj){
+        res.send({success:'更改成功'})
+      }else{
+        res.send({error:'更改失败'})
+      }
+    })
+  }else{
+    res.send({error:'提交参数错误'})
+  }
+}
+/**
+ * 服务器存在此人数据，没有设置密码
+ * @param {json} req - 客户端提交json {_id:'人员id',newmobile:'新的手机id',pwd:'设置的密码'}
+ * @param {json} res - 返回提示 {success:'chenggon'}
+ */
+var sendpwdandmobileuuid=function(req,res){
+  var id=req.body._id;
+  var mobile=req.body.newmobile;
+  var pwd=req.body.pwd;
+  if(id&&mobile&&pwd) {
+    personDAO.sendpwdandmobileuuid(id,pwd,mobile,function (err,obj) {
+      if(obj){
+        res.send({success:'更改成功'})
+      }else{
+        res.send({error:'更改失败'})
+      }
+    })
+  }else{
+    res.send({error:'提交参数错误'})
+  }
+}
+
 //sendispersonAdd({'name':'孙建军','idNum':'140702199602101759'})
 /**
  * 用身份证信息注册一个待审核人员
@@ -137,12 +177,11 @@ var sendWaitExamineperson = function (req, res) {
       if (err) {
         res.send({error:'添加失败'});
       } else {
-        res.send(obj);
+        res.send({success:obj});
       }
     });
   }
 };
-
 
 /**
  * 修改人员状态
@@ -657,6 +696,8 @@ var setIMid = function (req, res) {
 personrouter.post('/sendpersonimport', sendpersonimport);//提交
 personrouter.post('/sendpersonreGister', sendpersonreGister);//提交
 personrouter.post('/sendispersonAdd', sendispersonAdd);//提交
+personrouter.post('/sendupdatemobileuuid',sendupdatemobileuuid);
+personrouter.post('/sendpwdandmobileuuid',sendpwdandmobileuuid);
 personrouter.post('/sendWaitExamineperson', sendWaitExamineperson);//提交
 personrouter.post('/updatepersonstate', updatepersonstate);//提交
 personrouter.post('/getdepartmentTopeople', getdepartmentTopeople);//提交

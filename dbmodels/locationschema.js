@@ -4,6 +4,7 @@ var Schema = mongodb.mongoose.Schema;
 var LocationSchema = new Schema({
 positioningdate : { type: Date, default: Date.now},
 SRS:{ type: String, default: '4326'},
+    person:String,
 geolocation: {
     type: [Number],  // [<longitude>, <latitude>]
     index: '2dsphere'      // create the geospatial index

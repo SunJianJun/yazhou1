@@ -222,7 +222,7 @@ var getRadomPt = function () {
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
  * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,新建人
  * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456],newwho:'新建人ID'}
- * @param {json} res - 返回成功或失败{error: '参数提交错误'}响应状态码
+ * @param {json} res - 返回第一步步骤id根据这个id获取第一步参数填写,{cussess: 'id'}
  */
 var sendnewEvent = function (req, res) {
   // //console.log('call sendAConcreteevent');
@@ -620,8 +620,8 @@ var geteventSearch = function (req, res) {
 
 /**
  * 审核通过，推进流程
- * @param {json} req - {stepID:'步骤id',person:'人员ID',personTitle:'人员职务ID',text:''}
- * @param {json} res -
+ * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:''}
+ * @param {json} res - 返回提示{success:'步骤推进'}
  */
 var sendstepgo= function (req, res) {
   var stepID = req.body.stepID,
@@ -654,18 +654,56 @@ var sendstepgo= function (req, res) {
           }
           if(!isnull){nexttitle=null;}
         }}()
+        console.log('审核通过，推进流程')
         console.log(nexttitle)
         //res.send(stepobj)
+
+
         concretestepDAO.sendstepgo(stepID,stepobj.power, function (err, obj) {//发送审核信息
           if (!err) {
-            messageDAO.send(nexttitle, function () {//向下一级领导发送审批请求
+            if(nexttitle) {//存在下一级审核领导
+              personDAO.gettitleToperson(nexttitle,function(pererr,perobj){
+                if(perobj){
+                  var perobjlength=perobj.length;
+                  var perobjcount=0;
+                  var perobjfun= function () {
+                    var mesobj={};
+                    mesobj.sender=person;
+                    mesobj.receiver=perobj[perobjcount]._id;
+                    mesobj.text=text;
+                    mesobj.type='event';
+                    mesobj.create_date=new Date();
+                    messageDAO.save(mesobj, function (meserr,mesobj) {//向下一级领导发送审批请求
+                      if(mesobj){
+                        perobjcount++;
+                        if(perobjcount<perobjlength) {
+                          perobjfun()
+                        }else{
+                          res.send({success:'审核通过，推进流程'});
+                        }
+                      }
+                    })
+                  }
+                }else{
+                  res.send({error:null});
+                }
+              })
 
-            })
+            }else{//步骤最终审核，步骤完结
+              concretestepDAO.updatestepstatus(stepid,4, function (steperr,stepobj) {
+                if(stepobj){
+                  res.send({success:'当前流程完结'});
+                }else{
+
+                }
+              })
+            }
             res.send({success:obj});
           } else {
             res.send({error:null});
           }
         });
+
       }
     }
   })
@@ -833,7 +871,7 @@ mobilegridservice.post('/geteventstep',geteventstep);
 
 mobilegridservice.post('/sendeventargumentpush', sendeventargumentpush);
 mobilegridservice.post('/sendeventargument', sendeventargument);
-mobilegridservice.post('/sendstepgo',sendstepgo)
+mobilegridservice.post('/sendstepgo',sendstepgo);
 
 mobilegridservice.post('/getEventtype',getEventtype);
 mobilegridservice.post('/geteventSearch',geteventSearch);

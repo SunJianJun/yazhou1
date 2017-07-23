@@ -1165,26 +1165,44 @@ PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallbac
 //验证用户是否存在
 PersonDAO.prototype.provingperson=function(idNum,name,sex,callback){
   var ops={idNum:idNum}
-  name?ops.name=name:'', sex?ops.sex=sex:'';
-  console.log(ops)
-  Personmodel.find(ops,{personlocations:0},function(err,obj){
-    if(err){
-      callback('需要审核')
-    }else{
-      //console.log(obj._id)
-      Personmodel.update({_id:obj[0]._id},{status:1},function(err,uobj){
-        if(err){
-          callback(err)
+  name?ops.name=name:'';
+  Personmodel.findOne(ops,{personlocations:0},function(err,obj){
+    if(obj){
+      Personmodel.update({_id:obj._id},{status:1},function(err,uobj){
+        if(uobj){
+          callback(null,obj);
         }else{
-          callback(null,'激活')
+          callback(err)
         }
       })
+    }else{
+      callback('没有此人信息')
     }
   })
 }
 //获取某一状态的人员
 PersonDAO.prototype.getpersonstate= function (status,callback) {
   Personmodel.find({status:status},{personlocations:0},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
+//修改人员手机uuid
+PersonDAO.prototype.sendupdatemobileuuid= function (id,mobileid,callback) {
+  Personmodel.update({_id:id},{mobileUUid:mobileid},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
+//修改人员手机uuid和密码
+PersonDAO.prototype.sendpwdandmobileuuid= function (id,pwd,mobileid,callback) {
+  Personmodel.update({_id:id},{mobileUUid:mobileid,pwd:pwd},function(err,obj){
     if(err){
       callback(err)
     }else{
