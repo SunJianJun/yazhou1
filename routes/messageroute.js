@@ -35,7 +35,14 @@ var afterSave = function (doc) {
         //easy push
         JPushclient.push().setPlatform(JPush.ALL)
           .setAudience({registration_id: [immmid]})
-          .setNotification(doc.text ? doc.text : "您有一条" + doc.type == "message" ? "工作" : (doc.type == "broadcast" ? "系统" : (doc.type == "takeoff" ? "请假申请" : (doc.type == "shift" ? "换班申请" : ""))) + "消息", JPush.ios('ios alert'), JPush.android('android alert', null, 1))
+          .setNotification(doc.text ? doc.text :
+            "您有一条" + doc.type == "message" ? "工作" :
+              (doc.type == "broadcast" ? "系统" :
+                (doc.type == "takeoff" ? "请假申请" :
+                  (doc.type == "shift" ? "换班申请" :
+                      (doc.type == "stepgo" ? "事件审核":
+                        (doc.type == "backoff" ? "事件驳回":
+                    ""))))) + "消息", JPush.ios('ios alert'), JPush.android('android alert', null, 1))
           .send(function (err, res) {
             if (err) {
               console.log(err.message)

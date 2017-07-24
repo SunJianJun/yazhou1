@@ -592,7 +592,7 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
     // internally
     if (!err) {
       if(docs[0].personlocations) {
-        //console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].personlocations.length-1]);//+"<>"+docs[0].personlocations
+        console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].personlocations.length-1]);//+"<>"+docs[0].personlocations
         callback(err, docs[0].personlocations[docs[0].personlocations.length - 1]);
       }else{
         callback(err,null);
@@ -605,6 +605,30 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
   });
 };
 
+// 得到人员的最新位置--新街口
+PersonDAO.prototype.getNewPersonLatestPosition=function (personid, callback) {
+  var query = locationmodel.find({'person': personid});
+  // 排序，不过好像对子文档无效
+  query.sort({'positioningdate': -1});//desc asc
+  query.limit(1);
+
+  query.exec(function (err, docs) {
+    // called when the `query.complete` or `query.error` are called
+    // internally
+    if (!err) {
+      if(docs[0].positioningdate) {
+        // console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].length-1]);//+"<>"+docs[0].personlocations
+        callback(err, docs[0]);
+      }else{
+        callback(err,null);
+      }
+    }
+    else {
+      //console.log('获取人员位置失败：'+docs);
+      callback(err, null);
+    }
+  });
+};
 
 
 // 得到人员一段时间的位置
@@ -932,25 +956,26 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
         for (var index = 0; index < dpts.length; index++) {
           dptids.push(dpts[index].department);
         }
+        console.log(dptids)
 
             /*临时使用，获取测试用户*/
-            Personmodel.find({status: 9//{$gt: 0}
-                  }, {
-                      personlocations: 0
-                    }).exec(function (err, workmatesObjs) {
-                        if (!err) {
-                          //console.log(workmatesObjs)
-                          //console.log('callback getWorkmatesByUserId personObjs得到谁的同事：'+'<>'+curPserson.name+'<>'+workmates);
-                          // console.log(workmatesObjs);
-                          callback(err, workmatesObjs);
-                        }
-                        else {
-                          //console.log('callback getWorkmatesByUserId personObjs得到相关部门的下属人员出错：'+'<>'+curPserson.name+'<>');
-                          // 虽然没有错，但是也没有消息
-                          callback(err, null);
-                        }
-                    });
-return;
+//             Personmodel.find({status: 9//{$gt: 0}
+//                   }, {
+//                       personlocations: 0
+//                     }).exec(function (err, workmatesObjs) {
+//                         if (!err) {
+//                           //console.log(workmatesObjs)
+//                           //console.log('callback getWorkmatesByUserId personObjs得到谁的同事：'+'<>'+curPserson.name+'<>'+workmates);
+//                           // console.log(workmatesObjs);
+//                           callback(err, workmatesObjs);
+//                         }
+//                         else {
+//                           //console.log('callback getWorkmatesByUserId personObjs得到相关部门的下属人员出错：'+'<>'+curPserson.name+'<>');
+//                           // 虽然没有错，但是也没有消息
+//                           callback(err, null);
+//                         }
+//                     });
+// return;
 
 
         //console.log('callback getWorkmatesByUserId personObjs得到相关部门的ids：'+'<>'+curPserson.name+'<>'+dptids);
@@ -972,12 +997,13 @@ return;
                   }
                 }
 
+                console.log(workmates)
                 Personmodel.find({_id: {$in: workmates}, status:{$gt: 0}
               }, {
                   personlocations: 0,
                   images: 0
                 }).exec(function (err, workmatesObjs) {
-                    if (!err) {
+                    if (workmatesObjs) {
                       //console.log('callback getWorkmatesByUserId personObjs得到谁的同事：'+'<>'+curPserson.name+'<>'+workmates);
                       // console.log(workmatesObjs);
                       callback(err, workmatesObjs);
@@ -1124,6 +1150,7 @@ PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallbac
     Personmodel.find({'_id': personId}, function (err, personObjs) {
       if (!err) {
         var personObj = personObjs[0];
+        locationObj.person=personId;
         var newlocation = new locationmodel(locationObj);
         if (personObj) {
           if (!(personObj.personlocations && personObj.personlocations.length > 0))
@@ -1164,7 +1191,7 @@ PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallbac
 
 //验证用户是否存在
 PersonDAO.prototype.provingperson=function(idNum,name,sex,callback){
-  var ops={idNum:idNum}
+  var ops={idNum:idNum};
   name?ops.name=name:'';
   Personmodel.findOne(ops,{personlocations:0},function(err,obj){
     if(obj){

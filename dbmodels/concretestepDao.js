@@ -254,7 +254,7 @@ ConcretestepDAO.prototype.concretesteppeopleDelete = function (areaID, position,
     }
   });
 }
-//发生审核信息
+//发送审核信息
 ConcretestepDAO.prototype.sendstepgo= function (stepID,audit, callback) {
   Concretestepmodel.update({_id:stepID},{power:audit},function (err, docs) {
     if (!err) {
@@ -319,7 +319,21 @@ ConcretestepDAO.prototype.geteventstep=function (ID,status,outcallback) {
   // item_indexes = {id_:index for index, id_ in enumerate(school_paper['ID'])
   // items.sort(key=lambda item: item_indexes[item['_id']])
 }
-
+ConcretestepDAO.prototype.getstepaudittext=function (step,callback) {
+  Concretestepmodel.findOne({_id:step},'power',function (err,obj) {
+    if(obj){
+      var audit=obj.power.audit;
+      for(var i=0,arr=[];i<audit.length;i++){
+        if(audit[i].person){
+          arr.push(audit[i])
+        }
+      }
+      callback(null,arr)
+    }else{
+      callback(err)
+    }
+  })
+}
 
 
 ConcretestepDAO.prototype.readtConcretestep = function (mid, outcallback) {

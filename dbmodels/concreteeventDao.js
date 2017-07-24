@@ -323,45 +323,5 @@ ConcreteeventDAO.prototype.sendeventnewer=function(ID,callback){
 
 var concreteeventObj = new ConcreteeventDAO();
 
-// concreteeventObj.sendAConcreteevent({
-//   type:'无证运营案',
-//   name: '摩托车无证运营案',
-//   newer: 'null',
-//   status:0,
-//   step: [
-//     {
-//       types: '1.立案审批表',
-//       status: 1
-//     }, {
-//       types: '2.现场检查记录',
-//       status: 0
-//     }, {
-//       types: '3.扣押物品',
-//       status: 0
-//     }, {
-//       types: '4.接受调查询问',
-//       status: 0
-//     }, {
-//       types: '5.询问（调查）笔录',
-//       status: 0
-//     }, {
-//       types: '6.现场示意图',
-//       status: 0
-//     }, {
-//       types: '7.行政处罚告知',
-//       status: 0
-//     }, {
-//       types: '8.行政处罚决定',
-//       status: 0
-//     }, {
-//       types: '9.解除扣押物品决定书',
-//       status: 0
-//     }, {
-//       types: '10.行政处罚案件结案报告',
-//       status: 0
-//     }
-//   ]
-// });
-
 
 module.exports = concreteeventObj;

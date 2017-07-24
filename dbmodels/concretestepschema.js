@@ -21,7 +21,7 @@ var ConcretestepSchema = new Schema({//事件详情步骤表
       text:String//签字内容
     }]
   },
-
+  sendperson:String,//提交审核人
   responsible:String,//这个步骤当前的责任人，发起人员，负责填写
   currentPusher:String,//推动者，步骤审核人员，//只记录title
   updatetime:Date

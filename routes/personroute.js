@@ -244,7 +244,7 @@ var getPersonLatestPosition = function(req, res) {
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     console.log('personID:'+personID);
   if(personID) {
-    person.getPersonLatestPosition(personID, function (err, obj) {
+    person.getNewPersonLatestPosition(personID, function (err, obj) {
       if (!err) {
         // console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+obj);
         res.send(obj);

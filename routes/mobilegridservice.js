@@ -222,7 +222,7 @@ var getRadomPt = function () {
  * 新建一个事件,新建后可以调用/getcurrentstep获取第一步，进入立案
  * @param {json} req - 新建事件的名称、类型和所属部门（新建事件人员的部门）,案件位置,新建人
  * <br/>客户端提交json 例如{name:'案件名称',type:"案件类型,已定义好的类型ID",departmentID:'所属部门ID',position:[114.123456,40.123456],newwho:'新建人ID'}
- * @param {json} res - 返回第一步步骤id根据这个id获取第一步参数填写,{cussess: 'id'}
+ * @param {json} res - 返回第一步步骤id根据这个id获取第一步参数填写,{success: "5975bbfbd8653e801d7e7cd2"}
  */
 var sendnewEvent = function (req, res) {
   // //console.log('call sendAConcreteevent');
@@ -505,7 +505,13 @@ var sendeventargumentpush = function (req, res) {
               }else{
                 concretestepDAO.updatestepstatus(stepid,3, function (steperr,stepobj) {//修改步骤状态改为正在审核中，不允许修改参数了
                   if(stepobj){
-                    res.send({success:'is OK!'});
+                    sendinfo(power,function(inerr,inobj){
+                      if(inobj){
+                        res.send({success:'is OK!'});
+                      }else{
+                        res.send({error:'消息错误'});
+                      }
+                    })
                   }else{
                     res.send({error:'修改当前流程状态出错'});
                   }
@@ -518,7 +524,40 @@ var sendeventargumentpush = function (req, res) {
       })
     }
     arguset()
+  function sendinfo(title,person,callback){
+  personDAO.gettitleToperson(title,function(pererr,perobj){
+    // console.log('下一级审核领导')
+    if(perobj){
+      var perobjlength=perobj.length;
+      var perobjcount=0;
+      var perobjfun= function () {
+        var mesobj={};
+        mesobj.sender=setwho;
+        mesobj.receiver=perobj[perobjcount]._id;
+        mesobj.text='审核';
+        mesobj.type='stepgo';
+        mesobj.status=0;
+        mesobj.create_date=new Date();
+        console.log(mesobj)
+        messageDAO.save(mesobj, function (meserr) {//向下一级领导发送审批请求
+          if(!meserr){
+            perobjcount++;
+            if(perobjcount<perobjlength) {
+              perobjfun();
+            }else{
+              res.send({success:'发送审批请求'});
+            }
+          }else{
 
+          }
+        })
+      }
+      perobjfun();
+    }else{
+      res.send({error:null});
+    }
+  })
+}
   }else{
     res.send({error:'提交参数有误'});
   }
@@ -565,7 +604,7 @@ var sendeventargument = function (req, res) {
 };
 
 /**
- * 获取待处理的事件列表--完善中<br/>根据部门查询所有待处理事件
+ * 获取待处理的事件列表<br/>根据部门查询所有待处理事件
  * @param {json} req - 传入要查询的待处理事件的部门ID,客户端提交json 例如{documentID:"部门ID"}
  * @param {json} res - 返回待处理事件的json数组<br/>[{type:类型,name:名称,_id:ID,no:步骤顺序,status:步骤状态}]
  */
@@ -620,14 +659,15 @@ var geteventSearch = function (req, res) {
 
 /**
  * 审核通过，推进流程
- * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:''}
+ * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:'',eventID:"事件ID"}
  * @param {json} res - 返回提示{success:'步骤推进'}
  */
 var sendstepgo= function (req, res) {
   var stepID = req.body.stepID,
     person = req.body.person,
     text = req.body.text,
-    personTitle=req.body.personTitle;
+    personTitle=req.body.personTitle,
+    eventID=req.body.eventID;
   concretestepDAO.getoneeventstep(stepID,function(steperr,stepobj){
     if(steperr){
 
@@ -644,25 +684,25 @@ var sendstepgo= function (req, res) {
           }
         }
         !function(){
-        for(var j=0,isnull='';j<audit.length;j++){
+        for(var j=0,isnull=false;j<audit.length;j++){
+          console.log(audit[j].no,nexttitle)
           if(audit[j].no==nexttitle){
             nexttitle=audit[j];
+            console.log('一致')
             isnull=true;
             return;
-          }else{
-            if(!isnull){isnull=false}
           }
+        }
           if(!isnull){nexttitle=null;}
-        }}()
+        }()
         console.log('审核通过，推进流程')
         console.log(nexttitle)
-        //res.send(stepobj)
 
-
-        concretestepDAO.sendstepgo(stepID,stepobj.power, function (err, obj) {//发送审核信息
+        concretestepDAO.sendstepgo(stepID,stepobj.power, function (err, obj) {//修改审核信息
           if (!err) {
             if(nexttitle) {//存在下一级审核领导
-              personDAO.gettitleToperson(nexttitle,function(pererr,perobj){
+              personDAO.gettitleToperson(nexttitle.title,function(pererr,perobj){
+                // console.log('下一级审核领导')
                 if(perobj){
                   var perobjlength=perobj.length;
                   var perobjcount=0;
@@ -671,43 +711,134 @@ var sendstepgo= function (req, res) {
                     mesobj.sender=person;
                     mesobj.receiver=perobj[perobjcount]._id;
                     mesobj.text=text;
-                    mesobj.type='event';
+                    mesobj.type='stepgo';
+                    mesobj.status=0;
                     mesobj.create_date=new Date();
-                    messageDAO.save(mesobj, function (meserr,mesobj) {//向下一级领导发送审批请求
-                      if(mesobj){
+                    console.log(mesobj)
+                    messageDAO.save(mesobj, function (meserr) {//向下一级领导发送审批请求
+                      if(!meserr){
                         perobjcount++;
                         if(perobjcount<perobjlength) {
-                          perobjfun()
+                          perobjfun();
                         }else{
-                          res.send({success:'审核通过，推进流程'});
+                          res.send({success:'发送审批请求'});
                         }
+                      }else{
+
                       }
                     })
                   }
+                  perobjfun();
+                }else{
+                  // res.send({error:null});
+                }
+              })
+
+            }else{//步骤最终审核，步骤完结
+              console.log('步骤最终审核，步骤完结')
+
+              concretestepDAO.updatestepstatus(stepID,4, function (steperr,stepobj) {
+                if(stepobj){
+                  getnextstep()
                 }else{
                   res.send({error:null});
                 }
               })
 
-            }else{//步骤最终审核，步骤完结
-              concretestepDAO.updatestepstatus(stepid,4, function (steperr,stepobj) {
-                if(stepobj){
-                  res.send({success:'当前流程完结'});
-                }else{
-
-                }
-              })
             }
-            res.send({success:obj});
           } else {
             res.send({error:null});
           }
         });
 
       }
+      function getnextstep() {//把下一步状态改为正在进行
+        concreteeventDAO.getIncompletesteps(eventID,function(err,obj){
+          if(obj){
+            concretestepDAO.geteventstep(obj.step,1,function (zterr,ztobj) {
+              if(ztobj){
+                var compare = function (obj1, obj2) {//排序函数
+                  var val1 = obj1.no;
+                  var val2 = obj2.no;
+                  if (val1 < val2) {
+                    return -1;
+                  } else if (val1 > val2) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                }
+                concretestepDAO.updatestepstatus(ztobj.sort(compare)[0]._id,2,function(err,upstobj){
+                  if(upstobj){
+                    res.send({success:'当前流程完结,进入下一步！'});
+                  }else{
+                    res.send({error:null});
+                  }
+                })
+              }
+            })
+          }else{
+
+          }
+        })
+      }
     }
   })
 };
+/**
+ * 事件驳回
+ * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:'',eventID:'事件id'}
+ * @param {json} res - 返回提示{success:'步骤推进'}
+ */
+var sendeventargbackoff=function(req,res){
+  var stepID = req.body.stepID,
+    person = req.body.person,
+    text = req.body.text,
+    personTitle=req.body.personTitle;
+  concretestepDAO.getoneeventstep(stepID,function(steperr,stepobj) {
+    if (stepobj) {
+      var audit=stepobj.power.audit;
+      console.log('事件驳回')
+      for(var i=0,auditarr=[];i<audit.length;i++){
+        auditarr.push({
+          no:audit[i].no,
+          title:audit[i].title
+        })
+      }
+      stepobj.power.audit=auditarr;
+      concretestepDAO.sendstepgo(stepID,stepobj.power,function(uperr,upobj){
+        if(upobj){
+          concretestepDAO.updatestepstatus(stepID,2,function(xerr,xobj){
+            if(xobj){
+              res.send({success:'驳回'})
+            }else{
+              res.send({error:null})
+            }
+          })
+        }else{
+          res.send({error:null})
+        }
+      })
+    } else {
+      res.send({error:null})
+    }
+  })
+}
+/**
+ * 获取领导审批内容
+ * @param {json} req - {stepID:'步骤id'}
+ * @param {json} res - 返回提示{no:1,person:"58e0c199e978587014e67a50",powertime:"2017-07-24T09:24:07.263Z",text:"1111",title:"5952112dea76066818fd6dd4",_id:"597331a41db33d7040895276"}
+ */
+var getstepaudittext=function(req,res){
+  var stepid=req.body.stepID;
+  concretestepDAO.getstepaudittext(stepid,function (err,obj) {
+    if(obj){
+      res.send({success:obj})
+    }else{
+      res.send({error:err})
+    }
+  })
+}
 /**
  * 根据步骤ID获取步骤
  * @param {json} req - 传入要事件的步骤ID,客户端提交json 例如{id:"步骤ID"}
@@ -729,7 +860,7 @@ var getoneeventstep = function (req, res) {
       //console.log('获取到人员权限')
       !function(){
         for(var i=0;i<obj.power.audit.length;i++){
-        if(obj.power.audit[i].no==1){
+        if(!obj.power.audit[i].person){
           //console.log('修改权限'+obj.power.audit[i].title)
           var audit=obj.power.audit[i].title;
           newobj.power={new:obj.power.new,audit:audit};
@@ -807,6 +938,7 @@ var sendeeventDelete = function (req, res) {
     res.send({error:'请求参数有误'});
   }
 }
+
 var sendstepadvance= function (req, res) {
   var ID = req.body.id;
   concretestepDAO.getoneeventstep(ID,function (err, obj) {
@@ -828,7 +960,7 @@ var getpersonpower=function(req,res){
   var power = req.body.power;
   var title=req.body.title;
   var back=[];
-  if(!power){res.send({error:'参数传入错误'});return;}
+  if(!power.audit){res.send({error:'参数传入错误'});return;}
   for(var isnot in power){
     if(power[isnot]=='all'){
       delete power[isnot]
@@ -837,13 +969,13 @@ var getpersonpower=function(req,res){
   }
   if(!title){res.send({success:back});return;}
   persontitleDAO.getetitle(power.audit,function(pertiterr,pertitiobj){
-    if(pertiterr){
-      res.send({error:"获取当前用户职务出错"})
-    }else{
+    if(pertitiobj){
       if(pertitiobj._id==title){
         back.push('power');
       }
       res.send({success:back});
+    }else{
+      res.send({error:"获取当前用户职务出错"})
     }
   })
 }
@@ -872,9 +1004,11 @@ mobilegridservice.post('/geteventstep',geteventstep);
 mobilegridservice.post('/sendeventargumentpush', sendeventargumentpush);
 mobilegridservice.post('/sendeventargument', sendeventargument);
 mobilegridservice.post('/sendstepgo',sendstepgo);
+mobilegridservice.post('/sendeventargbackoff',sendeventargbackoff);
 
 mobilegridservice.post('/getEventtype',getEventtype);
 mobilegridservice.post('/geteventSearch',geteventSearch);
+mobilegridservice.post('/getstepaudittext',getstepaudittext);
 mobilegridservice.post('/getoneeventstep',getoneeventstep);
 mobilegridservice.post('/getargutostep',getargutostep);
 mobilegridservice.post('/getAllAbstracttype',getAllAbstracttype);
