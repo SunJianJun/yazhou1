@@ -426,6 +426,32 @@ var sendnewEvent = function (req, res) {
     }
   })
 };
+
+/**
+ * 获得所有正在审核的步骤
+ * @param {json} req - 客户端传入json，{id:'案件ID'}
+ * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
+ */
+var getcurrentexaminestep=function (req, res) {
+  var caseID = req.body._id;
+  if (caseID) {
+    concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
+      if (err) {
+        res.send({error: null})
+      } else {
+        concretestepDAO.geteventstep(obj.step, 3, function (sterr, stobj) {
+          if (sterr) {
+            res.send({error: null})
+          } else {
+            res.send({success:stobj})
+          }
+        });
+      }
+    })
+  }else {
+    res.send({error: '参数有误'})
+  }
+}
 /**
  * 获得所有已完成的步骤
  * @param {json} req - 客户端传入json，{id:'案件ID'}
@@ -438,7 +464,7 @@ var getcompletestep=function (req, res) {
       if (err) {
         res.send({error: null})
       } else {
-        concretestepDAO.geteventstep(obj.step, 3, function (sterr, stobj) {
+        concretestepDAO.geteventstep(obj.step, 4, function (sterr, stobj) {
           if (sterr) {
             res.send({error: null})
           } else {
@@ -499,7 +525,7 @@ var sendeventargumentpush = function (req, res) {
           if(argucount<argulength){
             arguset()
           }else{
-            concreteeventDAO.sendeventnewer(eventid,function(nererr,nerobj){//修改事件更新日期
+            concreteeventDAO.sendeventperson(eventid,setwho,function(nererr,nerobj){//修改事件更新日期,添加人员
               if(nererr){
                 res.send({error: null});
               }else{
@@ -584,7 +610,7 @@ var sendeventargument = function (req, res) {
               if(argucount<argulength){
                 arguset()
               }else{
-                concreteeventDAO.sendeventnewer(eventid,function(nererr,nerobj){//修改事件更新日期
+                concreteeventDAO.sendeventperson(eventid,setwho,function(nererr,nerobj){//修改事件更新日期
                   if(nererr){
                     res.send({error: null});
                   }else{
@@ -724,7 +750,7 @@ var sendstepgo= function (req, res) {
                           res.send({success:'发送审批请求'});
                         }
                       }else{
-
+                        res.send({error: null});
                       }
                     })
                   }
@@ -757,28 +783,38 @@ var sendstepgo= function (req, res) {
           if(obj){
             concretestepDAO.geteventstep(obj.step,1,function (zterr,ztobj) {
               if(ztobj){
-                var compare = function (obj1, obj2) {//排序函数
-                  var val1 = obj1.no;
-                  var val2 = obj2.no;
-                  if (val1 < val2) {
-                    return -1;
-                  } else if (val1 > val2) {
-                    return 1;
-                  } else {
-                    return 0;
+                if(ztobj.length==0){
+                  concreteeventDAO.updateeventstatus(eventID,2,function (eveerr,eveobj) {
+                    if(eveobj){
+                      res.send({success:'当前事件完结'});
+                    }else{
+                      res.send({error:null});
+                    }
+                  })
+                }else {
+                  var compare = function (obj1, obj2) {//排序函数
+                    var val1 = obj1.no;
+                    var val2 = obj2.no;
+                    if (val1 < val2) {
+                      return -1;
+                    } else if (val1 > val2) {
+                      return 1;
+                    } else {
+                      return 0;
+                    }
                   }
+                  concretestepDAO.updatestepstatus(ztobj.sort(compare)[0]._id, 2, function (err, upstobj) {
+                    if (upstobj) {
+                      res.send({success: '当前流程完结,进入下一步！'});
+                    } else {
+                      res.send({error: null});
+                    }
+                  })
                 }
-                concretestepDAO.updatestepstatus(ztobj.sort(compare)[0]._id,2,function(err,upstobj){
-                  if(upstobj){
-                    res.send({success:'当前流程完结,进入下一步！'});
-                  }else{
-                    res.send({error:null});
-                  }
-                })
               }
             })
           }else{
-
+            res.send({error: null});
           }
         })
       }
@@ -995,6 +1031,7 @@ mobilegridservice.post('/getcasestep',getcasestep);
 mobilegridservice.post('/getpersonRoute', getpersonRoute);
 mobilegridservice.post('/geteventStatus', geteventStatus);
 mobilegridservice.post('/getcurrentstep', getcurrentstep);
+mobilegridservice.post('/getcurrentexaminestep',getcurrentexaminestep)
 mobilegridservice.post('/getcompletestep',getcompletestep);
 
 mobilegridservice.post('/geteventTimestatistics',geteventTimestatistics)

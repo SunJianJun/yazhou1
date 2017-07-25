@@ -165,6 +165,26 @@ ConcreteeventDAO.prototype.updateaddsetp = function (eventId,step, callback) {
         }
       });
 }
+ConcreteeventDAO.prototype.updateeventstatus = function (eventId,status, callback) {
+  var callback = callback ? callback : function (err, obj) {
+    if (err) {
+      console.log('callback updateaddsetp 出错：' + '<>' + err);
+    } else {
+      console.log('callback updateaddsetp 成功：' + '<>' + obj);
+    }
+  }
+  var stepjson=step;
+  //console.log(step)
+  Concreteeventmodel.update({_id: eventId}, {status:status}, function (err, res) {
+    if (!err) {
+      callback(null, res);
+    }
+    else {
+      console.log('没有数据');
+      callback(err, 0);
+    }
+  });
+}
 ConcreteeventDAO.prototype.geteventStatus = function (status, callback) {
   var callback = callback ? callback : function (err, obj) {
     if (err) {
@@ -318,7 +338,33 @@ ConcreteeventDAO.prototype.sendeventnewer=function(ID,callback){
     }
   })
 }
-
+//事件添加参与人员修改事件更新日期
+ConcreteeventDAO.prototype.sendeventperson=function(ID,person,callback){
+  Concreteeventmodel.findOne({_id:ID},function (ferr,fobj) {
+    if(fobj){
+      for(var i=0,isyou=false;i<fobj.people.length;i++){
+        if(fobj.people[i]==person){
+          // console.log('存在相同的人')
+          isyou=true;
+        }
+      }
+      var ops={newer:new Date()};
+      if(!isyou){
+        fobj.people.push(person);
+        ops.people=fobj.people;
+      }
+      Concreteeventmodel.update({_id:ID},ops,function(err,obj){
+        if(err){
+          callback(err)
+        }else{
+          callback(null,obj)
+        }
+      })
+    }else{
+      callback(err)
+    }
+  })
+}
 
 
 var concreteeventObj = new ConcreteeventDAO();

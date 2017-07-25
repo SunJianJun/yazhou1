@@ -74,16 +74,16 @@ var sendpersonreGister = function (req, res) {
   } else {
     console.log('调用了dopersonAdd方法');
     json.status = 1;
-    var dep=json.departments[0];
+    var dep = json.departments[0];
     personDAO.save(json, function (err, obj) {
       if (err) {
         res.send({error: '注册出错'});
       } else {
-        personDAO.addPersonTodepartent(obj._id,dep.department,function(err,obj){
-          if(err){
-            res.send({error:err})
-          }else{
-            res.send({success:obj});
+        personDAO.addPersonTodepartent(obj._id, dep.department, function (err, obj) {
+          if (err) {
+            res.send({error: err})
+          } else {
+            res.send({success: obj});
           }
         })
       }
@@ -96,23 +96,23 @@ var sendpersonreGister = function (req, res) {
  * @param {json} res - 返回已有的人员信息{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456",IMid:'极光ID'};
  */
 var sendispersonAdd = function (req, res) {
-  var json=req.body;
-    idNum = json.idNum,
+  var json = req.body;
+  idNum = json.idNum,
     name = json.name,
     sex = json.sex;
   if (!idNum) {
     //res.send('无效身份证号')
-    if(idNum.length!=18) {
+    if (idNum.length != 18) {
       res.send({error: '身份证有误'});
-    }else{
+    } else {
       res.send({error: '无效身份证号'});
     }
   } else {
     personDAO.provingperson(idNum, name, sex, function (err, obj) {
       if (err) {
-        res.send({error:err});
+        res.send({error: err});
       } else {
-        res.send({success:obj})
+        res.send({success: obj})
       }
     })
   }
@@ -122,19 +122,19 @@ var sendispersonAdd = function (req, res) {
  * @param {json} req - 客户端提交json {_id:'人员id',newmobile:'新的手机id'}
  * @param {json} res - 返回提示 {success:'chenggon'}
  */
-var sendupdatemobileuuid=function(req,res){
-  var id=req.body._id;
-  var mobile=req.body.newmobile;
-  if(id&&mobile) {
-    personDAO.sendupdatemobileuuid(id,mobile,function (err,obj) {
-      if(obj){
-        res.send({success:'更改成功'})
-      }else{
-        res.send({error:'更改失败'})
+var sendupdatemobileuuid = function (req, res) {
+  var id = req.body._id;
+  var mobile = req.body.newmobile;
+  if (id && mobile) {
+    personDAO.sendupdatemobileuuid(id, mobile, function (err, obj) {
+      if (obj) {
+        res.send({success: '更改成功'})
+      } else {
+        res.send({error: '更改失败'})
       }
     })
-  }else{
-    res.send({error:'提交参数错误'})
+  } else {
+    res.send({error: '提交参数错误'})
   }
 }
 /**
@@ -142,20 +142,20 @@ var sendupdatemobileuuid=function(req,res){
  * @param {json} req - 客户端提交json {_id:'人员id',newmobile:'新的手机id',pwd:'设置的密码'}
  * @param {json} res - 返回提示 {success:'chenggon'}
  */
-var sendpwdandmobileuuid=function(req,res){
-  var id=req.body._id;
-  var mobile=req.body.newmobile;
-  var pwd=req.body.pwd;
-  if(id&&mobile&&pwd) {
-    personDAO.sendpwdandmobileuuid(id,pwd,mobile,function (err,obj) {
-      if(obj){
-        res.send({success:'更改成功'})
-      }else{
-        res.send({error:'更改失败'})
+var sendpwdandmobileuuid = function (req, res) {
+  var id = req.body._id;
+  var mobile = req.body.newmobile;
+  var pwd = req.body.pwd;
+  if (id && mobile && pwd) {
+    personDAO.sendpwdandmobileuuid(id, pwd, mobile, function (err, obj) {
+      if (obj) {
+        res.send({success: '更改成功'})
+      } else {
+        res.send({error: '更改失败'})
       }
     })
-  }else{
-    res.send({error:'提交参数错误'})
+  } else {
+    res.send({error: '提交参数错误'})
   }
 }
 
@@ -170,14 +170,14 @@ var sendWaitExamineperson = function (req, res) {
   var json = req.body;
   //json={"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
   if (!json) {
-    res.send({error:'提交为空'})
+    res.send({error: '提交为空'})
   } else {
     json.status = 4;
-    personDAO.save(json, function (err,obj) {
+    personDAO.save(json, function (err, obj) {
       if (err) {
-        res.send({error:'添加失败'});
+        res.send({error: '添加失败'});
       } else {
-        res.send({success:obj});
+        res.send({success: obj});
       }
     });
   }
@@ -190,7 +190,7 @@ var sendWaitExamineperson = function (req, res) {
  */
 var updatepersonstate = function (req, res) {
   var json = req.body,
-  //json=req;
+    //json=req;
     person = json._id,
     status = json.status;
   if (!person && !status) {
@@ -215,16 +215,16 @@ var updatepersonstate = function (req, res) {
  */
 var updatepersoninfo = function (req, res) {
   var json = req.body,
-      uid = json._id;
-      delete json._id;
+    uid = json._id;
+  delete json._id;//去除人员ID，再把获取到的人员id删掉
   if (!uid) {
     res.send({error: '人员ID不能为空'})
   } else {
     personDAO.updatepersoninfo(uid, json, function (err, obj) {
       if (err) {
-        res.send({error:'修改失败，可能是参数错误'});
+        res.send({error: '修改失败，可能是参数错误'});
       } else {
-        res.send({success:'修改成功'})
+        res.send({success: '修改成功'})
       }
     })
   }
@@ -298,8 +298,7 @@ var getAllDepartments = function (req, res) {
       //console.log(err)
       res.send({error: '获取失败！'})
     } else {
-      //res.send({success:obj}
-      res.send(obj)
+      res.send({success: obj})
     }
   })
 };
@@ -308,18 +307,18 @@ var getAllDepartments = function (req, res) {
  * @param {} req - 客户端发起请求，无需传参
  * @param {json} res - 返回json：[{_id:"123456",name:"部门名称",status:1,info:'部门信息',persons:[[{_id:'',name:'';}]]
  */
-var getAllDepartment = function (req,res) {
+var getAllDepartment = function (req, res) {
   departmentDAO.getAllDepartment(function (err, obj) {
     if (err) {
       res.send({error: '获取失败！'})
     } else {
-      res.send(obj)
+      res.send({success: obj})
     }
   })
 };
 /**
  * 新建一个部门
- * @param {json} req - 传入名称和上级部门id,客户端提交json 例如{name:'新建1',info:'新建描述',parentID:'上级部门id',info:'部门描述',infoLink:'www.baidu.com'}
+ * @param {json} req - 传入名称和上级部门id,客户端提交json 例如{name:'新建1',parentID:'上级部门id',info:'部门描述',infoLink:'www.baidu.com'}
  * @param {json} res - 返回json：例如{status:1}
  */
 var sendnewdepartment = function (req, res) {
@@ -426,9 +425,9 @@ var updatedepartmentinfo = function (req, res) {
  */
 var updatedepartmentstatus = function (req, res) {
   var json = req.body;
-  id = json._id,status=json.status;
-  if (id&&status){
-    departmentDAO.updatedepartmentinfo(id,status,function (err, obj) {
+  id = json._id, status = json.status;
+  if (id && status) {
+    departmentDAO.updatedepartmentinfo(id, status, function (err, obj) {
       if (err) {
         res.send({error: '修改失败'});
       } else {
@@ -446,14 +445,14 @@ var updatedepartmentstatus = function (req, res) {
  * @param {json} res - 返回json：例如[ { name: '大队长', _id: 59520e5d7b6d7fa011adcc73 }]
  */
 var getpersontitleTodepartment = function (req, res) {
-  var depar=req.body.departmentID;
-  if(!depar){
-    res.send({error:"部门id出错"})
-  }else {
-    persontitleDAO.getpersontitleTodepartment(depar,function (err, obj) {
+  var depar = req.body.departmentID;
+  if (!depar) {
+    res.send({error: "部门id出错"})
+  } else {
+    persontitleDAO.getpersontitleTodepartment(depar, function (err, obj) {
       if (err) {
         //console.log(err)
-        res.send({error:"部门获取职务出错"})
+        res.send({error: "部门获取职务出错"})
       } else {
         res.send({success: obj})
       }
@@ -466,17 +465,17 @@ var getpersontitleTodepartment = function (req, res) {
  * @param {json} res - 返回json：例如{_id:'123456',name:'雇员',derpartmentID:'部门id',parentTitle:'上级职务ID'}
  */
 var sendtitle = function (req, res) {
-  var json=req.body,
-  parenttitle=json.parentTitle;
-console.log(json.name,json.departmentID)
-  if(json.name&&json.departmentID){
-    persontitleDAO.getetitle(parenttitle,function(pererr,perobj){
-      if(perobj){
-        //perobj
-      }
-           console.log('fanhui')
+  var json = req.body,
+    parenttitle = json.parentTitle;
+  console.log(json.name, json.departmentID)
+  if (json.name && json.departmentID) {
+    persontitleDAO.getetitle(parenttitle, function (pererr, perobj) {
+        if (perobj) {
+          //perobj
+        }
+        console.log('fanhui')
         console.log(perobj)
-        persontitleDAO.sendpersontitle(json,function (err, obj) {
+        persontitleDAO.sendpersontitle(json, function (err, obj) {
           if (err) {
             res.send({error: '添加失败'})
           } else {
@@ -485,8 +484,8 @@ console.log(json.name,json.departmentID)
         })
       }
     )
-  }else {
-    res.send({error:'提交参数有误'})
+  } else {
+    res.send({error: '提交参数有误'})
   }
 }
 /**
@@ -494,19 +493,19 @@ console.log(json.name,json.departmentID)
  * @param {json} req - 客户端提交json 例如{_id:'职务ID',parentTitle:'上级职务ID'}
  * @param {json} res - 返回成功{success:''}
  */
-var sendpersonparent=function(req,res){
-  var id=req.body._id;
-  var parent=req.body.parentTitle;
-  if(id&&parent){
-    persontitleDAO.sendpersonparent(id,parent,function (err, obj) {
+var sendpersonparent = function (req, res) {
+  var id = req.body._id;
+  var parent = req.body.parentTitle;
+  if (id && parent) {
+    persontitleDAO.sendpersonparent(id, parent, function (err, obj) {
       if (err) {
         res.send({error: '添加失败'})
       } else {
         res.send({success: obj})
       }
     })
-  }else {
-    res.send({error:'提交参数有误'})
+  } else {
+    res.send({error: '提交参数有误'})
   }
 }
 
@@ -548,15 +547,15 @@ var gettitleToperson = function (req, res) {
 var getpersontitlelevel = function (req, res) {
   var json = req.body;
   var title = json.title;
-  if(title){
+  if (title) {
     persontitleDAO.getpersontitlelevel(title, function (err, obj) {
-    if (err) {
-      res.send({error: '获取失败'})
-    } else {
-      res.send({success: obj})
-    }
-  })
-  }else{
+      if (err) {
+        res.send({error: '获取失败'})
+      } else {
+        res.send({success: obj})
+      }
+    })
+  } else {
     res.send({error: '提交参数有误'})
   }
 }
@@ -599,7 +598,7 @@ var getUserPicById = function (req, res) {
     personDAO.getUserPicById(userid, function (err, obj) {
       if (!err) {
         // //console.log('getUserPicById 查询'+userid+'照片ok:');
-        res.send({success:{_id:userid,images:obj}});
+        res.send({success: {_id: userid, images: obj}});
       } else {
         // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
         res.send({error: '获取失败'});
@@ -610,28 +609,28 @@ var getUserPicById = function (req, res) {
 
 
 /**
- * 根据人员ID 获取人员头像
+ * 根据人员ID 获取人员信息，不含位置信息
  * @param {json} req - 客户端传入参数 {personID:'12313'}
  * @param {json} res - 返回参数 [{_id:'1234',name:{}....}]
  */
 var getUserInfoById = function (req, res) {
-    // //console.log('call getUserPicById');
-    //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
-    var userid = req.body.personID;
-    // 调用方法
-    if (!userid) {
-        res.send({error: '发送的id错误'})
-    } else {
-        personDAO.getUserInfoById(userid, function (err, obj) {
-            if (!err) {
-                // //console.log('getUserPicById 查询'+userid+'照片ok:');
-                res.send({success:obj});
-            } else {
-                // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
-                res.send({error:err});
-            }
-        });
-    }
+  // //console.log('call getUserPicById');
+  //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+  var userid = req.body.personID;
+  // 调用方法
+  if (!userid) {
+    res.send({error: '发送的id错误'})
+  } else {
+    personDAO.getUserInfoById(userid, function (err, obj) {
+      if (!err) {
+        // //console.log('getUserPicById 查询'+userid+'照片ok:');
+        res.send({success: obj});
+      } else {
+        // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+        res.send({error: err});
+      }
+    });
+  }
 }
 
 /**
@@ -661,43 +660,44 @@ var getAllUserPic = function (req, res) {
  * @param {json} res - 返回参数 极光id 或者失败 {error: '获取失败'}
  */
 var getIMid = function (req, res) {
-    // //console.log('call getUserPicById');
-    //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
-    // 调用方法
-    personDAO.getIMid(req.body.personID,function (err, obj) {
-        if (!err) {
-            // //console.log('getUserPicById 查询'+userid+'照片ok:');
-            res.send(obj);
-        } else {
-            // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
-            res.send({error: '获取失败'});
-        }
-    });
-}/**
+  // //console.log('call getUserPicById');
+  //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+  // 调用方法
+  personDAO.getIMid(req.body.personID, function (err, obj) {
+    if (!err) {
+      // //console.log('getUserPicById 查询'+userid+'照片ok:');
+      res.send(obj);
+    } else {
+      // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+      res.send({error: '获取失败'});
+    }
+  });
+}
+/**
  * 根据人员id 设置极光id
  * @param {} req - 直接请求 req.body.personID,req.body.IMid
  * @param {json} res - 返回参数 极光id 或者失败 {error: '获取失败'}
  */
 var setIMid = function (req, res) {
-        // //console.log('call getUserPicById');
-        //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
-        // 调用方法
-        personDAO.setIMid(req.body.personID,req.body.IMid,function (err, obj) {
-            if (!err) {
-                // //console.log('getUserPicById 查询'+userid+'照片ok:');
-                res.send(obj);
-            } else {
-                // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
-                res.send({error: '获取失败'});
-            }
-        });
+  // //console.log('call getUserPicById');
+  //for(var i in req.body){ //console.log("getUserPicById 请求内容body子项："+i+"<>\n")};
+  // 调用方法
+  personDAO.setIMid(req.body.personID, req.body.IMid, function (err, obj) {
+    if (!err) {
+      // //console.log('getUserPicById 查询'+userid+'照片ok:');
+      res.send(obj);
+    } else {
+      // //console.log('getUserPicById 查询'+userid+'照片错误:'+err);
+      res.send({error: '获取失败'});
     }
+  });
+}
 
 personrouter.post('/sendpersonimport', sendpersonimport);//提交
 personrouter.post('/sendpersonreGister', sendpersonreGister);//提交
 personrouter.post('/sendispersonAdd', sendispersonAdd);//提交
-personrouter.post('/sendupdatemobileuuid',sendupdatemobileuuid);
-personrouter.post('/sendpwdandmobileuuid',sendpwdandmobileuuid);
+personrouter.post('/sendupdatemobileuuid', sendupdatemobileuuid);
+personrouter.post('/sendpwdandmobileuuid', sendpwdandmobileuuid);
 personrouter.post('/sendWaitExamineperson', sendWaitExamineperson);//提交
 personrouter.post('/updatepersonstate', updatepersonstate);//提交
 personrouter.post('/getdepartmentTopeople', getdepartmentTopeople);//提交
@@ -705,13 +705,13 @@ personrouter.post('/getpersonstate', getpersonstate);//提交
 personrouter.post('/sendnewdepartment', sendnewdepartment);//提交
 personrouter.post('/updatedepartmentname', updatedepartmentname);//提交
 personrouter.post('/updatedepartmentinfo', updatedepartmentinfo);//提交
-personrouter.post('/updatepersoninfo',updatepersoninfo);
+personrouter.post('/updatepersoninfo', updatepersoninfo);
 personrouter.post('/updatedepartmentstatus', updatedepartmentstatus);//提交
 personrouter.post('/getAllDepartments', getAllDepartments);//提交
 personrouter.post('/getAllDepartment', getAllDepartment);//提交
 personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//提交
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
-personrouter.post('/getpersontitlelevel',getpersontitlelevel);
+personrouter.post('/getpersontitlelevel', getpersontitlelevel);
 personrouter.post('/sendpersontitle', sendpersontitle);//提交
 personrouter.post('/getUserPicById', getUserPicById);
 personrouter.post('/getUserInfoById', getUserInfoById);

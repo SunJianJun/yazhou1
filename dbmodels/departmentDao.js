@@ -460,7 +460,7 @@ DepartmentDAO.prototype.getAllDepartment = function (callback) {
         dobj[departcount].persons=personid;
         // console.log(personid);
       }
-      Personmodel.find({_id:{$in:personid}},'name sex birthday status',function(perr,pobj){
+      Personmodel.find({_id:{$in:personid}},'name',function(perr,pobj){
         if(pobj){
           newobj.name=dobj[departcount].name;
           newobj.create=dobj[departcount].create;
@@ -468,6 +468,7 @@ DepartmentDAO.prototype.getAllDepartment = function (callback) {
           newobj.path=dobj[departcount].path;
           newobj.infoLink=dobj[departcount].infoLink;
           newobj.persons=pobj;
+          newobj.create_date=dobj[departcount].create_date;
           newobj.status=dobj[departcount].status;
           newobj._id=dobj[departcount]._id;
           newdepartment.push(newobj);
@@ -485,7 +486,8 @@ DepartmentDAO.prototype.getAllDepartment = function (callback) {
     departfun();
     //此时才能用Model操作，否则报错
 
-    // callback(derr,dobj);
+      // callback(derr, dobj);
+
   });
 };
 

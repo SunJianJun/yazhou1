@@ -212,18 +212,25 @@ var getphoneBypclogin=function (req, res) {
         }else{
           if(obj){
           if((new Date()-obj.createTime)/1000>=overdue){
-            res.send({error:'过期了'});
-            phoneloginpcDAO.removeoverduetime(obj._id,function (rerr,robj) {})
+            phoneloginpcDAO.removeoverduetime(obj._id,function (rerr,robj) {
+              if(robj){
+                res.send({error:'过期了'});
+              }
+            })
             return;
           }
           console.log(new Date()-obj.createTime)
-          personDAO.getUserInfoById(obj.person,function (perr,pobj) {
-            if(perr){
-              res.send({error:null})
+            if(obj.person) {
+              personDAO.getUserInfoById(obj.person, function (perr, pobj) {
+                if (perr) {
+                  res.send({error: null})
+                } else {
+                  res.send({success: obj})
+                }
+              })
             }else{
-              res.send({success:obj})
+              res.send({success: obj})
             }
-          })
         }
         }
       })

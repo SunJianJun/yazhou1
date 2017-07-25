@@ -49,9 +49,9 @@ PhoneloginPCDAO.prototype.sendphonelogin = function (_id,person, callback) {
 PhoneloginPCDAO.prototype.removeoverduetime=function(id,callback){
   PhoneloginPCmodel.remove({_id:{$in:id}},function(err,obj){
     if(err){
-      // callback(err)
+      callback(err)
     }else{
-      // callback(null,obj)
+      callback(null,obj)
     }
   })
 }
