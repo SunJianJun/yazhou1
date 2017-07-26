@@ -1,5 +1,5 @@
 /**
- * @module 网格业务接口 url: mobilegrid/mobilegridservice
+ * @module 网格业务接口 url: /mobilegrid
  */
 var express = require('express');
 var mobilegridservice = express.Router();
@@ -16,6 +16,7 @@ var abstractstepDAO = require('../dbmodels/abstractstepDAO');
 var concreteeventDAO = require('../dbmodels/concreteeventDao');//具体事件表
 var concretestepDAO = require('../dbmodels/concretestepDao');//具体步骤表
 var concretearguDAO = require('../dbmodels/concretearguDao');//具体参数表
+var legalregulationsDAO=require('../dbmodels/legalregulationsDao');
 
 var departmentDAO = require('../dbmodels/departmentDAO.js');
 var personDAO = require('../dbmodels/personDao');
@@ -1021,6 +1022,56 @@ var getpersonpower=function(req,res){
  * @param {json} res
  */
 var getpersonreviewedpower=function(req,res){}
+/**
+ * 根据部门获取所有法规
+ * @param {json} req - 发送数据 {depertment:'部门id'}
+ * @param {json} res - 返回数据[{department:"58c3a5e9a63cf24c16a50b8e",
+ lawname:'法规1',
+ lawlist:['第一条','第二条','第三条','第四条','第五条','第六条','第七条','第8条'],
+ create_date:2017-06-09T09:41:01.024Z,
+ newer:2017-06-09T09:41:01.024Z}....]
+ */
+var getdepartmentlaw=function(req,res){
+  var depertmentID=req.body.depertment;
+  console.log(depertmentID)
+  if(depertmentID) {
+    legalregulationsDAO.getdepartmentlaw(depertmentID, function (err, obj) {
+      if (obj) {
+        res.send({success: obj})
+      } else {
+        res.send({error: '获取失败'})
+      }
+    })
+  }else{
+    res.send({error: '参数错误'})
+  }
+}
+/**
+ * 添加一个部门内使用的法律法规
+ * @param {json} req - 客户端上传数据 {department:"58c3a5e9a63cf24c16a50b8e",
+ name:'法规1',
+ lawlist:['第一条','第二条','第三条','第四条','第五条','第六条','第七条','第8条']}
+ * @param {json} res -
+ */
+var sendnewdepartmentlaw=function(req,res){
+  var ddd=req.body,
+      depertmentID=ddd.depertment,
+      lawname=ddd.name,
+      lawlist=ddd.lawlist;
+  if(depertmentID&&lawname&&lawlist) {
+    ddd.create_date=new Date();
+    legalregulationsDAO.save(ddd, function (err, obj) {
+      if (obj) {
+        res.send({success:'ok!'})
+      } else {
+        res.send({error: '添加失败'})
+      }
+    })
+  }else{
+    res.send({error: '参数错误'})
+  }
+}
+
 
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
@@ -1051,5 +1102,9 @@ mobilegridservice.post('/getargutostep',getargutostep);
 mobilegridservice.post('/getAllAbstracttype',getAllAbstracttype);
 mobilegridservice.post('/sendeeventDelete',sendeeventDelete);
 mobilegridservice.post('/getpersonpower',getpersonpower);
+
+//法律法规
+mobilegridservice.post('/getdepartmentlaw',getdepartmentlaw)
+mobilegridservice.post('/sendnewdepartmentlaw',sendnewdepartmentlaw);
 
 module.exports = mobilegridservice;
