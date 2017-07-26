@@ -293,7 +293,7 @@ var sendnewEvent = function (req, res) {
               // console.log(stepcount>=steplength)
               if (stepcount >= steplength) {
                 console.log('返回数据'+Allobj.onestepID)
-                res.send({success:Allobj.onestepID});
+                res.send({success:{case:Allobj.ConcreteeventID,step:Allobj.onestepID}});
               }else {
                 // console.log('调了几次'+stepcount)
                 argu1.name = stepobj[stepcount].type;
