@@ -99,11 +99,11 @@ var daoObj = new Legalregulations();
 for(var laws=1,lawsarr=[];laws<10;laws++){
   lawsarr.push('第'+laws+'条')
 }
-daoObj.save({
-  department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
-  lawname:'法规三',
-  lawlist:lawsarr,
-  create_date:new Date,
-  newer:new Date
-},function(){})
+// daoObj.save({
+//   department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
+//   lawname:'法规三',
+//   lawlist:lawsarr,
+//   create_date:new Date,
+//   newer:new Date
+// },function(){})
 module.exports = daoObj;

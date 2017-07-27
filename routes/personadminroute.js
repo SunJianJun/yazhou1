@@ -356,7 +356,7 @@ var sendnewdepartment = function (req, res) {
               if (err) {
                 res.send({error: '部门添加上级失败！'})
               } else {
-                res.send(obj)
+                res.send({success:obj})
               }
             })
           }
@@ -719,6 +719,17 @@ personrouter.post('/getAllUserPic', getAllUserPic);
 personrouter.post('/sendtitle', sendtitle);
 personrouter.post('/getIMid', getIMid);
 personrouter.post('/setIMid', setIMid);
+
+
+personrouter.post('/analysisXml',function (req, res) {
+  personDAO.analysisXml(req.body.url, function (err, obj) {
+    if (obj) {
+      res.send(obj);
+    } else {
+      res.send({error: '获取失败'});
+    }
+  })
+})
 
 
 module.exports = personrouter;

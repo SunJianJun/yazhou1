@@ -17,6 +17,7 @@ var message = require('../dbmodels/messageschema.js');
 //console.log('message数据模型是否存在：'+message);
 //获取数据模型
 var messageDAO = require('../dbmodels/messageDao');
+var persontieleDAO=require('../dbmodels/persontitleDao')
 
 var JPush = require("../node_modules/jpush-sdk/lib/JPush/JPush.js")
 var JPushclient = JPush.buildClient('8c95bceebb7459c9bcb29f94', '98fd64a9ac6ac47f3011b641')
@@ -342,7 +343,14 @@ var sendAbnormalMessage = function (req, res) {
               var output = new Array();
               var abnormalID = uuid.v1();
               console.log('messageObj ：' + '<>' + req.body.messageObj);
-              var messageObj = req.body.messageObj ? JSON.parse(req.body.messageObj) : {};
+                            //var messageObj=req.body.messageObj?JSON.parse(req.body.messageObj):{};
+                            if (typeof req.body.messageObj === 'string') {
+                            	var messageObj=JSON.parse(req.body.messageObj);
+			  										}else if (typeof req.body.messageObj === 'object') {
+                            	var messageObj=req.body.messageObj;
+			  										}else{
+			  												var messageObj={};
+			  											}
               messageObj.abnormalID = abnormalID;
               messageObj.abnormaldecision = "";
               messageObj.type = req.body.type;
