@@ -1024,7 +1024,7 @@ var getpersonpower=function(req,res){
 var getpersonreviewedpower=function(req,res){}
 /**
  * 根据部门获取所有法规
- * @param {json} req - 发送数据 {depertment:'部门id'}
+ * @param {json} req - 发送数据 {department:'部门id'}
  * @param {json} res - 返回数据[{department:"58c3a5e9a63cf24c16a50b8e",
  lawname:'法规1',
  lawlist:['第一条','第二条','第三条','第四条','第五条','第六条','第七条','第8条'],
@@ -1032,7 +1032,7 @@ var getpersonreviewedpower=function(req,res){}
  newer:2017-06-09T09:41:01.024Z}....]
  */
 var getdepartmentlaw=function(req,res){
-  var depertmentID=req.body.depertment;
+  var depertmentID=req.body.department;
   console.log(depertmentID)
   if(depertmentID) {
     legalregulationsDAO.getdepartmentlaw(depertmentID, function (err, obj) {

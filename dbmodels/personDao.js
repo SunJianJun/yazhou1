@@ -104,7 +104,6 @@ PersonDAO.prototype.analysisXml = function (xml, callback) {
           var year = txtparm.substring(6, 10);
           var month = txtparm.substring(10, 12);
           var date = txtparm.substring(12, 14);
-          temporary.age = new Date().getFullYear() - year;
           return year + "-" + month + "-" + date;
         }
         temporary.idNum && (temporary.birthday = idcard(temporary.idNum));
@@ -112,7 +111,7 @@ PersonDAO.prototype.analysisXml = function (xml, callback) {
         // temporary.role='worker';
         temporary.title = "5952112dea76066818fd6dd3";// {department: e[0].substring(8, e[0].length - 3), job: e[a + 3], post: ''};
         // var bn = e[0].substring(8, e[0].length - 3)
-        temporary.info = "农林局最高机构";
+        temporary.info = "崖州区海水局";
         //(ks == '局领导' ? '崖州区的行政管理最高机构' : (temporary.title.department == '机关' || temporary.title.post == '办公室' ? '崖州区的城市管理机构' : '崖州区的城市管理机构下属部门'));
         temporary.status = 1;
         newtem.push(temporary);
@@ -191,7 +190,7 @@ PersonDAO.prototype.analysisXml = function (xml, callback) {
         }
       });
     }
-    tianjia();
+    // tianjia();
   }
 }
 
