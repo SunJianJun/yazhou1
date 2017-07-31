@@ -381,11 +381,11 @@ var sendnewEvent = function (req, res) {
             //console.log(json)
             for (var k = 0; k < argu1.length; k++) {
               var newObj = {};
-              newObj.identified = '1';
               newObj.setTime = new Date();
               newObj.setByWho = json.author;
               newObj.type = argu1[k].argutype;
               newObj.promptvalue = argu1[k].name;
+              newObj.value=argu1[k].value;
               arguArr.push(newObj);
               //console.log('抽象步骤');
             }
@@ -922,7 +922,7 @@ var getargutostep = function (req, res) {
   var ID = req.body.id;
   if(ID) {
     concretestepDAO.getoneeventstep(ID, function (err, obj) {
-      if (!err) {
+      if (obj) {
         concretearguDAO.getparametersaccordingtoParameter(obj.argu, function (arguerr, arguobj) {
           if (!err) {
             res.send({success: arguobj});

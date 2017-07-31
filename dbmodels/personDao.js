@@ -577,7 +577,7 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
         console.log('得到人员最新位置：' + docs[0].personlocations[docs[0].personlocations.length - 1]);//+"<>"+docs[0].personlocations
         callback(err, docs[0].personlocations[docs[0].personlocations.length - 1]);
       } else {
-        callback(err, null);
+        callback(err,'此人员没有坐标');
       }
     }
     else {
@@ -981,6 +981,7 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
                 console.log(workmates)
                 Personmodel.find({
                   _id: {$in: workmates}, status: {$gt: 0}
+                  ,personlocations:{$ne:[]}//过滤掉没有定位的人员
                 }, {
                   personlocations: 0,
                   images: 0

@@ -10,7 +10,8 @@ var legalregulationsSchema = new Schema({
   setwho:String,
   status:{type:Number,default:1},
   create_date:Date,
-  newer:Date//更新日期
+  newer:Date,//更新日期
+  grade:Number//法律等级 1：国家级 2：省级 3：市级 4：区级 5：临时
 });
 // var options={};
 // legalregulationsSchema.plugin(deepPopulate, options );/* more on options below */

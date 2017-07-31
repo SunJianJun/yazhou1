@@ -28,7 +28,8 @@ var AbstractstepSchema = new Schema({//抽象表
     type: String,//填写类型
     argument: [{
         argutype: String,//参数类型
-        name: String//参数名称
+        name: String,//参数名称
+        value:[String]
     }],//参数,值为参数的类型，这个类型是有限的，至少包括 时间time 地点 location 部门内部人员workers 社会人员peoples 法律法规laws
     wordTemplate: String,//word
     author: String,//id//谁制作的

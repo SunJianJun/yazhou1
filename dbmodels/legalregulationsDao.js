@@ -101,9 +101,42 @@ for(var laws=1,lawsarr=[];laws<10;laws++){
 }
 // daoObj.save({
 //   department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
-//   lawname:'法规三',
+//   lawname:'中华人民共和国城乡规划法',
 //   lawlist:lawsarr,
 //   create_date:new Date,
-//   newer:new Date
+//   newer:new Date,
+//   grade:1
 // },function(){})
+//daoObj.save({
+//  department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
+//  lawname:'海南省城乡规划条例',
+//  lawlist:lawsarr,
+//  create_date:new Date,
+//  newer:new Date,
+//  grade:2
+//},function(){})
+//daoObj.save({
+//  department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
+//  lawname:'海南经济特区个体工商户管理办法',
+//  lawlist:lawsarr,
+//  create_date:new Date,
+//  newer:new Date,
+//  grade:2
+//},function(){})
+//daoObj.save({
+//  department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
+//  lawname:'无照经营查处取缔办法',
+//  lawlist:lawsarr,
+//  create_date:new Date,
+//  newer:new Date,
+//  grade:1
+//},function(){})
+//daoObj.save({
+//  department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
+//  lawname:'中华人民共和国行政强制法',
+//  lawlist:lawsarr,
+//  create_date:new Date,
+//  newer:new Date,
+//  grade:1
+//},function(){})
 module.exports = daoObj;
