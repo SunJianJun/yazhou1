@@ -275,6 +275,17 @@ ConcretestepDAO.prototype.updatestepstatus= function (stepID,status, callback) {
     }
   });
 };
+
+ConcretestepDAO.prototype.getallcurrentexaminestep= function (status, callback) {
+  Concretestepmodel.find({status:status},function (err, docs) {
+    if (!err) {
+      callback(null,docs)
+    }
+    else {
+      callback(err, null);
+    }
+  });
+};
 ConcretestepDAO.prototype.getoneeventstep=function (ID,outcallback) {
   var query = Concretestepmodel.findOne({_id: ID}, function (err, result) {
     if (err) {

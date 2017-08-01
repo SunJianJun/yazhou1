@@ -254,6 +254,16 @@ ConcreteeventDAO.prototype.getpersonEvent=function(personID,callback){ //人员i
   })
 }
 
+ConcreteeventDAO.prototype.geteventtoidarr=function(id,callback){ //人员id查询在哪个事件中
+  var query=Concreteeventmodel.find({_id:{$in:id}});
+  query.exec(function(err,obj){
+    if(err){
+      callback(err,null)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 ConcreteeventDAO.prototype.getMyUnreadConcreteeventsCount = function (receiverID, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
