@@ -290,7 +290,6 @@ SpotareaDAO.prototype.getMyUnreadSpotareasCount = function(receiverID, outcallba
 
 SpotareaDAO.prototype.sendPersontarea = function(mid, outcallback) {
 
- console.log('a--------------------------------')
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)
             {

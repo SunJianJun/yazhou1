@@ -60,9 +60,9 @@ var addperson = function (req, res) {
     });
 };
 /**
- * 图层数据配置<br/>
+ * 图层数据配置区域<br/>
  * 修改图层信息，名称和范围
- * @param {json} req - 客户端提交JSON 例如{“_id”:"图层ID",name:"南六环",geometry:{coordinates:["116.430587","39.909989”,"116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"],type:"Polygon"}}
+ * @param {json} req - 客户端提交JSON 例如{“_id”:"图层ID",name:"南六环",geometry:{coordinates:["116.430587","39.909989”,"116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"]}}
  * @param {json} res - 成功返回提示,失败返回空
  */
 var updatespotarea = function (req, res) {

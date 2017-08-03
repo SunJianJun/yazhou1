@@ -1190,6 +1190,29 @@ PersonDAO.prototype.provingperson = function (idNum, name, sex, callback) {
     }
   })
 }
+//用身份证信息识别
+PersonDAO.prototype.sendcheckperson = function (idNum, name, phoneuuid,callback) {
+  var ops = {idNum: idNum,name:name};
+  Personmodel.findOne(ops, {personlocations: 0}, function (err, obj) {
+    if (obj) {
+      if(obj.status==4){
+        callback(null,2000)
+      }else{
+        if(obj.mobileUUid) {
+          if (obj.mobileUUid == phoneuuid) {
+            callback(null,5000)
+          } else {
+            callback(null,4000)
+          }
+        }else{
+          callback(null,3000)
+        }
+      }
+    } else {
+      callback(1000)
+    }
+  })
+}
 //获取某一状态的人员
 PersonDAO.prototype.getpersonstate = function (status, callback) {
   Personmodel.find({status: status}, {personlocations: 0}, function (err, obj) {

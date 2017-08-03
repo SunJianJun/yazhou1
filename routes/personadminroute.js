@@ -92,7 +92,7 @@ var sendpersonreGister = function (req, res) {
 };
 /**
  * 用身份证信息验证一个人员是否已经导入,参数必须有身份证
- * @param {json} req - 客户端提交json 例如{"name":"admin","sex":'男',"idNum":'身份证号'};
+ * @param {json} req - 客户端提交json 例如{"name":"admin","idNum":'身份证号','mobileUUid':'手机uuid'};
  * @param {json} res - 返回已有的人员信息{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456",IMid:'极光ID'};
  */
 var sendispersonAdd = function (req, res) {
@@ -115,6 +115,32 @@ var sendispersonAdd = function (req, res) {
         res.send({success: obj})
       }
     })
+  }
+};
+/**
+ * 用身份证信息识别
+ * @param {json} req - 客户端提交json 例如{"name":"admin","idNum":'身份证号','mobileUUid':'手机uuid'};
+ * @param {json} res - 返回人员信息是否存在，，没有此人信息1000，
+ 待审核闲散人员2000，
+ '已存在，没有绑定手机'3000，
+ '已注册，手机uuid已更改'4000，
+ '已注册正常用户' 5000
+ */
+var sendcheckperson = function (req, res) {
+  var json = req.body,
+  idNum = json.idNum,
+    name = json.name,
+    phoneuuid = json.mobileUUid;
+  if (idNum&&name&&phoneuuid) {
+    personDAO.sendcheckperson(idNum, name, phoneuuid, function (err, obj) {
+      if (err) {
+        res.send({error: err});
+      } else {
+        res.send({success: obj})
+      }
+    })
+  }else {
+    res.send({error: '无效参数'});
   }
 };
 /**
@@ -158,8 +184,6 @@ var sendpwdandmobileuuid = function (req, res) {
     res.send({error: '提交参数错误'})
   }
 }
-
-//sendispersonAdd({'name':'孙建军','idNum':'140702199602101759'})
 /**
  * 用身份证信息注册一个待审核人员
  * @param {json} req - 客户端提交json 例如{"name" : "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"};
@@ -696,6 +720,7 @@ var setIMid = function (req, res) {
 personrouter.post('/sendpersonimport', sendpersonimport);//提交
 personrouter.post('/sendpersonreGister', sendpersonreGister);//提交
 personrouter.post('/sendispersonAdd', sendispersonAdd);//提交
+personrouter.post('/sendcheckperson',sendcheckperson)
 personrouter.post('/sendupdatemobileuuid', sendupdatemobileuuid);
 personrouter.post('/sendpwdandmobileuuid', sendpwdandmobileuuid);
 personrouter.post('/sendWaitExamineperson', sendWaitExamineperson);//提交

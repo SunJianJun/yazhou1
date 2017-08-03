@@ -50,7 +50,7 @@ var PersonSchema = new Schema({
   residence: String,
   idNum: String,
   mobileUUid: String,
-  title:String,// {department: String, post: String, job: String},//String,//职务
+  title: String,// {department: String, post: String, job: String},//String,//职务
   mobile: Number,
   age: Number,
   create_date: {type: Date, default: Date.now},
@@ -58,7 +58,7 @@ var PersonSchema = new Schema({
     coverSmall: String,
     coverBig: String
   },
-  IMid:String,
+  IMid: String,
 //所在部门
   departments: [{
     role: String, //权限 worker
@@ -74,7 +74,8 @@ var PersonSchema = new Schema({
   status: {type: Number, default: 1},//1,正常;0离职;2请假;3旷工;4待审核   //测试用户 9,正常;8离职
   personlocations: [locationSchema],
   pwd: String,
-  checkdescription:{//描述信息 ，考勤时间段
+  gridarea:[String],
+  checkdescription: {//描述信息 ，考勤时间段
     startDateTime: Date,
     endDateTime: Date
   }
