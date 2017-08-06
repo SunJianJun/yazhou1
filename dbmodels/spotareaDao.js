@@ -288,32 +288,17 @@ SpotareaDAO.prototype.getMyUnreadSpotareasCount = function(receiverID, outcallba
 
 
 
-SpotareaDAO.prototype.sendPersontarea = function(mid, outcallback) {
-
-    var callback=outcallback?outcallback:function (err,obj) {
-            if(err)
-            {
-                console.log('callback sendPersontarea 出错：'+'<>'+err);
-            }else{
-                for(var index =0;index<obj.length;index++)
-                {
-                    console.log('callback sendPersontarea 成功：'+'<>'+obj[index]);
-                }
-                console.log('callback sendPersontarea 成功：'+'<>');
-            }
-        };
-
-    Spotareamodel.findOne({name:mid.name}, function(err, obj){
+SpotareaDAO.prototype.sendPersontarea = function(mid,callback) {
+    Spotareamodel.findOne({_id:mid.areaID}, function(err, obj){
         if(!err && obj){
-            console.log('添加');
-            console.log(mid.persons);
-            Spotareamodel.update({name:mid.name},{persons:mid.persons},function(err,uobj){
-                console.log(uobj);
+            if(!obj.persons){obj.persons=[];}
+            obj.persons.push(mid);
+            obj.save(function(err,uobj){
+                //console.log(uobj)
                 callback(err, uobj);
             });
-        }
-        else {
-            console.log('添加失败');
+        }else {
+            console.log('获取失败');
             callback(err,null);
         }
     });

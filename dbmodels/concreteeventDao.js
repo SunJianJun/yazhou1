@@ -47,7 +47,7 @@ ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,callback){//获取
       console.log('callback getAllConcreteevent 成功：-' + '<>' + obj);
     }
   };
-   Concreteeventmodel.find({status:1}).exec(function(err,obj){
+   Concreteeventmodel.find({department:depar,status:1}).exec(function(err,obj){
      if(err){
        callback(err,null)
      }else{
@@ -56,6 +56,22 @@ ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,callback){//获取
    })
 };
 
+ConcreteeventDAO.prototype.getConcreteeventtotype=function(depar,type,callback){//获取所有类型
+  var callback = callback ? callback : function (err, obj) {
+    if (err) {
+      console.log('callback getAllConcreteevent 出错：-' + '<>' + err);
+    } else {
+      console.log('callback getAllConcreteevent 成功：-' + '<>' + obj);
+    }
+  };
+  Concreteeventmodel.find({department:depar,type:type,status:1}).exec(function(err,obj){
+    if(err){
+      callback(err,null)
+    }else{
+      callback(null,obj)
+    }
+  })
+};
 //新建一个事件
 ConcreteeventDAO.prototype.sendAConcreteevent = function (concreteeventObj, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
@@ -173,14 +189,22 @@ ConcreteeventDAO.prototype.updateeventstatus = function (eventId,status, callbac
       console.log('callback updateaddsetp 成功：' + '<>' + obj);
     }
   }
-  var stepjson=step;
-  //console.log(step)
   Concreteeventmodel.update({_id: eventId}, {status:status}, function (err, res) {
     if (!err) {
       callback(null, res);
     }
     else {
       console.log('没有数据');
+      callback(err, 0);
+    }
+  });
+}
+ConcreteeventDAO.prototype.getnewcurrentexamineevent = function (departemnt,type,callback) {
+  Concreteeventmodel.find({department: departemnt,type:type}, function (err, res) {
+    if (!err) {
+      callback(null, res);
+    }
+    else {
       callback(err, 0);
     }
   });

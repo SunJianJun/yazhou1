@@ -51,9 +51,15 @@ var addperson = function (req, res) {
     // console.log('messID:'+messID);
     spotareaDAO.sendPersontarea(eve, function (err, obj) {
         if (!err) {
-            // console.log('没有错误')
-            // console.log(obj);
-            res.send({success:obj});
+             console.log('没有错误')
+             console.log(obj);
+            person.addareaperson(eve.personID,eve,function(adderr,addobj){
+                if(addobj){
+                    res.send({success:addobj});
+                }else{
+                    res.send({error:'人员绑定区域错误'})
+                }
+            })
         } else {
             res.send({error: null})
         }

@@ -131,7 +131,7 @@ var sendcheckperson = function (req, res) {
   idNum = json.idNum,
     name = json.name,
     phoneuuid = json.mobileUUid;
-  if (idNum&&name&&phoneuuid) {
+  if (idNum&&name) {
     personDAO.sendcheckperson(idNum, name, phoneuuid, function (err, obj) {
       if (err) {
         res.send({error: err});
@@ -462,7 +462,26 @@ var updatedepartmentstatus = function (req, res) {
     res.send({error: '提交的参数有误'});
   }
 };
-
+/**
+ * 根据职务id，获取职务名称
+ * @param {json} req - 发起请求{title:'职务id'}
+ * @param {json} res - 返回的数据
+ */
+var getpersontitle = function (req, res) {
+  var json = req.body;
+  id = json.title;
+  if (id) {
+    persontitleDAO.getpersontitle(id,function (err, obj) {
+      if (err) {
+        res.send({error: '获取失败'});
+      } else {
+        res.send({success:obj});
+      }
+    })
+  } else {
+    res.send({error: '提交的参数有误'});
+  }
+};
 /**
  * 根据部门获取所有职务
  * @param {json} req - 客户端提交json 例如{departmentID:'123456'}
@@ -734,6 +753,8 @@ personrouter.post('/updatepersoninfo', updatepersoninfo);
 personrouter.post('/updatedepartmentstatus', updatedepartmentstatus);//提交
 personrouter.post('/getAllDepartments', getAllDepartments);//提交
 personrouter.post('/getAllDepartment', getAllDepartment);//提交
+
+personrouter.post('/getpersontitle',getpersontitle);
 personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//提交
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
 personrouter.post('/getpersontitlelevel', getpersontitlelevel);

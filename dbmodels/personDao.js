@@ -915,16 +915,7 @@ PersonDAO.prototype.editUser = function (userObj, callback) {
 
 
 // 根据用户id查询同事
-PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
-  var callback = outcallback ? outcallback : function (err, obj) {
-    if (err) {
-      // console.log('callback getWorkmatesByUserId 得到同事出错：'+'<>'+err);
-    } else {
-      for (var index = 0; index < obj.length; index++) {
-        // console.log('callback getWorkmatesByUserId 得到同事成功：'+'<>'+obj[index].name);
-      }
-    }
-  };
+PersonDAO.prototype.getWorkmatesByUserId = function (userID,callback) {
 
   Personmodel.find({_id: userID}, {personlocations: 0}).exec(function (err, personObjs) {
     if (!err) {
@@ -937,7 +928,7 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID, outcallback) {
         for (var index = 0; index < dpts.length; index++) {
           dptids.push(dpts[index].department);
         }
-        console.log(dptids)
+        //console.log(dptids)
 
         /*临时使用，获取测试用户*/
 //             Personmodel.find({status: 9//{$gt: 0}
@@ -1186,6 +1177,39 @@ PersonDAO.prototype.provingperson = function (idNum, name, sex, callback) {
         }
       })
     } else {
+      callback('没有此人信息')
+    }
+  })
+}
+//人员绑定区域
+PersonDAO.prototype.addareaperson = function (personid,area, callback) {
+  Personmodel.findOne({_id:personid},function (err, perobj) {
+    if (perobj) {
+      console.log('添加区域');
+      if(!perobj.area){perobj.area=[];}
+      perobj.area.push(area)
+
+      console.log(personid)
+      console.log(perobj.area)
+      Personmodel.update({_id:personid},{area:perobj.area},function(saerr,saobj){
+        if(saobj){
+
+            callback(null,saobj);
+          } else {
+            callback(err)
+          }
+      })
+    }else {
+      callback('没有此人信息')
+    }
+  })
+}
+//获取人员的绑定区域
+PersonDAO.prototype.getpersonworkregion = function (personid,callback) {
+  Personmodel.findOne({_id:personid},'area',function (err, perobj) {
+    if (perobj) {
+          callback(null,perobj);
+    }else {
       callback('没有此人信息')
     }
   })

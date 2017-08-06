@@ -36,7 +36,7 @@ AbstracttypeDAO.prototype.findByName = function (name, callback) {
   });
 };
 
-AbstracttypeDAO.prototype.getAllAbstracttype=function(callback){//获取所有类型
+AbstracttypeDAO.prototype.getAllAbstracttype=function(dep,callback){//获取所有类型
     var callback = callback ? callback : function (err, obj) {
     if (err) {
       console.log('callback getAllAbstracttype 出错：-' + '<>' + err);
@@ -44,7 +44,7 @@ AbstracttypeDAO.prototype.getAllAbstracttype=function(callback){//获取所有�
       console.log('callback getAllAbstracttype 成功：-' + '<>' + obj);
     }
   };
-   Abstracttypemodel.find({status:1}).exec(function(err,obj){
+   Abstracttypemodel.find({department:dep,status:1}).exec(function(err,obj){
      // console.log(obj)
       callback(err,obj)
    })

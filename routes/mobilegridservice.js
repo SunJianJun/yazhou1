@@ -25,7 +25,7 @@ var messageDAO = require('../dbmodels/messageDao')
 
 /**
  *
- * 获取部门事件
+ * 获取部门所有正在进行的事件
  * @param {json} req - 传所要查询的部门ID,例如：{departmentID:"部门ID"}
  * @param {json} res - 返回部门事件数组JSON,包含<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
@@ -35,6 +35,28 @@ var getAllConcreteevent = function (req, res) { //获取部门事件
     res.send({error: '参数错误'})
   } else {
     concreteeventDAO.getAllConcreteevent(departemnt, function (err, obj) {
+      //console.log(obj);
+      if (err) {
+        res.send({error: null})
+      } else {
+        res.send({success: obj})
+      }
+    })
+  }
+};
+/**
+ *
+ * 按类型获取部门正在进行的事件
+ * @param {json} req - 传所要查询的部门ID,例如：{departmentID:"部门ID"，type:'无照经营'}
+ * @param {json} res - 返回部门事件数组JSON,包含<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
+ */
+var getConcreteeventtotype = function (req, res) { //获取部门事件
+  var departemnt = req.body.departmentID;
+  var type=req.body.type;
+  if (!departemnt) {
+    res.send({error: '参数错误'})
+  } else {
+    concreteeventDAO.getConcreteeventtotype(departemnt,type, function (err, obj) {
       //console.log(obj);
       if (err) {
         res.send({error: null})
@@ -90,6 +112,24 @@ var getpersonEvent = function (req, res) {
     }
   })
 };
+var getpersonworkregion=function(req,res){
+  var person=req.body.personID;
+  if(person){
+    res.send({success:{"name":"赵新天 (测试人员)","time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2}],"personID":"593a6d29f06286140edf82ea","areaID":"591bd9c13e2848d40bd88b92"}});
+
+    return;
+
+    personDAO.getpersonworkregion(person, function (workerr,workobj) {
+      if(workobj){
+        res.send({success:workobj})
+      }else{
+        res.send({error:'获取失败'})
+      }
+    })
+  }else{
+    res.send({error:'参数错误'})
+  }
+}
 /**
  * 获取当前案件的所有步骤
  * @param {json} req - 客户端发起请求
@@ -147,7 +187,7 @@ var getpersonRoute = function (req, res) {
 };
 /**
  * 事件状态
- * @param {json} req 传入参数（1,2,3）<br/>1是正在进行的,2是完结的,3是已删除的,客户端提交json 例如{status:1}
+ * @param {json} req 传入参数（1,2,3）<br/>1是未完成,2是正在进行的,3是正在审核，4已完成的，0是已删除的,客户端提交json 例如{status:1}
  * @param {json} res 返回需要查询的状态json数组,数组中包含事件名称,ID,步骤<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
 var geteventStatus = function (req, res) {
@@ -161,7 +201,7 @@ var geteventStatus = function (req, res) {
   })
 };
 /**
- * 获取当前需要进行的案件
+ * 获取案件当前需要进行的步骤
  * @param {json} req - 客户端传入json，{id:'案件ID'}
  * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
  */
@@ -453,6 +493,7 @@ var getcurrentexaminestep = function (req, res) {
     res.send({error: '参数有误'})
   }
 }
+
 /**
  * 获得所有已完成的步骤
  * @param {json} req - 客户端传入json，{id:'案件ID'}
@@ -478,7 +519,26 @@ var getcompletestep = function (req, res) {
     res.send({error: '参数有误'})
   }
 }
-
+/**
+ * 按照类型获得正在审核的事件
+ * @param {json} req - 客户端传入json，{departmentID:'部门id',type:'无照经营'}
+ * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
+ */
+var getnewcurrentexamineevent = function (req, res) {
+  var departemnt = req.body.departmentID;
+  var type=req.body.type;
+  if (departemnt&&type) {
+    concreteeventDAO.getnewcurrentexamineevent(departemnt,type, function (err, obj) {
+      if (err){
+        res.send({error: null})
+      } else {
+        res.send({success: stobj})
+      }
+    })
+  } else {
+    res.send({error: '参数有误'})
+  }
+}
 /**
  * 获得所有正在审核的事件
  * @param {} req - 客户端请求
@@ -561,6 +621,7 @@ var sendeventargumentpush = function (req, res) {
               } else {
                 concretestepDAO.updatestepstatus(stepid, 3, function (steperr, stepobj) {//修改步骤状态改为正在审核中，不允许修改参数了
                   if (stepobj) {
+                    concreteeventDAO.updateeventstatus(eventid,3)
                     sendinfo(power, function (inerr, inobj) {
                       if (inobj) {
                         res.send({success: 'is OK!'});
@@ -816,7 +877,7 @@ var sendstepgo = function (req, res) {
             concretestepDAO.geteventstep(obj.step, 1, function (zterr, ztobj) {
               if (ztobj) {
                 if (ztobj.length == 0) {
-                  concreteeventDAO.updateeventstatus(eventID, 2, function (eveerr, eveobj) {
+                  concreteeventDAO.updateeventstatus(eventID,4, function (eveerr, eveobj) {
                     if (eveobj) {
                       res.send({success: '当前事件完结'});
                     } else {
@@ -835,6 +896,7 @@ var sendstepgo = function (req, res) {
                       return 0;
                     }
                   }
+                  concreteeventDAO.updateeventstatus(eventID,1)
                   concretestepDAO.updatestepstatus(ztobj.sort(compare)[0]._id, 2, function (err, upstobj) {
                     if (upstobj) {
                       res.send({success: '当前流程完结,进入下一步！'});
@@ -971,21 +1033,27 @@ var getargutostep = function (req, res) {
   }
 }
 /**
- * 获取所有已定义的事件类型,
+ * 根据部门获取所有已定义的事件类型,
  * 可用于新建事件选择事件类型
- * @param {} req - 发起请求
+ * @param {json} req - 发起请求 {departmentID:'部门id'}
  * @param {json} res - 返回数据[{typeName:'无照经营'，status:1,setDate:'2017-6-1',_id:'事件类型id'},.....]
  */
-var getAllAbstracttype = function (req, res) {
-  abstracttypeDAO.getAllAbstracttype(function (err, obj) {
-    if (!err) {
-      // console.log(obj);
-      res.send({success: obj});
-    } else {
-      //console.log(err)
-      res.send({error: null});
-    }
-  })
+var getAllAbstracttypetodep = function (req, res) {
+  var departemnt = req.body.departmentID;
+  departemnt="58c3a5e9a63cf24c16a50b8d";
+  if(departmentID) {
+    abstracttypeDAO.getAllAbstracttype(departemnt,function (err, obj) {
+      if (!err) {
+        // console.log(obj);
+        res.send({success: obj});
+      } else {
+        //console.log(err)
+        res.send({error: null});
+      }
+    })
+  }else{
+    res.send({success:'参数错误'});
+  }
 }
 /**
  * 事件删除
@@ -1112,15 +1180,18 @@ var sendnewdepartmentlaw = function (req, res) {
 
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
+mobilegridservice.post('/getConcreteeventtotype',getConcreteeventtotype);
 mobilegridservice.post('/getDepartmentparson', getDepartmentparson);
 mobilegridservice.post('/getDepartmentgird', getDepartmentgird);
 mobilegridservice.post('/getpersonEvent', getpersonEvent);
+mobilegridservice.post('/getpersonworkregion',getpersonworkregion);
 mobilegridservice.post('/getcasestep', getcasestep);
 mobilegridservice.post('/getpersonRoute', getpersonRoute);
 mobilegridservice.post('/geteventStatus', geteventStatus);
 mobilegridservice.post('/getcurrentstep', getcurrentstep);
 mobilegridservice.post('/getcurrentexaminestep', getcurrentexaminestep)
 mobilegridservice.post('/getcompletestep', getcompletestep);
+mobilegridservice.post('/getnewcurrentexamineevent',getnewcurrentexamineevent);
 mobilegridservice.post('/getcurrentexamineevent', getcurrentexamineevent);
 
 mobilegridservice.post('/geteventTimestatistics', geteventTimestatistics)
@@ -1137,7 +1208,7 @@ mobilegridservice.post('/geteventSearch', geteventSearch);
 mobilegridservice.post('/getstepaudittext', getstepaudittext);
 mobilegridservice.post('/getoneeventstep', getoneeventstep);
 mobilegridservice.post('/getargutostep', getargutostep);
-mobilegridservice.post('/getAllAbstracttype', getAllAbstracttype);
+mobilegridservice.post('/getAllAbstracttypetodep', getAllAbstracttypetodep);
 mobilegridservice.post('/sendeeventDelete', sendeeventDelete);
 mobilegridservice.post('/getpersonpower', getpersonpower);
 

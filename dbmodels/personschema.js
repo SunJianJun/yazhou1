@@ -74,6 +74,14 @@ var PersonSchema = new Schema({
   status: {type: Number, default: 1},//1,正常;0离职;2请假;3旷工;4待审核   //测试用户 9,正常;8离职
   personlocations: [locationSchema],
   pwd: String,
+  area:[{
+    areaID: String,
+    time: [{
+      'timeStart': String,
+      'timeEnd': String,
+      'frequency': Number
+    }]
+  }],
   gridarea:[String],
   checkdescription: {//描述信息 ，考勤时间段
     startDateTime: Date,

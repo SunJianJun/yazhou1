@@ -37,7 +37,7 @@ Persontitle.prototype.sendpersonparent=function(id,parent,callback){
 }
 //根据职务获取直接职务信息
 Persontitle.prototype.getpersontitle=function(id,callback){
-  Persontitlemodel.findOne({_id:id},'parentTitle',function(err,obj){
+  Persontitlemodel.findOne({_id:id},function(err,obj){
     if(err){
       callback(err)
     }else{
@@ -73,7 +73,7 @@ Persontitle.prototype.getpersonstate= function (status,callback) {
 }
 //获取所有职务
 Persontitle.prototype.getpersontitleTodepartment=function(deoartment,callback){
-  Persontitlemodel.find({departmentID:deoartment},'name',function(err,obj){
+  Persontitlemodel.find({departmentID:deoartment},function(err,obj){
     if(err){
       callback(err)
     }else{
