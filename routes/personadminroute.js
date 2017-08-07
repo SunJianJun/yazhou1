@@ -504,27 +504,18 @@ var getpersontitleTodepartment = function (req, res) {
 }
 /**
  * 在职务列表中添加一个职务,可以不传 parentTitle
- * @param {json} req - 传入职务名称，部门名称和上级职务ID。<br>客户端提交json 例如{name:'雇员',departmentID:'部门id',parentTitle:'上级职务ID'}
+ * @param {json} req - 传入职务名称，部门名称和上级职务ID。<br>客户端提交json 例如{name:'雇员',departmentID:'部门id'}
  * @param {json} res - 返回json：例如{_id:'123456',name:'雇员',derpartmentID:'部门id',parentTitle:'上级职务ID'}
  */
 var sendtitle = function (req, res) {
-  var json = req.body,
-    parenttitle = json.parentTitle;
-  console.log(json.name, json.departmentID)
+  var json = req.body;
   if (json.name && json.departmentID) {
-    persontitleDAO.getetitle(parenttitle, function (pererr, perobj) {
-        if (perobj) {
-          //perobj
-        }
-        console.log('fanhui')
-        console.log(perobj)
         persontitleDAO.sendpersontitle(json, function (err, obj) {
           if (err) {
             res.send({error: '添加失败'})
           } else {
             res.send({success: obj})
           }
-        })
       }
     )
   } else {
@@ -532,6 +523,37 @@ var sendtitle = function (req, res) {
   }
 }
 /**
+ * 修改部门职务等级和上级职务，整个部门所有职务的等级和上级关联的部门全部修改
+ * @param {json} req - 客户端上传数据[{"grade":1,"_id":"5952112dea76066818fd6dcf","name":"局长","parentTitle":null},{"grade":2,"_id":"5952112dea76066818fd6dd0","name":"副局长","parentTitle":"5952112dea76066818fd6dcf"},{"grade":3,"_id":"59520e5d7b6d7fa011adcc73","name":"大队长","parentTitle":"5952112dea76066818fd6dd0"},{"grade":4,"_id":"5952112dea76066818fd6dd2","name":"副大队长","parentTitle":"59520e5d7b6d7fa011adcc73"},{"grade":5,"_id":"5952112dea76066818fd6dd4","name":"中队长","parentTitle":"5952112dea76066818fd6dd2"},{"grade":6,"_id":"5952112dea76066818fd6dd3","name":"雇员","parentTitle":"5952112dea76066818fd6dd4"}]
+ * @param {json} res - 服务器返回数据 {success:'修改成功'}
+ */
+var settitlesort = function (req, res) {
+  var json = req.body;
+  var issend=true;
+  if (json) {
+    try {
+    for(var i=0;i<json.length;i++){
+      persontitleDAO.updatetitleinfo(json[i]._id,json[i].parentTitle,json[i].grade, function (pererr, perobj) {
+          if (perobj) {
+            if(i==json.length){
+              if(issend) {
+                res.send({success: 'is ok!'})
+                issend=false;
+              }
+            }
+          }else {
+            res.send({error:'修改错误'})
+            return;
+          }
+        }
+      )
+    }
+    }catch(err){}
+  } else {
+    res.send({error: '提交参数有误'})
+  }
+}
+/*
  * 给职务添加一个上级
  * @param {json} req - 客户端提交json 例如{_id:'职务ID',parentTitle:'上级职务ID'}
  * @param {json} res - 返回成功{success:''}
@@ -623,6 +645,25 @@ var sendpersontitle = function (req, res) {
       res.send({success: '修改成功'})
     }
   })
+}
+/**
+ * 根据职务id删除一个职务
+ * @param {json} req - 客户端上传 {titleID:'职务id'}
+ * @param {json} res - 服务器返回，{success:'删除成功'}
+ */
+var deletetitle=function (req,res) {
+  var title=req.body.titleID;
+  if(title){
+    persontitleDAO.deletetitle(title,function(titerr,titobj){
+      if(titobj){
+        res.send({success: '删除成功'})
+      }else{
+        res.send({error:'失败'})
+      }
+    })
+  }else{
+    res.send({error: '客户端提交错误'})
+  }
 }
 //sendpersontitle({_id:'58e0c199e978587014e67a50',title:'111'})
 /**
@@ -759,10 +800,13 @@ personrouter.post('/getpersontitleTodepartment', getpersontitleTodepartment);//�
 personrouter.post('/gettitleToperson', gettitleToperson);//提交
 personrouter.post('/getpersontitlelevel', getpersontitlelevel);
 personrouter.post('/sendpersontitle', sendpersontitle);//提交
+personrouter.post('/deletetitle',deletetitle);
+
 personrouter.post('/getUserPicById', getUserPicById);
 personrouter.post('/getUserInfoById', getUserInfoById);
 personrouter.post('/getAllUserPic', getAllUserPic);
 personrouter.post('/sendtitle', sendtitle);
+personrouter.post('/settitlesort',settitlesort);
 personrouter.post('/getIMid', getIMid);
 personrouter.post('/setIMid', setIMid);
 

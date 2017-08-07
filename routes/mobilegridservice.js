@@ -1039,10 +1039,11 @@ var getargutostep = function (req, res) {
  * @param {json} res - 返回数据[{typeName:'无照经营'，status:1,setDate:'2017-6-1',_id:'事件类型id'},.....]
  */
 var getAllAbstracttypetodep = function (req, res) {
-  var departemnt = req.body.departmentID;
-  departemnt="58c3a5e9a63cf24c16a50b8d";
-  if(departmentID) {
-    abstracttypeDAO.getAllAbstracttype(departemnt,function (err, obj) {
+  var department = req.body.departmentID;
+  department="58c3a5e9a63cf24c16a50b8d";
+  if(department) {
+    // console.log('部门id'+department);
+    abstracttypeDAO.getAllAbstracttype(department,function (err, obj) {
       if (!err) {
         // console.log(obj);
         res.send({success: obj});
@@ -1052,7 +1053,7 @@ var getAllAbstracttypetodep = function (req, res) {
       }
     })
   }else{
-    res.send({success:'参数错误'});
+    res.send({error:'参数错误'});
   }
 }
 /**

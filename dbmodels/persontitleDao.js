@@ -91,6 +91,26 @@ Persontitle.prototype.getpersontitleno=function(id,callback){
     }
   })
 }
+//修改职务信息
+Persontitle.prototype.updatetitleinfo=function(id,parent,grade,callback){
+  Persontitlemodel.update({_id:id},{parentTitle:parent,grade:grade},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
+//删除一个职务
+Persontitle.prototype.deletetitle=function(id,callback){
+  Persontitlemodel.remove({_id:id},function(err,obj){
+    if(err){
+      callback(err)
+    }else{
+      callback(null,obj)
+    }
+  })
+}
 
 
 
