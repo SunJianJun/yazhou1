@@ -532,7 +532,7 @@ var getnewcurrentexamineevent = function (req, res) {
       if (err){
         res.send({error: null})
       } else {
-        res.send({success: stobj})
+        res.send({success: obj})
       }
     })
   } else {

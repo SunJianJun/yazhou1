@@ -201,11 +201,11 @@ ConcreteeventDAO.prototype.updateeventstatus = function (eventId,status, callbac
 }
 ConcreteeventDAO.prototype.getnewcurrentexamineevent = function (departemnt,type,callback) {
   Concreteeventmodel.find({department: departemnt,type:type}, function (err, res) {
-    if (!err) {
+    if (res){
       callback(null, res);
     }
     else {
-      callback(err, 0);
+      callback(err);
     }
   });
 }
@@ -267,10 +267,9 @@ ConcreteeventDAO.prototype.concreteeventpeopleDelete = function (areaID, positio
 }
 
 ConcreteeventDAO.prototype.getpersonEvent=function(personID,callback){ //人员id查询在哪个事件中
-  var query=Concreteeventmodel.find({people:{$in:[personID]}});
+  var query=Concreteeventmodel.find({people:{$in:[personID]},status:1});
   query.exec(function(err,obj){
     if(err){
-      console.log('查询错误')
       callback(err,null)
     }else{
       callback(null,obj)
