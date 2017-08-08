@@ -30,7 +30,8 @@ var SpotareaSchema = new Schema({
     // onDutyTime: { type: Date, default: Date.now},
     // offDutyTime: { type: Date},
     // person:{type: mongodb.mongoose.Schema.Types.ObjectId, ref: 'Person'}
-  }]
+  }],
+  create_date:Date
 });
 
 // console.log(SpotareaSchema);

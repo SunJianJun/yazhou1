@@ -94,11 +94,10 @@ Legalregulations.prototype.getlegalregulationsno=function(id,callback){
 }
 
 
-
 var daoObj = new Legalregulations();
-for(var laws=1,lawsarr=[];laws<10;laws++){
-  lawsarr.push('第'+laws+'条')
-}
+// for(var laws=1,lawsarr=[];laws<10;laws++){
+//   lawsarr.push('第'+laws+'条')
+// }
 // daoObj.save({
 //   department:"58c3a5e9a63cf24c16a50b8e",//person 的 id
 //   lawname:'中华人民共和国城乡规划法',

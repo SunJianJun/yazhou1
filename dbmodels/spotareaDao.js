@@ -54,6 +54,7 @@ SpotareaDAO.prototype.sendASpotarea = function(spotareaObj, outcallback) {
 
     // spotareaObj.receiver=receiverID;
     spotareaObj.status=1;
+    spotareaObj.create_date=new Date();
     var newM=new Spotareamodel(spotareaObj);
     newM.save( function(err,uobj){
             if(err)
