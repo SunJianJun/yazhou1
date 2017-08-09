@@ -99,23 +99,32 @@ var getDepartmentgird = function (req, res) {
 
 /**
  * 人员处理的事件 ，（正在进行中的事件）
- * @param {json} req - 传入要查询人员ID 客户端提交json 例如{personID:"人员ID"}
+ * @param {json} req - 传入要查询人员ID,和事件类型 客户端提交json 例如{personID:"人员ID",eventtype:'598a7b3ba34404400f6f500e'}
  * @param {json} res - 包含<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
 var getpersonEvent = function (req, res) {
   var personID = req.body.personID;
-  concreteeventDAO.getpersonEvent(personID, function (err, obj) {
-    if (err) {
-      res.send({error: null})
-    } else {
-      res.send({success: obj})
-    }
-  })
+  var type=req.body.eventtype;
+  if(personID) {
+    concreteeventDAO.getpersonEvent(personID, type, function (err, obj) {
+      if (err) {
+        res.send({error: null})
+      } else {
+        res.send({success: obj})
+      }
+    })
+  }else{ }
 };
+/**
+ * 获取人员工作日程，
+ * 更具人员id获取日程安排
+ * @param {json} req - 客户端传入数据 {personID:"591bd9c13e2848d40bd88b92"}
+ * @param {json} res - 返回数据 {success:[{"areaID":"58c97096f6ea9f30353dd4ae","_id":"598759bb90a0ea003111bf22","time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2,"_id":"598759bb90a0ea003111bf23"}]},{"_id":"5987fba6b6f2d9d80ad07189","areaID":"591bd9c13e2848d40bd88b92","time":[{"_id":"5987fba6b6f2d9d80ad0718a","frequency":2,"timeEnd":"1 12:00:00","timeStart":"1 08:00:00"}]},{"areaID":"59897355176a6ef809943534","_id":"598973a7176a6ef809943535","time":[{"timeStart":"2 08:00:00","timeEnd":"2 12:00:00","frequency":2,"_id":"598973a7176a6ef809943536"}]},{"_id":"59899872fac892800fe92f97","areaID":"59899868fac892800fe92f94","time":[{"_id":"59899872fac892800fe92f98","frequency":2,"timeEnd":"2 12:00:00","timeStart":"2 08:00:00"}]},{"areaID":"598998d5fac892800fe92f99","_id":"598998e1df1f114c0fe2030c","time":[{"timeStart":"2 08:00:00","timeEnd":"2 12:00:00","frequency":2,"_id":"598998e1df1f114c0fe2030d"}]},{"_id":"598a9b8fee2920201624fb2a","areaID":"598960f086d4d7d80eddd4ff","time":[{"_id":"598a9b8fee2920201624fb2c","frequency":2,"timeEnd":"3 12:00:00","timeStart":"3 08:00:00"},{"_id":"598a9b8fee2920201624fb2b","frequency":2,"timeEnd":"3 13:00:00","timeStart":"3 08:00:00"}]}]}
+ */
 var getpersonworkregion=function(req,res){
   var person=req.body.personID;
   if(person){
-    res.send({success:{"name":"赵新天 (测试人员)","time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2}],"personID":"593a6d29f06286140edf82ea","areaID":"591bd9c13e2848d40bd88b92"}});
+    res.send({success:[{"time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2}],"areaID":"591bd9c13e2848d40bd88b92"}]});
 
     return;
 
@@ -296,7 +305,7 @@ var sendnewEvent = function (req, res) {
       Allobj.eventstepID = [];
 
       var eventJson = {};
-      eventJson.type = obj.typeName;
+      eventJson.type = obj._id;
       eventJson.name = name;
       eventJson.newer = new Date();
       eventJson.createTime = new Date();
@@ -917,7 +926,7 @@ var sendstepgo = function (req, res) {
 };
 /**
  * 事件驳回
- * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:'',eventID:'事件id'}
+ * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:'驳回理由',eventID:'事件id'}
  * @param {json} res - 返回提示{success:'步骤推进'}
  */
 var sendeventargbackoff = function (req, res) {

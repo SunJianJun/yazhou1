@@ -129,6 +129,24 @@ SpotareaDAO.prototype.getNewestSpotarea = function(outcallback) {
     });
 };
 
+SpotareaDAO.prototype.getspotareatoid = function(areaid,outcallback) {
+  var callback=outcallback?outcallback:function (err,obj) {
+    if(err)
+    {
+      console.log('callback getMyNewestSpotareaFromWho 出错：');
+    }else{
+      console.log('callback getMyNewestSpotareaFromWho 成功：');
+    }
+  };
+  var query = Spotareamodel.findOne({_id:areaid});
+  query.exec(function (err, docs) {
+    if(docs){
+      callback(null,docs);
+    }else{
+      callback(true)
+    }
+  });
+};
 
 SpotareaDAO.prototype.spotareaDelete=function(name,outcallback){
     var callback=outcallback?outcallback:function (err,obj) {

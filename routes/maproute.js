@@ -1,5 +1,5 @@
 /**
- * @module 地图功能模块 url: /map
+ * @module 地图功能模块 url: /maproute
  */
 var express = require('express');
 var map = express.Router();
@@ -125,6 +125,26 @@ var getspotarea = function (req, res) {
     });
 }
 /**
+ * 根据区域id获取网格区域
+ * @param {json} req - 请求地址json {areaID:'58c043cc40cbb100091c640d'}
+ * @param {json} res - 返回json ，例如{“_id”:"网格区域ID",name:"南六环",geometry:{coordinates:["116.430587","39.909989”,"116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"],type:"Polygon"}}
+ */
+var getspotareatoid = function (req, res) {
+  var areaid=req.body.areaID;
+  if(areaid) {
+    spotareaDAO.getspotareatoid(areaid, function (err, obj) {
+      if (!err) {
+        res.send({success: obj})
+      } else {
+        // //console.log('getNewestSpotarea 查询所有'+senderID+'发送的消息为空:'+err);
+        res.send({error: null})
+      }
+    });
+  }else{
+    res.send({error:'参数错误'})
+  }
+}
+/**
  * 获取同部门人员的信息
  * @param {json} req - 客户端提交JSON 例如{_id:"当前人员ID"}
  * @param {json} res - 返回json ，例如[{_id:"同事ID",name:"张三",position:["116.446587","39.899989"],status:1}]
@@ -201,6 +221,7 @@ map.post('/updatespotarea', updatespotarea);
 map.post('/getmapdisplaysetting', getmapdisplaysetting);
 map.post('/geteventposition', geteventposition);
 map.post('/getspotarea', getspotarea);
+map.post('/getspotareatoid', getspotareatoid);
 map.post('/getworkmateinfo', getworkmateinfo);
 map.post('/getcameraposition', getcameraposition);
 

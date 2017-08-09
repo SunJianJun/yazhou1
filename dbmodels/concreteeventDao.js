@@ -266,8 +266,12 @@ ConcreteeventDAO.prototype.concreteeventpeopleDelete = function (areaID, positio
   });
 }
 
-ConcreteeventDAO.prototype.getpersonEvent=function(personID,callback){ //人员id查询在哪个事件中
-  var query=Concreteeventmodel.find({people:{$in:[personID]},status:1});
+ConcreteeventDAO.prototype.getpersonEvent=function(personID,type,callback){ //人员id查询在哪个事件中
+  var ops={people:{$in:[personID]},status:1};
+  if(type){
+    ops.type=type;
+  }
+  var query=Concreteeventmodel.find(ops);
   query.exec(function(err,obj){
     if(err){
       callback(err,null)

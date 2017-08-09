@@ -928,7 +928,7 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID,callback) {
         for (var index = 0; index < dpts.length; index++) {
           dptids.push(dpts[index].department);
         }
-        //console.log(dptids)
+        // console.log(dptids)
 
         /*临时使用，获取测试用户*/
 //             Personmodel.find({status: 9//{$gt: 0}
@@ -969,10 +969,10 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID,callback) {
                   }
                 }
 
-                console.log(workmates)
+                // console.log(workmates)
                 Personmodel.find({
                   _id: {$in: workmates}, status: {$gt: 0}
-                  ,personlocations:{$ne:[]}//过滤掉没有定位的人员
+                  // ,personlocations:{$ne:[]}//过滤掉没有定位的人员
                 }, {
                   personlocations: 0,
                   images: 0
@@ -1208,7 +1208,9 @@ PersonDAO.prototype.addareaperson = function (personid,area, callback) {
 PersonDAO.prototype.getpersonworkregion = function (personid,callback) {
   Personmodel.findOne({_id:personid},'area',function (err, perobj) {
     if (perobj) {
-          callback(null,perobj);
+      if(perobj&&perobj.area) {
+        callback(null, perobj.area);
+      }
     }else {
       callback('没有此人信息')
     }
