@@ -85,7 +85,7 @@ var updatespotarea = function (req, res) {
         }
     })
 };
-/**
+/*
  * 地图显示配置-未完成
  * 选择显示同事，代办案件，网格区域
  * @param {json} req - 客户端提交JSON 例如{“person“:true,"case":false,"area":true}

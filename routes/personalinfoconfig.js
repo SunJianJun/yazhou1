@@ -158,13 +158,26 @@ var sendpersoninfoerr = function (req, res) {
 
 }
 var sendphoneBypcloginuuid = function (req, res) {
-  UUID = req.body.UUID;//客户端生成ID用于建数据使用
-  console.log('获取到的id' + UUID);
+  //客户端生成ID用于建数据使用
+  var UUID=function () {
+    var s = [];
+    var hexDigits = "0123456789abcdef";
+    for (var i = 0; i < 36; i++) {
+      s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[8] = s[13] = s[18] = s[23] = "";
+    var uuid = s.join("");
+    return uuid;
+  }
+  var huuid=UUID()+'-'+new Date().getTime();
+  console.log('获取到的id' + huuid);
   if (UUID) {
-    phoneloginpcDAO.save({checkcode: UUID, createTime: new Date()}, function (err, obj) {
+    phoneloginpcDAO.save({checkcode:huuid, createTime: new Date()}, function (err, obj) {
       if (obj) {
         console.log(obj)
-        res.send({success: obj});
+        res.send({success:obj._id});
       } else {
         res.send({'error': null});
       }
@@ -205,15 +218,15 @@ var getphoneBypclogin = function (req, res) {
   id = req.body._id;//登陆id
   var overdue = 20;//过期时间 单位秒
   var isremove=false;
-  setTimeout(function(){
-    // console.log('删除')
-  },5000)
+
+  console.log(id)
   if (id) {
     phoneloginpcDAO.getlanglogin(id, function (err, obj) {
       if (err) {
         res.send({error: null})
       } else {
         if (obj) {
+          console.log((new Date() - obj.createTime) / 1000)
           if ((new Date() - obj.createTime) / 1000 >= overdue) {
             phoneloginpcDAO.removeoverduetime(obj._id, function (rerr, robj) {
               if (robj) {
@@ -243,8 +256,11 @@ var getphoneBypclogin = function (req, res) {
 var create_qrcode = function (req, res, next) {
   var text = req.query.text;
   try {
-    text += Math.random();
-    var img = qr.image(text, {size: 10});
+    // text +=Math.random();
+    console.log(text);
+    var ntext='http://120.76.228.172:2000/personalinfo/create_qrcode?text='+text+'&sr='+Math.random();
+    console.log(ntext)
+    var img = qr.image(ntext, {size: 10});
     res.writeHead(200, {'Content-Type': 'image/png'});
     img.pipe(res);
   } catch (e) {

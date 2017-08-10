@@ -124,9 +124,9 @@ var getpersonEvent = function (req, res) {
 var getpersonworkregion=function(req,res){
   var person=req.body.personID;
   if(person){
-    res.send({success:[{"time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2}],"areaID":"591bd9c13e2848d40bd88b92"}]});
+    // res.send({success:[{"time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2}],"areaID":"591bd9c13e2848d40bd88b92"}]});
 
-    return;
+    // return;
 
     personDAO.getpersonworkregion(person, function (workerr,workobj) {
       if(workobj){
