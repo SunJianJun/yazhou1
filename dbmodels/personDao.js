@@ -1019,7 +1019,17 @@ PersonDAO.prototype.findByIDNum = function (IDNum, callback) {
 
 PersonDAO.prototype.findByMobileUUid = function (mobileUUid, callback) {
   Personmodel.findOne({mobileUUid: mobileUUid}, {personlocations: 0}, function (err, obj) {
-    callback(err, obj);
+    if(obj){
+      if(obj.status==4){
+        callback(2000);
+      }else if(obj.status==0){
+        callback(3000);
+      }else{
+        callback(null, obj);
+      }
+    }else{
+      callback(1000)
+    }
   });
 };
 

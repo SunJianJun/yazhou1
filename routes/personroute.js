@@ -170,7 +170,10 @@ var personAddByIDCard= function(req, res) {
 }
 
 
-//根据手机的uuid自动获取用户
+//根据手机的uuid自动获取用户,错误返回{'success':false,'err':2000}
+//1000 没有此uuid
+//2000 未审核用户
+//3000 已删除的用户
 var getPersonByUUId = function(req, res) {
     //console.log('调用了getPersonByUUId方法 by params');
 //for(var i in req.body){ //console.log("请求内容body子项："+i+"<>\n")};
@@ -182,12 +185,11 @@ var getPersonByUUId = function(req, res) {
                 //console.log('rgetPersonByUUId查询出差');
                 res.send({'success':false,'err':err});
             } else if (obj) {
-
                 //console.log('req.body.mobileUUid查询用户成功:'+obj.name);
                 //console.log('\nreq.body.mobileUUid查询用户成功,用户的照片:'+obj.images.coverSmall);
                 res.send(obj);
             }else {
-                res.send(null);
+                res.send({'success':false,'err':err});
             }});
     }else {
         res.send(null);
