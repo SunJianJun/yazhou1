@@ -326,7 +326,6 @@ var sendAbnormalMessage = function (req, res) {
     res.send({error: "客户端发来的json有空值"});
     return;
   }
-  ;
   var recieverIds = [];
   console.log('1senderID:' + senderID + "<>receiverType:" + receiverType + "<>(receiverInfo && receiverInfo.length>0):" + (receiverInfo && receiverInfo.length > 0));
   switch (receiverType) {

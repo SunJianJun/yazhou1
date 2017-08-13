@@ -11,7 +11,7 @@ var ConcreteeventSchema=new Schema({//事件表
   //		 status:Number, //是否正在进行
   //		 caseID:String //步骤ID
   //}],
-  status:Number,// 1表示完结， 完结状态是当且仅当所有步骤的状态为完结时才完结
+  status:Number,// 完结状态是当且仅当所有步骤的状态为完结时才完结
   // 1：表示未完成  2：正在进行的步骤 3:正在审核的步骤 4：已完成的步骤
 
   createTime:Date, //建立日期
