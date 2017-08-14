@@ -41,6 +41,7 @@ var AbstractstepSchema = new Schema({//抽象表
         }]
     },
     createTime:Date,
+    updateTime:Date,
     status:Number
 });
 // console.log(AbstractstepSchema);

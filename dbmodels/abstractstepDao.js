@@ -446,7 +446,9 @@ AbstractstepDAO.prototype.getAllAbstractstep=function(depart,callback){
       console.log('callback getAllAbstractstep 成功：-' + '<>' + obj);
     }
   };
-  Abstractstepmodel.find({status:1,department:depart},'_id type',function(err,obj){
+  var ops={status:1};
+  if(depart){ops.department=depart;}
+  Abstractstepmodel.find(ops,'_id type',function(err,obj){
     callback(err,obj)
   })
 }

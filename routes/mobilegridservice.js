@@ -1049,7 +1049,7 @@ var getargutostep = function (req, res) {
  */
 var getAllAbstracttypetodep = function (req, res) {
   var department = req.body.departmentID;
-  department="58c3a5e9a63cf24c16a50b8d";
+  // department="58c3a5e9a63cf24c16a50b8d";
   if(department) {
     // console.log('部门id'+department);
     abstracttypeDAO.getAllAbstracttype(department,function (err, obj) {
