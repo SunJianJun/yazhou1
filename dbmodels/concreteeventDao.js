@@ -345,8 +345,10 @@ ConcreteeventDAO.prototype.readtConcreteevent = function (mid, outcallback) {
     }
   });
 };
-ConcreteeventDAO.prototype.geteventposition=function(callback){
-  Concreteeventmodel.find({status:1},'name newer position',function(err,obj){
+ConcreteeventDAO.prototype.geteventposition=function(dep,callback){
+  ops={};
+  if(dep){ops.department={$in:dep}}
+  Concreteeventmodel.find(ops,'name newer position status',function(err,obj){
     if(err){
       callback(err,null)
     }else{

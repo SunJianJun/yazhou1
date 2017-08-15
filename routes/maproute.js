@@ -96,12 +96,13 @@ var getmapdisplaysetting = function (req, res) {
 };
 
 /**
- * 待办事件坐标点
- * @param {} req - 请求地址，无需传参
+ * 根据部门获取待办事件坐标点
+ * @param {json} req - 请求数据 {departmentID:['部门ID']}
  * @param {json} res - 返回json ，例如[{_id:"事件ID",name:"无照经营",position:["116.446587","39.909989"],newer:"更新时间"}]
  */
 var geteventposition = function (req, res) {
-    concreteeventDao.geteventposition(function (err, obj) {
+    var dep=req.body.departmentID;
+    concreteeventDao.geteventposition(dep,function (err, obj) {
         if (err) {
             res.send({error: null})
         } else {

@@ -784,6 +784,14 @@ var geteventSearch = function (req, res) {
 };
 
 /**
+ * 获取最后操作事件的人员
+ * @param {json} req - 客户端传入的事件id {eventID:''}
+ * @param {json} res -
+ */
+var geteventlaseperson=function(req,res){
+
+}
+/**
  * 审核通过，推进流程
  * @param {json} req - {stepID:'步骤id',person:'当前人员ID',personTitle:'当前人员职务ID',text:'',eventID:"事件ID"}
  * @param {json} res - 返回提示{success:'步骤推进'}
@@ -1215,6 +1223,8 @@ mobilegridservice.post('/sendeventargbackoff', sendeventargbackoff);
 
 mobilegridservice.post('/getEventtype', getEventtype);
 mobilegridservice.post('/geteventSearch', geteventSearch);
+mobilegridservice.post('/geteventlaseperson',geteventlaseperson);
+
 mobilegridservice.post('/getstepaudittext', getstepaudittext);
 mobilegridservice.post('/getoneeventstep', getoneeventstep);
 mobilegridservice.post('/getargutostep', getargutostep);
