@@ -6,6 +6,7 @@ var ConcreteeventSchema=new Schema({//事件表
   type:String,//从哪个事件类型那里来的
   name:String,
   newer:Date,//更新日期
+  newerperson:String,
   step:[String], //步骤ID
   //    [{types:String,
   //		 status:Number, //是否正在进行

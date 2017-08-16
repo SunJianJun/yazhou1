@@ -392,6 +392,41 @@ var personPic = function(req, response) {
     );
 }
 
+/**
+ * 根据部门统计相关人员
+ * @param {json} req - 部门id {departmentID:''}
+ * @param {json} res - 根据部门统计相关人员：{error:错误信息,{统计信息}}，统计信息 具体如下：
+ { departmentID: 'ObjectId("58c3a5e9a63cf24c16a50b8c")',单位id
+   fullcount: 14,单位总人数
+   malecount: 13,单位男性人数
+   femalecount: 1,单位女性人数
+   unknownSexCount: 0,单位不知道性别的人数（统计图表上不用显示，这种多半是身份证号有问题的测试人员）
+   titlescount: 各种职位的人数
+    { '5952112dea76066818fd6dcf': 1,前面是职务id，后面是人数
+      '5952112dea76066818fd6dd0': 3,
+      '5952112dea76066818fd6dd3': 1,
+      '5952112dea76066818fd6dd4': 1,
+      notitle: 8 },有可能有无职务的情况
+   youngcount: 7, 18-35之间的年轻人数
+   middlecount: 3, 35-50之间的中年人数
+   oldcount: 1, 50-60之间的老年人数
+   noage: 1, 没有岁数的身份证异常人员
+   下面这一条是供测试的，可以查到具体的人
+   names: '58dbe6e28efc529008caedce,韦小宝;58e1aa13c6cfe9b40853ed6d,王艳杰;58c043cc40cbb100091c640d,谭剑;58e0dd85e978587014e67f78,刘利军;58cb3361e68197ec0c7b96c0,申康呈;58ddcce6ac015a08090007ce,李晓晨;58dd91ebac015a0809ffffba,赵本山;58cb2031e68197ec0c7b935b,周鹏宇;593a6d2cf06286140edf82f1,吴兴学;593a6d2cf06286140edf82f4,王业鑫;593a6d29f06286140edf82ea,赵新天;593a6d2cf06286140edf82ee,刘文光;58caf425a56e60640bc5a188,高磊;58bff0836253fd4008b3d41b,谢进成;' }
+ */
+var getDepartmentPsersonelStatistic=function(req,res) {
+  var dep=req.body.departmentID;
+    if(dep){
+        person.getDepartmentPsersonelStatistic(dep,function(err,obj){
+            if(obj){
+                res.send({success:obj})
+            }else{
+                res.send({error:err})
+            }
+        });
+    }
+}
+
 personrouter.get('/add',personAdd);//增加
 personrouter.post('/add',dopersonAdd);//提交
 personrouter.post('/edit',dopersonEdit);//提交
@@ -407,5 +442,6 @@ personrouter.post('/getUserPicById',getUserPicById);//提交
 personrouter.post('/getPersonLatestPosition',getPersonLatestPosition);//提交
 personrouter.post('/getPersonLatestPositionInTimespan',getPersonPositionInTimespan);//提交
 personrouter.post('/getWorkmatesByUserId',getWorkmatesByUserId);//提交   根据用户id查询同事
+personrouter.post('/getDepartmentPsersonelStatistic',getDepartmentPsersonelStatistic)
 
 module.exports = personrouter;

@@ -428,7 +428,6 @@ var readtAbnormalMessage = function (req, res) {
   // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
   // //console.log('messID:'+messID);
   messageDAO.readtAbnormalMessage(messID, curUserID, decision, abnormalID, function (err, oobj) {
-    if (!err) {
       if (!oobj) {
         res.send({error: "查无此消息！"});
         return;
@@ -440,6 +439,7 @@ var readtAbnormalMessage = function (req, res) {
       // console.log('readtAbnormalMessage 查询sampleObj.type'+sampleObj.type+'q全部的消息:'+JSON.stringify(oobj));
       if (decision == "approve") {
         if (sampleObj.type == "takeoff") {
+          console.log('请假批阅')
           abnormalAttendenceObj.person = sampleObj.sender;
           abnormalAttendenceObj.askforleave = {};
           abnormalAttendenceObj.askforleave.reason = sampleObj.text;
@@ -457,16 +457,14 @@ var readtAbnormalMessage = function (req, res) {
           // console.log('readtAbnormalMessage shift查询所有'+abnormalAttendenceObj+'发送的消息:'+abnormalAttendenceObj.abnormal);
         }
         attendanceRecordDao.sendpersonaskforleave(abnormalAttendenceObj, function (err, obj) {
-          if (!err) {
-            res.send(oobj);
+          if (obj){
+            res.send(obj);
           }
           else {
             res.send({error: err});
           }
         });
-      }
-
-    } else {
+      }else {
       // //console.log('readtMessage 查询所有'+messID+'发送的消息为空:'+err);
       res.send({error: err});
     }

@@ -388,6 +388,7 @@ ConcreteeventDAO.prototype.sendeventperson=function(ID,person,callback){
         }
       }
       var ops={newer:new Date()};
+      ops.newerperson=person;
       if(!isyou){
         fobj.people.push(person);
         ops.people=fobj.people;
@@ -403,6 +404,13 @@ ConcreteeventDAO.prototype.sendeventperson=function(ID,person,callback){
       callback(err)
     }
   })
+}
+ConcreteeventDAO.prototype.geteventlaseperson=function(dep,outcallback){
+  var callback=outcallback?outcallback: function(err, obj) {
+      console.log('根据事件获取：'+'err:'+err+'obj:'+obj);
+      console.dir(obj);
+    }
+
 }
 
 

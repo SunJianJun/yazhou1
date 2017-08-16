@@ -11,7 +11,7 @@ var MessageSchema = new Schema({
         coverSmall: String,
         coverBig: String
     },
-    eventID:String,
+    eventstepID:String,
 //异常状态也是一种消息
     abnormaldecision: String,//approve；reject,
     abnormalID: String,//唯一标示异常值的id，如果给多人发，通过这个就可以把多条信息全部设为已读

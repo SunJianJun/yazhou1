@@ -1576,8 +1576,198 @@ PersonDAO.prototype.countByPerson = function (personId, sTime, eTime, countType,
 }
 
 
+PersonDAO.prototype.getDepartmentPsersonelStatistic = function (departmentID, outcallback) {
+  var callback = outcallback ? outcallback : function (err, obj) {
+    console.log('根据部门统计相关人员：'+'err:'+err+'obj:'+obj);
+    console.dir(obj);
+  };
+  if(!departmentID){
+    if(callback)
+    {callback({error:"统计需要单位id"});return;}
+    return;
+  }
+  console.log('添加统计 getDepartmentPsersonelStatistic');
+
+  var growthMap = function(){
+    //根据身份证号计算年龄
+    var getAge=function (identityCard) {
+      var len = (identityCard + "").length;
+      if (len == 0) {
+        return 0;
+      } else {
+        if ((len != 15) && (len != 18))//身份证号码只能为15位或18位其它不合法
+        {
+          return 0;
+        }
+      }
+      var strBirthday = "";
+      if (len == 18)//处理18位的身份证号码从号码中得到生日和性别代码
+      {
+        strBirthday = identityCard.substr(6, 4) + "/" + identityCard.substr(10, 2) + "/" + identityCard.substr(12, 2);
+      }
+      if (len == 15) {
+        strBirthday = "19" + identityCard.substr(6, 2) + "/" + identityCard.substr(8, 2) + "/" + identityCard.substr(10, 2);
+      }
+      //时间字符串里，必须是“/”
+      var birthDate = new Date(strBirthday);
+      var nowDateTime = new Date();
+      var age = nowDateTime.getFullYear() - birthDate.getFullYear();
+      //再考虑月、天的因素;.getMonth()获取的是从0开始的，这里进行比较，不需要加1
+      if (nowDateTime.getMonth() < birthDate.getMonth() || (nowDateTime.getMonth() == birthDate.getMonth() && nowDateTime.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if(age>70 || age <1){
+        return 0;
+      }
+      return age;
+    };
+
+    var getSex=function (identityCard) {
+      var len = (identityCard + "").length;
+      if (len == 0) {
+        return 0;
+      } else {
+        if ((len != 15) && (len != 18))//身份证号码只能为15位或18位其它不合法
+        {
+          return 0;
+        }
+      }
+      var strSex = "";
+      if (len == 18)//处理18位的身份证号码从号码中得到生日和性别代码
+      {
+        strSex = identityCard.substr(16, 1) ;
+      }
+      if (len == 15) {
+        strSex = "19" + identityCard.substr(14, 1) ;
+      }
+      if (parseInt(strSex) % 2 == 1) {
+        return "男";
+//男
+      } else {
+//女
+        return "女";
+      }
+
+    }
+
+    for(var ptt in this.departments) {
+      if(this.departments[ptt].department){
+        var ttp=this.idNum?getAge(this.idNum):0;//.substring(0,4);
+        var tsex=this.sex?this.sex:(this.idNum?getSex(this.idNum):"未知");
+
+        if(this.departments[ptt].department){
+          emit( this.departments[ptt].department.toString(),{name:this.name,age:ttp,sex:tsex,title:this.title?this.title.toString():"notitle",pid:this._id});//得到坐标值，可用
+        }
+
+      }
+    }
+
+
+    // emit(ttp, {name:this.name,sex:this.sex?this.sex:"未知",locations:this.personlocations});
+  }
+
+  var growthReduce = function(key, values) {
+    var count=0,fullcount=0,malecount=0,femalecount=0,unknownSexCount=0,titlescount={},youngcount=0,middlecount=0,oldcount=0,zerocount=0,ff;
+    var titles=new Array();
+    var str='';
+    for(var o in values){
+      // console.log("进入值里面的属性o"+o);
+      str+=values[o].pid+","+values[o].name+";";
+      if(values[o].age){
+        if(values[o].age<35 && values[o].age>=18)
+        {
+          youngcount+=1;
+        }
+        else  if(values[o].age<50 && values[o].age>=35){
+          middlecount+=1;
+        }
+        else  if(values[o].age<60 && values[o].age>=50){
+          oldcount+=1;
+        }
+      }else {
+        zerocount+=1;
+      }
+      if(values[o].sex){
+        if(values[o].sex=="男")
+        {
+          malecount+=1;
+        } else  if(values[o].sex=="女"){
+          femalecount+=1;
+        }else  if(values[o].sex=="未知"){
+          unknownSexCount+=1;
+        }
+        fullcount+=1;
+      }
+      if(values[o].title){
+        titles.push(values[o].title);
+      }
+    }
+    titles.sort();
+    for(var i in titles) {
+
+      if(titlescount[titles[i]])
+      {
+        titlescount[titles[i]] = titlescount[titles[i]]+1;
+      }
+      else {
+        titlescount[titles[i]]=1;
+      }
+    }
+    return {"departmentID":key,"fullcount":fullcount,malecount:malecount,femalecount:femalecount,unknownSexCount:unknownSexCount,titlescount:titlescount,youngcount:youngcount,middlecount:middlecount,oldcount:oldcount,"noage":zerocount,names:str};//,oldvalue:JSON.stringify(values)
+  };
+
+  var options={
+    map:growthMap,
+    reduce:growthReduce,
+    // query: { 'active.end' : { $gt: new Date() } },
+    query: { 'departments' : {$elemMatch:{"department":departmentID}} },//可用,筛选此单位id下的人员
+    /*
+     // query: { 'departments' : {$elemMatch:{"department":"58c3a5e9a63cf24c16a50b8d"}} },//可用
+     // query: { 'personlocations' : {$elemMatch:{"positioningdate":{ $gt: new Date("2017-08-01") } }} },//可用 筛选8月份以后有定位数据的人员
+     // query: { 'personlocations' : {$elemMatch:{"geolocation":{ $geoIntersects:  {$geometry:{
+     //     "type": "Polygon",
+     //     "coordinates": [
+     //         [ [114.0, 38.0], [114.0, 42.0], [117.0, 42.0],
+     //             [117.0, 38.0], [114.0, 38.0] ]
+     //     ]
+     // }  }
+     // } }
+     // }},//可用,筛选定位点在此区域内的人员
+     // query: {$populate : {"path":"departments.department"} },
+     */
+    "sort":{'idNum': 1}
+    ,
+    "out": {"inline":1},
+    limit:200000
+  }
+
+
+  var jj=Personmodel.mapReduce(options, null);
+
+  jj.then(function (data) {
+    // console.log("mapreduce输出："+data);
+    // console.log("添加统计成功"+data)
+    console.log("添加统计成功:"+data.length)
+
+    console.dir(data)
+    for(var ii=0;ii<data.length;ii++){
+      if(data[ii]._id){
+        if(data[ii]._id.toString() == 'ObjectId("'+departmentID+'")'){
+          callback(null,data[ii].value);
+        }
+      }
+    }
+
+  },function (err) {
+    console.log("mapreduce输出错误："+err);
+    callback({error:"按部门统计人员出错"+err},null);
+
+  });
+}
+
 var daoObj = new PersonDAO();
-//
+
+
 //var locationObj = {
 //  positioningdate: new Date(),
 //  SRS: '4321',

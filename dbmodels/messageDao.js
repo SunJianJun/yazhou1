@@ -373,11 +373,6 @@ MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abno
             {
                 //console.log('callback readtMessage 出错：'+'<>'+err);
             }else{
-                for(var index =0;index<obj.length;index++)
-                {
-                    //console.log('callback readtMessage 成功：'+'<>'+obj[index]);
-                }
-                //console.log('callback readtMessage 成功：'+'<>');
             }
         };
 
@@ -387,9 +382,7 @@ MessageDAO.prototype.readtAbnormalMessage = function(mid,curUserID,decision,abno
                     Messagemodel.update({_id:mid,"abnormalID":abnormalID},{"abnormaldecision":decision},function(errr,uobj){
                             if(!errr){
                                 Messagemodel.find({"abnormalID":abnormalID}, function(err, obj){
-
-                                    console.log('callback readtMessage update成功：'+obj+'<>'+abnormalID);
-
+                                    //console.log('callback readtMessage update成功：'+obj+'<>'+abnormalID);
                                     callback(err, obj);
                                 });
                             }else{

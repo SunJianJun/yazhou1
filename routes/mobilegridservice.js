@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var mobilegridservice = express.Router();
-
+var uuid = require('node-uuid');
 
 var concreteevent = require('../dbmodels/concreteeventschema.js');
 // console.log('concreteevent数据模型是否存在：'+concreteevent);
@@ -483,7 +483,7 @@ var sendnewEvent = function (req, res) {
  * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
  */
 var getcurrentexaminestep = function (req, res) {
-  var caseID = req.body._id;
+  var caseID = req.body.id;
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
@@ -601,8 +601,14 @@ var geteventstep = function (req, res) {
 };
 /**
  * 填写参数完成，提交审核
- * @param {json} req - 传入步骤,参数,客户端提交json,argument的值是参数二维数组
- * 例如{eventID:"事件ID",stepID:'步骤ID',arguments:[{arguid:"5966e47a9acd27080b3c9110",value:"时间"},{arguid:"5966e47a9acd27080b3c9110",value:"时间"}],setwho:'当前人员ID',power:'审核人员'}
+ * @param {json} req - 传入步骤,参数,客户端提交json
+ * 例如{eventID:"事件ID",
+ * stepID:'步骤ID',
+ * arguments:[
+ * {arguid:"5966e47a9acd27080b3c9110",value:"时间"},
+ * {arguid:"5966e47a9acd27080b3c9110",value:"时间"}
+ * ],
+ * setwho:'当前人员ID',power:'审核人员'}
  * @param {json} res - 返回成功{success:'is OK!'}或失败响应{error: null}状态码
  */
 var sendeventargumentpush = function (req, res) {
@@ -611,6 +617,7 @@ var sendeventargumentpush = function (req, res) {
   var argu = req.body.arguments;
   var power = req.body.power;
   var setwho = req.body.setwho;
+  var abnormalID= uuid.v1();
   console.log(eventid, argu)
   if (argu && eventid && setwho && stepid) {
     var argulength = argu.length;
@@ -657,12 +664,15 @@ var sendeventargumentpush = function (req, res) {
           var perobjlength = perobj.length;
           var perobjcount = 0;
           var perobjfun = function () {
+
             var mesobj = {};
             mesobj.sender = setwho;
             mesobj.receiver = perobj[perobjcount]._id;
+            mesobj.eventstepID=stepid;
             mesobj.text = '审核';
             mesobj.type = 'stepgo';
             mesobj.status = 0;
+            mesobj.abnormalID=abnormalID;
             mesobj.create_date = new Date();
             console.log(mesobj)
             messageDAO.save(mesobj, function (meserr) {//向下一级领导发送审批请求
@@ -784,12 +794,51 @@ var geteventSearch = function (req, res) {
 };
 
 /**
- * 获取最后操作事件的人员
- * @param {json} req - 客户端传入的事件id {eventID:''}
- * @param {json} res -
+ * 获取最后操作事件的人员，显示在地图
+ * <br/>
+ * 返回status 3 是正在进行审核，2 是进行中
+ * @param {json} req - 客户端传入的事件id {eventID:'598fbbc1e667b1840f9eb9c5'}
+ * @param {json} res - {"lastperson":"58e0c199e978587014e67a50","lastTime":"2017-08-16T05:01:43.882Z","eventID":"598fbbc1e667b1840f9eb9c5","status":2,"step":"到指定地点巡查"}
  */
 var geteventlaseperson=function(req,res){
-
+  var event=req.body.eventID;
+  if(event){
+    concreteeventDAO.getIncompletesteps(event, function (err, obj) {
+      if (err) {
+        res.send({error: null})
+      } else {
+        var newObj={};
+        newObj.lastperson=obj.newerperson;
+        newObj.lastTime=obj.newer;
+        newObj.eventID=event;
+        concretestepDAO.geteventstep(obj.step,3, function (sterr, stobj) {
+          if (sterr) {
+            res.send({error: null})
+          } else {
+            if(stobj.length){
+              newObj.status=3;
+              newObj.step=stobj[0].name;
+              res.send({success: newObj})
+            }else{
+              concretestepDAO.geteventstep(obj.step,2, function (cuerr,cuobj) {
+                if (cuerr) {
+                  res.send({error: null})
+                } else {
+                  if(cuobj.length){
+                    newObj.status=2;
+                    newObj.step=cuobj[0].name;
+                    res.send({success:newObj})
+                  }else{
+                    res.send({success:'当前没有进行的案件'})
+                  }
+                }
+              })
+            }
+          }
+        });
+      }
+    })
+  }
 }
 /**
  * 审核通过，推进流程

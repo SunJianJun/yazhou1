@@ -97,7 +97,7 @@ var getmapdisplaysetting = function (req, res) {
 
 /**
  * 根据部门获取待办事件坐标点
- * @param {json} req - 请求数据 {departmentID:['部门ID']}
+ * @param {json} req - 请求数据 {departmentID:['部门ID']}  不传参数就获取所有
  * @param {json} res - 返回json ，例如[{_id:"事件ID",name:"无照经营",position:["116.446587","39.909989"],newer:"更新时间"}]
  */
 var geteventposition = function (req, res) {
