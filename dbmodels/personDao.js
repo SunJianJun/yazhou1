@@ -4,6 +4,7 @@ var departmentModule = require('./departmentschema');
 var select = require('xpath.js'),
   dom = require('xmldom').DOMParser;
 var fs = require('fs');
+var geolib=require("geolib");
 var locationModuler = require('./locationschema');
 var db = mongodb.mongoose.connection;
 
@@ -1581,12 +1582,6 @@ PersonDAO.prototype.getDepartmentPsersonelStatistic = function (departmentID, ou
     console.log('根据部门统计相关人员：'+'err:'+err+'obj:'+obj);
     console.dir(obj);
   };
-  if(!departmentID){
-    if(callback)
-    {callback({error:"统计需要单位id"});return;}
-    return;
-  }
-  console.log('添加统计 getDepartmentPsersonelStatistic');
 
   var growthMap = function(){
     //根据身份证号计算年龄
@@ -1759,10 +1754,126 @@ PersonDAO.prototype.getDepartmentPsersonelStatistic = function (departmentID, ou
     }
 
   },function (err) {
-    console.log("mapreduce输出错误："+err);
-    callback({error:"按部门统计人员出错"+err},null);
+    // console.log("mapreduce输出错误："+err);
+    callback("按部门统计人员出错",null);
 
   });
+}
+
+
+
+// 对一个人 一段时间内的定位数据进行统计
+PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  timespan, outcallback) {
+  console.log('1countType countByPerson ：<>'+personId);
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback countByPersonLocations 出错：' + '<>' + err);
+    } else {
+      console.log('callback countByPersonLocations 成功：' + '<>' + JSON.stringify(obj));
+    }
+  };
+// 只支持一种统计类型，就是计算不同时间比例尺内的定位数据总数
+//     switch (countType) {
+//         case "counts":
+  // console.log('2countType countByPerson ：'+'<>'+countType);
+  Personmodel.aggregate()
+    .match({
+        "_id": mongodb.mongoose.Types.ObjectId(personId)
+      }
+    )
+    .unwind("personlocations")
+    // .unwind("personlocations.geolocation")
+    .match({
+        "personlocations.positioningdate": {
+          "$gte": new Date(sTime),
+          "$lte": new Date(eTime)
+        }
+      }
+    )
+    .project(
+      {
+        day: {$substr: [{"$add": ["$personlocations.positioningdate", 28800000]}, 0, 10]},//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+        week: {$week: "$personlocations.positioningdate"},
+        month: {$month: "$personlocations.positioningdate"},
+        "positioncounts": {
+          $cond: {
+            if: {$and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.geolocation", null]}, {$ne: ["$personlocations.geolocation", ""]}]},
+            then: 1,
+            else: 0
+          }
+        },
+        positionPts:{lat:{'$arrayElemAt':[ '$personlocations.geolocation', 1 ]},
+          lon:{'$arrayElemAt':[ '$personlocations.geolocation', 1 ]},
+          time: "$personlocations.positioningdate"
+        },
+
+        // 这里是判断上午有多少定位点
+        "morning": {
+          $cond: {
+            if: {
+              $and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.positioningdate", null]}, {$ne: ["$personlocations.positioningdate", ""]},
+                {$gte: [{$hour: "$personlocations.positioningdate"}, 8]},
+                {$lte: [{$hour: "$personlocations.positioningdate"}, 12]}]
+            }, then: 1, else: 0
+          }
+        },
+        // 这里是判断下午有多少定位点
+        "afternoon": {
+          $cond: {
+            if: {
+              $and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.positioningdate", null]}, {$ne: ["$personlocations.positioningdate", ""]},
+                {$gte: [{$hour: "$personlocations.positioningdate"}, 15]},
+                {$lte: [{$hour: "$personlocations.positioningdate"}, 18]}]
+            }, then: 1, else: 0
+          }
+        },
+        "name": "$name"
+      }
+    )
+    .group(
+      {
+        // _id : "$day",//按天统计
+        // _id : "$week",//按周统计
+        // _id : "$month",//按月统计
+        _id: "$" + timespan,//按设定统计
+        // dd:"$textTT",
+        all: {$sum: 1},//一个timespan内的所有定位点
+        morningpositionsCount: {$sum: "$morning"},//一个timespan内的上午定位点
+        afternoonpositionsCount: {$sum: "$afternoon"},//一个timespan内的下午定位点
+        allLocationPoints:{$push:"$positionPts"},
+        name: {$first: "$name"}//统计人员的姓名
+      }
+    ).sort(
+    {_id: 1}
+  ).exec(function (err, obj) {
+    if (!err) {
+      for(var i=0;i<obj.length;i++){
+        if(obj[i].allLocationPoints && obj[i].allLocationPoints.length && obj[i].allLocationPoints.length>1){
+          for (var gg=0;gg<obj[i].allLocationPoints.length;gg++){
+            obj[i].allLocationPoints[gg].time=Date.parse(obj[i].allLocationPoints[gg].time);
+          }
+
+          obj[i].pathlength= geolib.getPathLength( obj[i].allLocationPoints);
+          //console.log("obj[i].pathlength:"+obj[i].pathlength);
+
+          var time = ((obj[i].allLocationPoints[obj[i].allLocationPoints.length-1].time*1)/1000) - ((obj[i].allLocationPoints[0].time*1)/1000);
+          var mPerHr = (obj[i].pathlength/time)*3600;
+          var speed = Math.round(mPerHr * geolib.measures['km'] * 10000)/10000;;
+          obj[i].averageSpeed=speed;
+          obj[i].allLocationPoints=null;
+        }
+      }
+      callback(null, obj);
+    } else {
+      callback(err, null);
+    }
+  })
+  //         break;
+  //
+  //
+  //     default:
+  //         break;
+  // }
 }
 
 var daoObj = new PersonDAO();

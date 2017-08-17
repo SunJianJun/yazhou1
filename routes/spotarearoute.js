@@ -126,19 +126,12 @@ var updateASpotarea=function(req,res){
 }
 //查找人员所安排的区域
 var getASpotareatoperson=function(req,res){
-    //var id=req.body._id;
-    var _id=req;
-    spotareaDAO.getASpotareatoperson(_id,function(err,obj){
+    var personID=req.body.personID;
+    spotareaDAO.getASpotareatoperson(personID,function(err,obj){
         if(err){
-            //res.send(null)
-            console.log(null)
+            console.log({error:err})
         }else{
-            //res.send(obj)
-            console.log(obj)
-            //for(var a=0;a<obj.length;a++){
-            //    console.log(obj[a].person)
-            //}
-            //res(obj)
+            res.send({success:obj})
         }
     })
 }

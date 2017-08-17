@@ -424,8 +424,50 @@ var getDepartmentPsersonelStatistic=function(req,res) {
                 res.send({error:err})
             }
         });
+    }else{
+      res.send({error:"统计需要单位id"})
     }
 }
+/**
+ * 对一个人 一段时间内的定位数据进行统计
+ * @param {json} req -
+ *  personid-人员id ,
+ *  sartTime-开始时间 ,
+ *  endTime-结束时间 ,
+ *  timetype-时间分割类型"day"/"week"/"month" <br/> 传入参数 {personid:"58c043cc40cbb100091c640d",sartTime:"2017-01-01",endTime:"2017-08-17",timetype:"day"}
+ * @param {json} res - 回调函数, 返回值 有两种，   没有错误时 callback(null, obj);   有错误时  callback({error:err}, null); 返回的统计数据内容obj：
+ * [{"
+ * _id":"2017-07-19",//按照时间分割类型timespan 返回的具体时间值 这种 是 按 day分割的，如果按week分割，这里可能是33或者34，表示一年内的第33周或34周
+ * "all":6,//定位点数量
+ * "positionsCount":0,//一个timespan内的所有定位点
+ * "morningpositionsCount":0,//一个timespan内的上午定位点
+ * "afternoonpositionsCount":0,//一个timespan内的下午定位点
+ * "allLocationPoints":null,//调试用，可以返回期间所有的定位点 目前返回是null
+ * "name":"谭剑",//统计人员的姓名
+ * "pathlength":5,//一个timespan内的定位点总长度，可以显示为人员的行动路径
+ * "averageSpeed":0.1636//一个timespan内的平均速度，km/h，公里/小时
+ * },....]
+ */
+var countByPersonLocations=function(req,res){
+  var personid=req.body.personid,
+    sart=req.body.sartTime,
+    end=req.body.endTime,
+    type=req.body.timetype;
+  if (!personid || !sart || !end  || !type) {
+    res.send({error: "统计参数不完整"});
+    return;
+  }
+    person.countByPersonLocations(personid,sart,end,type,function(err,obj){
+      if(obj){
+        res.send({success:obj})
+      }else{
+        res.send({error:err})
+      }
+    })
+}
+// 测试
+// daoObj.countByPersonLocations("58c043cc40cbb100091c640d","2017-01-01","2017-08-17","day",null);
+// daoObj.countByPersonLocations("58c043cc40cbb100091c640d","2017-01-01","2017-08-17","week",null);
 
 personrouter.get('/add',personAdd);//增加
 personrouter.post('/add',dopersonAdd);//提交
@@ -443,5 +485,6 @@ personrouter.post('/getPersonLatestPosition',getPersonLatestPosition);//提交
 personrouter.post('/getPersonLatestPositionInTimespan',getPersonPositionInTimespan);//提交
 personrouter.post('/getWorkmatesByUserId',getWorkmatesByUserId);//提交   根据用户id查询同事
 personrouter.post('/getDepartmentPsersonelStatistic',getDepartmentPsersonelStatistic)
+personrouter.post('/countByPersonLocations',countByPersonLocations)
 
 module.exports = personrouter;
