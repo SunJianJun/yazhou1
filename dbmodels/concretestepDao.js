@@ -312,7 +312,7 @@ ConcretestepDAO.prototype.geteventstep=function (ID,status,outcallback) {
   if(status){
     ops.status=status;
   }
-  var query = Concretestepmodel.find(ops,'no status type name',function (err, result) {
+  var query = Concretestepmodel.find(ops,'no status type name power',function (err, result) {
     if (err) {
       outcallback(err,null)
     } else {

@@ -36,8 +36,8 @@ AbstracttypeDAO.prototype.findByName = function (name, callback) {
   });
 };
 
-AbstracttypeDAO.prototype.getAllAbstracttype=function(dep,callback){//获取所有类型
-    var callback = callback ? callback : function (err, obj) {
+AbstracttypeDAO.prototype.getAllAbstracttype=function(dep,outcallback){//获取所有类型
+    var callback = outcallback ? outcallback : function (err, obj) {
       if (err) {
         console.log('callback getAllAbstracttype 出错：-' + '<>' + err);
       } else {
@@ -56,6 +56,7 @@ AbstracttypeDAO.prototype.getoneeventtype= function (typeID,outcallback) { //根
         console.log('callback 成功：' + '<>' + obj);
       }
     }
+  console.log(typeID)
   var query = Abstracttypemodel.findOne({_id:typeID, status: 1}, function (err, result) {
     if (err) {
         outcallback(err,null)
@@ -215,7 +216,7 @@ AbstracttypeDAO.prototype.abstracttypeDelete = function (id, outcallback) {
     }
   });
 }
-AbstracttypeDAO.prototype.updateAbstracttype = function (data, outcallback) {
+AbstracttypeDAO.prototype.updateAbstracttype = function (id,newName,step,newer, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback updateAbstracttype 出错：' + '<>' + err);
@@ -228,11 +229,7 @@ AbstracttypeDAO.prototype.updateAbstracttype = function (data, outcallback) {
       }
     }
   };
-  var name=data.beforeName;
-  var newName=data.typeName;
-  var step=data.step;
-  var newer=data.newer;
-  var query = Abstracttypemodel.update({typeName:name},{typeName:newName,steps:step,newer:newer});
+  var query = Abstracttypemodel.update({_id:id},{typeName:newName,steps:step,newer:newer});
   query.exec(function (err, docs) {
     if (!err) {
       // console.log(docs);

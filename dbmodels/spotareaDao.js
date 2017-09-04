@@ -175,40 +175,34 @@ SpotareaDAO.prototype.spotareaDelete=function(name,outcallback){
         }
     });
 }
-SpotareaDAO.prototype.spotareapeopleDelete=function(areaID,position,outcallback){
+SpotareaDAO.prototype.removespotareapeople=function(areaID,reper,outcallback){
     // var areaID=area.areaID;
     var callback=outcallback?outcallback:function (err,obj) {
-            if(err)
-            {
-                console.log('callback spotareapeopleDelete 出错：'+'<>'+err);
-            }else{
-                for(var index =0;index<obj.length;index++)
-                {
-                    console.log('callback spotareapeopleDelete 成功：'+'<>'+obj[index]);
-                }
-                if(obj.abstract){
-                    console.log('callback spotareapeopleDelete 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
-                }
-            }
+         console.log('callback removespotareapeople 出错：'+'<>'+err);
         }
-             // query=Spotareamodel.update({'name':name,status:1},{'persons':person.splice(id,1)},{});
-        var query=Spotareamodel.find({_id:areaID,status:1},function(err,result){
+        var query=Spotareamodel.findOne({_id:areaID},function(err,result){
             if(err){
                 console.log(err);
             }else{
-                var person=result[0].persons;
-                if(person && person.length && (person.length>(position)) ){
-                    person.splice(position,1)
-                    Spotareamodel.update({_id:areaID},{$set:{'persons':person}},function(err,res){
+                var person=result.persons;
+                if(person && person.length ){
+                    console.log('------------+++--------------')
+                    console.log(reper)
+                    console.log(person)
+                    for(var i= 0,newperson=[];i<person.length;i++){
+                        if(person[i].personID!=reper){
+                            newperson.push(person[i])
+                        }
+                    }
+                    console.log(newperson)
+                    Spotareamodel.update({_id:areaID},{'persons':newperson},function(err,res){
                         if(!err){
-
                             console.log('修改');
-                            console.log(res);
-                            callback(err,res);
+                            callback(null,newperson);
                         }
                         else {
                             console.log('没有数据');
-                            callback(err,0);
+                            callback(err);
                         }
                     });
                 }
@@ -343,6 +337,7 @@ SpotareaDAO.prototype.getASpotareatoperson=function(id,callback){
         )
         .group({
                 "_id": "$_id",
+                "name":{$push:"$name"},
                 "geometry":{$push:"$geometry"},
                 "person": {$push: "$persons"}
             })

@@ -398,7 +398,7 @@ DepartmentDAO.prototype.getLeadersByDepartmentID = function (id, callback) {
   });
 };
 
-//得到此部门的全部人员
+//得到此部门的全部人员 详细信息
 DepartmentDAO.prototype.getPersonsByDepartmentID = function (id, callback) {
   Departmentmodel.findOne({_id: id}, function (err, departmentObt) {
     if (!err) {
@@ -417,6 +417,16 @@ DepartmentDAO.prototype.getPersonsByDepartmentID = function (id, callback) {
       } catch (e) {
     		callback('获取人员出错');
     	}
+    } else {
+      callback(err, null);
+    }
+  });
+};
+//得到此部门的全部人员
+DepartmentDAO.prototype.getPersonsByID = function (id, callback) {
+  Departmentmodel.findOne({_id: id},'persons',function (err, departmentObt) {
+    if (!err) {
+      callback(null,departmentObt.persons);
     } else {
       callback(err, null);
     }
@@ -460,12 +470,13 @@ DepartmentDAO.prototype.getAllDepartment = function (callback) {
         dobj[departcount].persons=personid;
         // console.log(personid);
       }
-      Personmodel.find({_id:{$in:personid}},'name',function(perr,pobj){
+      Personmodel.find({_id:{$in:personid}},'name title',function(perr,pobj){
         if(pobj){
           newobj.name=dobj[departcount].name;
           newobj.create=dobj[departcount].create;
           newobj.info=dobj[departcount].info;
           newobj.path=dobj[departcount].path;
+          newobj.parent=dobj[departcount].parent;
           newobj.infoLink=dobj[departcount].infoLink;
           newobj.persons=pobj;
           newobj.create_date=dobj[departcount].create_date;
@@ -792,8 +803,7 @@ DepartmentDAO.prototype.getAllpersonsByDepartIdOneStep = function (curDepartId, 
     }
   };
   var opts = [{
-    path: 'persons.person'
-    ,
+    path: 'persons.person',
     //上下两种写法效果一样，都可以将关联查询的字段进行筛选
     // ,
     // select : '-personlocations'images:0,
@@ -903,30 +913,32 @@ DepartmentDAO.prototype.getAllInvolvedDepartmentsByUserid = function (userId, ou
     if (err) {
       //console.log('callback getAllInvolvedDepartmentsByUserid 出错：'+'<>'+err);
     } else {
-      for (var index = 0; index < obj.length; index++) {
-        //console.log('callback getAllInvolvedDepartmentsByUserid 成功：'+'<>'+obj[index]);
-      }
-      //console.log('callback getAllInvolvedDepartmentsByUserid 成功：'+'<>');
     }
   };
-
-  var opts = [{
-    path: 'departments.department',
-    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
-    // ,
-    // select : '-personlocations'
-    // ,
-    select: {_id: 1, name: 1, persons: 1, path: 1, create_date: 1}
-  }];
-  // find返回的是一个数组，用findOne好像不能直接用populate了
-  Personmodel.find({_id: userId}).populate(opts).exec(
-    function (err, users) {
-      var userC = users[0];
-      // //console.log("用户关联的单位："+userC.departments+"<>"+userC.departments[0]+"<>"+userC.name);
-      // var outputJson=new Array();
-      callback(err, userC.departments);
-      // callback(err,outputJson);
-    });
+  Departmentmodel.aggregate()
+      .unwind("persons")
+      .match({
+        "persons.person": mongodb.mongoose.Types.ObjectId(userId)
+      })
+      .group({
+        "_id": "$_id"
+      })
+      .exec(function (err,obj) {
+        if (err) {
+          console.log(err)
+        } else {
+          for(var i= 0,objarr=[];i<obj.length;i++){
+            objarr.push(obj[i]._id)
+          }
+          Departmentmodel.find({_id:{$in:objarr}}).exec(function(deparerr,deparobj){
+            if(!deparerr){
+              callback(null,deparobj);
+            }else{
+              callback(deparerr);
+            }
+          })
+        }
+      })
 };
 
 DepartmentDAO.prototype.updateById = function (Department, callback) {
@@ -979,6 +991,38 @@ DepartmentDAO.prototype.updatedepartmentinfo = function (id, status, callback) {
       callback(null)
     } else {
       callback(null, obj)
+    }
+  })
+}
+
+//修改部门人员
+DepartmentDAO.prototype.updatedepartmentperson=function(id,person,callback){
+  Departmentmodel.update({_id:id},{persons:person},function(err,obj){
+    if(!err){
+      callback(null,true)
+    }else{
+      callback(true,null)
+    }
+  })
+}
+//部门添加人员
+DepartmentDAO.prototype.adddepartmentperson=function(id,person,callback){
+  Departmentmodel.findOne({_id:id},function(err,persobj){
+    if(!err){
+      console.log('移动人员')
+      for(var i=0;i<person.length;i++){
+        persobj.persons.push({person:mongodb.mongoose.Types.ObjectId(person[i].person),role:person[i].role?person[i].role:'worker'})
+      }
+      console.log(person)
+      persobj.save(function(perr,pobj){
+        if(!perr){
+          callback(null,pobj)
+        }else{
+          callback('部门添加人员错误',null)
+        }
+      })
+    }else{
+      callback('部门获取人员错误',null)
     }
   })
 }

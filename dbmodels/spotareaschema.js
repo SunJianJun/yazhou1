@@ -18,6 +18,7 @@ var SpotareaSchema = new Schema({
   'properties': {
     'name': String
   },
+  department:String,
   persons: [{
     'name': String,
     'personID': String,

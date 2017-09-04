@@ -3,7 +3,8 @@ var Schema = mongodb.mongoose.Schema;
 
 var attendanceRecordSchema = new Schema({
   person: String,//person 的 id
-  checkdate:Date,//正常记录，到天，只比较天
+  name:String,
+  checkdate:String,//正常记录，到天，只比较天
   /**
    * abnormal true,检查各个时间段，影响考勤规则，否则，直接读考勤状态
    */
@@ -23,15 +24,25 @@ var attendanceRecordSchema = new Schema({
     type: Number,//1,正常;0离职;2请假;3旷工
     default: 1
   },
+  position:[{
+    lat:Number,
+    lon:Number,
+    time:Date
+  }],
+  personcheckimg:[{
+    images:String,
+    checkdate:Date
+  }],
   times: Number,//次条记录对应当天检查次数
   checkdescription: {//描述信息 ，考勤时间段
+
     startDateTime: Date,
     endDateTime: Date
   }//描述
 });
 
 console.log('mongodb attendanceRecordSchema load is ok!:' + attendanceRecordSchema);
-var attendanceRecordmodel = mongodb.mongoose.model("attendanceRecord", attendanceRecordSchema);
+var attendanceRecordmodel = mongodb.mongoose.model("attendance_Record", attendanceRecordSchema);
 //module.exports= attendanceRecordSchema;
 //这两行引用方式不一样的
 exports.attendanceRecordSchema = attendanceRecordSchema;

@@ -21,20 +21,21 @@ var legalregulationsDAO = require('../dbmodels/legalregulationsDao');
 var departmentDAO = require('../dbmodels/departmentDAO.js');
 var personDAO = require('../dbmodels/personDao');
 var persontitleDAO = require('../dbmodels/persontitleDao');
+var spotareaDAO=require('../dbmodels/spotareaDao')
 var messageDAO = require('../dbmodels/messageDao')
 
 /**
- *
  * 获取部门所有正在进行的事件
  * @param {json} req - 传所要查询的部门ID,例如：{departmentID:"部门ID"}
  * @param {json} res - 返回部门事件数组JSON,包含<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
 var getAllConcreteevent = function (req, res) { //获取部门事件
   var departemnt = req.body.departmentID;
+  var status = req.body.status?req.body.status:1;
   if (!departemnt) {
     res.send({error: '参数错误'})
   } else {
-    concreteeventDAO.getAllConcreteevent(departemnt, function (err, obj) {
+    concreteeventDAO.getAllConcreteevent(departemnt,status, function (err, obj) {
       //console.log(obj);
       if (err) {
         res.send({error: null})
@@ -44,6 +45,7 @@ var getAllConcreteevent = function (req, res) { //获取部门事件
     })
   }
 };
+
 /**
  *
  * 按类型获取部门正在进行的事件
@@ -117,7 +119,7 @@ var getpersonEvent = function (req, res) {
 };
 /**
  * 获取人员工作日程，
- * 更具人员id获取日程安排
+ * 更具人员id获取日程安排 ----------------此接口已废除 转至'spotarea/getASpotareatoperson'
  * @param {json} req - 客户端传入数据 {personID:"591bd9c13e2848d40bd88b92"}
  * @param {json} res - 返回数据 {success:[{"areaID":"58c97096f6ea9f30353dd4ae","_id":"598759bb90a0ea003111bf22","time":[{"timeStart":"1 08:00:00","timeEnd":"1 12:00:00","frequency":2,"_id":"598759bb90a0ea003111bf23"}]},{"_id":"5987fba6b6f2d9d80ad07189","areaID":"591bd9c13e2848d40bd88b92","time":[{"_id":"5987fba6b6f2d9d80ad0718a","frequency":2,"timeEnd":"1 12:00:00","timeStart":"1 08:00:00"}]},{"areaID":"59897355176a6ef809943534","_id":"598973a7176a6ef809943535","time":[{"timeStart":"2 08:00:00","timeEnd":"2 12:00:00","frequency":2,"_id":"598973a7176a6ef809943536"}]},{"_id":"59899872fac892800fe92f97","areaID":"59899868fac892800fe92f94","time":[{"_id":"59899872fac892800fe92f98","frequency":2,"timeEnd":"2 12:00:00","timeStart":"2 08:00:00"}]},{"areaID":"598998d5fac892800fe92f99","_id":"598998e1df1f114c0fe2030c","time":[{"timeStart":"2 08:00:00","timeEnd":"2 12:00:00","frequency":2,"_id":"598998e1df1f114c0fe2030d"}]},{"_id":"598a9b8fee2920201624fb2a","areaID":"598960f086d4d7d80eddd4ff","time":[{"_id":"598a9b8fee2920201624fb2c","frequency":2,"timeEnd":"3 12:00:00","timeStart":"3 08:00:00"},{"_id":"598a9b8fee2920201624fb2b","frequency":2,"timeEnd":"3 13:00:00","timeStart":"3 08:00:00"}]}]}
  */
@@ -129,6 +131,13 @@ var getpersonworkregion=function(req,res){
     // return;
 
     personDAO.getpersonworkregion(person, function (workerr,workobj) {
+      if(workobj){
+        res.send({success:workobj})
+      }else{
+        res.send({error:'获取失败'})
+      }
+    })
+    spotareaDAO.getASpotareatoperson(person, function (workerr,workobj) {
       if(workobj){
         res.send({success:workobj})
       }else{
@@ -483,7 +492,7 @@ var sendnewEvent = function (req, res) {
  * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
  */
 var getcurrentexaminestep = function (req, res) {
-  var caseID = req.body.id;
+  var caseID = req.body._id;
   if (caseID) {
     concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
       if (err) {
@@ -657,7 +666,7 @@ var sendeventargumentpush = function (req, res) {
       })
     }
     arguset()
-    function sendinfo(title, person, callback) {
+    function sendinfo(title,callback) {
       personDAO.gettitleToperson(title, function (pererr, perobj) {
         // console.log('下一级审核领导')
         if (perobj) {
@@ -747,14 +756,14 @@ var sendeventargument = function (req, res) {
 var getEventtype = function (req, res) {
   var caseID = req.body._id;
   if (caseID) {
-    concreteeventDAO.getIncompletesteps(caseID, function (err, obj) {
+    concreteeventDAO.getIncompletesteps(caseID, function (err, obj){
       if (err) {
         res.send({error: null})
       } else {
         concretestepDAO.geteventstep(obj.step, 1, function (sterr, stobj) {
           if (sterr) {
             res.send({error: null})
-          } else {
+          } else{
             res.send({success: stobj})
           }
         });
@@ -808,7 +817,6 @@ var geteventlaseperson=function(req,res){
         res.send({error: null})
       } else {
         var newObj={};
-        newObj.lastperson=obj.newerperson;
         newObj.lastTime=obj.newer;
         newObj.eventID=event;
         concretestepDAO.geteventstep(obj.step,3, function (sterr, stobj) {
@@ -818,6 +826,16 @@ var geteventlaseperson=function(req,res){
             if(stobj.length){
               newObj.status=3;
               newObj.step=stobj[0].name;
+              var audit=stobj[0].power.audit;//正在审核的职务
+              console.log(stobj[0].power)
+              !function(){
+                for(var i=0;i<audit.length;i++){
+                  if(!audit[i].text){
+                    newObj.auditperson=audit[i].title;
+                    return;
+                  }
+                }
+              }()
               res.send({success: newObj})
             }else{
               concretestepDAO.geteventstep(obj.step,2, function (cuerr,cuobj) {
@@ -826,6 +844,7 @@ var geteventlaseperson=function(req,res){
                 } else {
                   if(cuobj.length){
                     newObj.status=2;
+                    newObj.lastperson=obj.newerperson?obj.newerperson:'58c1d1cb278a267826a236aa';
                     newObj.step=cuobj[0].name;
                     res.send({success:newObj})
                   }else{

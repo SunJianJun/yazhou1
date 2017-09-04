@@ -129,15 +129,16 @@ var updatepersonpassword = function (req, res) {
 }
 /**
  * 判断密码是否输入正确
- * @param {json} req - 客户端提交json， 例如{_id:'用户id',pwd:'密码'}
+ * @param {json} req - 客户端提交json，如果没有用户id，传身份证号 例如{_id:'用户id',idNum:'身份证号码',pwd:'密码'}
  * @param {json} res  返回提示修改成功，或者原密码错误
  */
 var ispersonpassword = function (req, res) {
   var json = req.body,
     uid = json._id,
-    pwd = json.pwd;
-  if (uid || pwd) {
-    personDAO.ispersonpassword(uid, pwd, function (err, obj) {
+    pwd = json.pwd,
+  idNum=json.idNum;
+  if (pwd&&(uid||idNum)){
+    personDAO.ispersonpassword(uid, pwd,idNum, function (err, obj) {
       if (!err) {
         res.send({success: '输入正确'})
       } else {

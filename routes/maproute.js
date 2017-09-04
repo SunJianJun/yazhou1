@@ -51,17 +51,9 @@ var addperson = function (req, res) {
     // console.log('messID:'+messID);
     spotareaDAO.sendPersontarea(eve, function (err, obj) {
         if (!err) {
-             console.log('没有错误')
-             console.log(obj);
-            person.addareaperson(eve.personID,eve,function(adderr,addobj){
-                if(addobj){
-                    res.send({success:addobj});
-                }else{
-                    res.send({error:'人员绑定区域错误'})
-                }
-            })
+            res.send({success:obj});
         } else {
-            res.send({error: null})
+            res.send({error: err})
         }
     });
 };
@@ -85,16 +77,6 @@ var updatespotarea = function (req, res) {
         }
     })
 };
-/*
- * 地图显示配置-未完成
- * 选择显示同事，代办案件，网格区域
- * @param {json} req - 客户端提交JSON 例如{“person“:true,"case":false,"area":true}
- * @param {json} res - 返回json ，例如[{_id:"12345612",name:"南六环",persons:[{_id:"123456",name:"张三"},geometry:{coordinates:["116.430587","39.909989”,"116.430587","39.899989","116.446587","39.899989","116.446587","39.909989"]}}]<br/>case:true,加入{_id:"案件ID",name:"无照经营"}
- */
-var getmapdisplaysetting = function (req, res) {
-    res.send('没有数据')
-};
-
 /**
  * 根据部门获取待办事件坐标点
  * @param {json} req - 请求数据 {departmentID:['部门ID']}  不传参数就获取所有
@@ -198,7 +180,7 @@ var getworkmateinfo = function (req, res) {
     }
 }
 /**
- * 获取摄像头位置--未完成
+ * 获取摄像头位置
  * @param {} req - 请求地址，无需传参
  * @param {json} res - 返回json ，例如[{location：[109，38]，videoUrl：video.sohu.com，name：“保平村路口”，type："球形摄像头"，protocol：“rstp”}]
  */
@@ -219,7 +201,6 @@ var getcameraposition=function(req,res){
 map.post('/sendASpotarea', sendASpotarea);//提交
 map.post('/addperson', addperson);
 map.post('/updatespotarea', updatespotarea);
-map.post('/getmapdisplaysetting', getmapdisplaysetting);
 map.post('/geteventposition', geteventposition);
 map.post('/getspotarea', getspotarea);
 map.post('/getspotareatoid', getspotareatoid);

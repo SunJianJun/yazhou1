@@ -39,15 +39,15 @@ ConcreteeventDAO.prototype.findByName = function (name, callback) {
     callback(err, obj);
   });
 };
-ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,callback){//获取所有类型
-    var callback = callback ? callback : function (err, obj) {
+ConcreteeventDAO.prototype.getAllConcreteevent=function(depar,status,outcallback){//获取所有类型
+    var callback=outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback getAllConcreteevent 出错：-' + '<>' + err);
     } else {
       console.log('callback getAllConcreteevent 成功：-' + '<>' + obj);
     }
   };
-   Concreteeventmodel.find({department:depar,status:1}).exec(function(err,obj){
+   Concreteeventmodel.find({department:depar,status:status}).exec(function(err,obj){
      if(err){
        callback(err,null)
      }else{
@@ -381,18 +381,22 @@ ConcreteeventDAO.prototype.sendeventnewer=function(ID,callback){
 ConcreteeventDAO.prototype.sendeventperson=function(ID,person,callback){
   Concreteeventmodel.findOne({_id:ID},function (ferr,fobj) {
     if(fobj){
-      for(var i=0,isyou=false;i<fobj.people.length;i++){
-        if(fobj.people[i]==person){
-          // console.log('存在相同的人')
-          isyou=true;
-        }
-      }
+      //for(var i=0,isyou=false;i<fobj.people.length;i++){
+      //  fobj.people[i]==person){
+      //    // console.log('存在相同的人')
+      //    isyou=true;
+      //  }
+      //}
       var ops={newer:new Date()};
       ops.newerperson=person;
-      if(!isyou){
+      console.log(fobj.people.indexOf(person)+1)
+      if(fobj.people.indexOf(person)+1){
         fobj.people.push(person);
         ops.people=fobj.people;
+        ops.newerperson=person;
       }
+      //if(!isyou){
+      //}
       Concreteeventmodel.update({_id:ID},ops,function(err,obj){
         if(err){
           callback(err)

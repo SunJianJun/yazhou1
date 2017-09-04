@@ -278,11 +278,11 @@ AbstractstepDAO.prototype.getoneeventstep = function (ID,outcallback) {
         console.log('callback getoneeventstep 成功：' + '<>' + obj);
       }
     }
-  var query = Abstractstepmodel.findOne({_id: ID, status: 1}, function (err, result) {
-    if (err) {
-      outcallback(err,null)
+  var query = Abstractstepmodel.findOne({_id: ID}, function (err,result) {
+    if (!err) {
+      callback(null,result);
     } else {
-      outcallback(null,result);
+      callback(err,null)
     }
   });
 }
@@ -448,7 +448,7 @@ AbstractstepDAO.prototype.getAllAbstractstep=function(depart,callback){
   };
   var ops={status:1};
   if(depart){ops.department=depart;}
-  Abstractstepmodel.find(ops,'_id type',function(err,obj){
+  Abstractstepmodel.find(ops,'_id type department',function(err,obj){
     callback(err,obj)
   })
 }

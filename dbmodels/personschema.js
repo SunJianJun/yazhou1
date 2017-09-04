@@ -51,7 +51,7 @@ var PersonSchema = new Schema({
   idNum: String,
   mobileUUid: String,
   title: String,// {department: String, post: String, job: String},//String,//职务
-  mobile: Number,
+  mobile: String,
   age: Number,
   create_date: {type: Date, default: Date.now},
   images: {
@@ -60,10 +60,10 @@ var PersonSchema = new Schema({
   },
   IMid: String,
 //所在部门
-  departments: [{
-    role: String, //权限 worker
-    department: {type: mongodb.mongoose.Schema.Types.ObjectId, ref: 'Department'}
-  }],//这里即为子表的外键，关联主表。  ref后的blog代表的是主表blog的Model。
+//  departments: [{
+//    role: String, //权限 worker
+//    department: {type: mongodb.mongoose.Schema.Types.ObjectId, ref: 'Department'}
+//  }],//这里即为子表的外键，关联主表。  ref后的blog代表的是主表blog的Model。
 
   source: String,
   link: String,
@@ -74,14 +74,6 @@ var PersonSchema = new Schema({
   status: {type: Number, default: 1},//1,正常;0离职;2请假;3旷工;4待审核   //测试用户 9,正常;8离职
   personlocations: [locationSchema],
   pwd: String,
-  area:[{
-    areaID: String,
-    time: [{
-      'timeStart': String,
-      'timeEnd': String,
-      'frequency': Number
-    }]
-  }],
   gridarea:[String],
   checkdescription: {//描述信息 ，考勤时间段
     startDateTime: Date,

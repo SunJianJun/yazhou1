@@ -37,15 +37,13 @@ var spotareaDelete=function(req,res){
         }
     })
 }
-var spotareapeopleDelete=function(req,res){
+var removespotareapeople=function(req,res){
     var areaID=req.body.areaId;
-    var position=req.body.position;
-    spotareaDAO.spotareapeopleDelete(areaID,position,function(err,obj){
+    var person=req.body.person;
+    spotareaDAO.removespotareapeople(areaID,person,function(err,obj){
         if(!err){
-            console.log('spotareapeopleDelete 查询所有'+areaID+'发送的消息:'+obj);
-            res.send(areaID);
+            res.send(obj);
         }else{
-            console.log('spotareapeopleDelete 查询所有'+areaID+'发送的消息为空:'+err);
             res.send(null);
         }
     })
@@ -145,6 +143,6 @@ spotarearouter.post('/sendPersontarea',sendPersontarea);//绑定人员
 spotarearouter.post('/getNewestSpotarea',getNewestSpotarea);//编辑查询
 spotarearouter.post('/getSpotareasInATimeSpanFromWho',getSpotareasInATimeSpanFromWho);//编辑查询
 spotarearouter.post('/spotareaDelete',spotareaDelete);//查找  
-spotarearouter.post('/spotareapeopleDelete',spotareapeopleDelete);//查找
+spotarearouter.post('/removespotareapeople',removespotareapeople);//查找
 spotarearouter.post('/getASpotareatoperson',getASpotareatoperson);
 module.exports = spotarearouter;

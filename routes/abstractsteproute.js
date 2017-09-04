@@ -140,13 +140,12 @@ var abstractsteppeopleDelete = function (req, res) {
 }
 var getoneeventstep = function (req, res) {
     var ID =req.body.id;
+    //console.log(ID)
     abstractstepDAO.getoneeventstep(ID,function (err, obj) {
         if (!err) {
-             console.log(obj);
             res.send(obj);
         } else {
-             console.log(err);
-            //res.send(null);
+            res.send(null);
         }
     })
 }

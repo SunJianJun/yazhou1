@@ -285,11 +285,10 @@ var getWorkmatesByUserId = function(req, res) {
     // //console.log('call getWorkmatesByUserId');
     //for(var i in req.body){ //console.log("getWorkmatesByUserId 请求内容body子项："+i+"<>\n")};
     var userid=req.body.userid;
-    // var userid='58c043cc40cbb100091c640d';
+    //userid='598dbc99d354e88c0bf3212e'
     // 调用方法
-    person.getWorkmatesByUserId(userid,function(err,obj){
+    person.newgetWorkmatesByUserId(userid,function(err,obj){
         if(!err) {
-            // //console.log('getWorkmatesByUserId 查询所有'+userid+'相关同事ok:'+obj);
             res.send(obj);
         } else{
             // //console.log('getWorkmatesByUserId 查询所有'+userid+'相关同事为空:'+err);
@@ -468,6 +467,33 @@ var countByPersonLocations=function(req,res){
 // 测试
 // daoObj.countByPersonLocations("58c043cc40cbb100091c640d","2017-01-01","2017-08-17","day",null);
 // daoObj.countByPersonLocations("58c043cc40cbb100091c640d","2017-01-01","2017-08-17","week",null);
+//获取人员所在部门
+var getpersondepartment=function(req,res){
+    var userid=req.body.userid;
+    console.log('--------------------------------')
+    console.log(userid)
+    person.getpersondepartment(userid, function (err,obj) {
+        if(obj){
+            res.send({success:obj})
+        }else{
+            res.send({error:err})
+        }
+    })
+}
+//考勤统计 timespan:day,week,month
+var countByPersonAttendences=function(req,res){
+    var userid=req.body.user;
+    var sTime=req.body.start;
+    var eTime=req.body.end;
+    var timespan=req.body.timespan;
+    person.countByPersonAttendences(userid, sTime, eTime,  timespan, function (err,obj) {
+        if(obj){
+            res.send({success:obj})
+        }else{
+            res.send({error:err})
+        }
+    })
+}
 
 personrouter.get('/add',personAdd);//增加
 personrouter.post('/add',dopersonAdd);//提交
@@ -485,6 +511,8 @@ personrouter.post('/getPersonLatestPosition',getPersonLatestPosition);//提交
 personrouter.post('/getPersonLatestPositionInTimespan',getPersonPositionInTimespan);//提交
 personrouter.post('/getWorkmatesByUserId',getWorkmatesByUserId);//提交   根据用户id查询同事
 personrouter.post('/getDepartmentPsersonelStatistic',getDepartmentPsersonelStatistic)
-personrouter.post('/countByPersonLocations',countByPersonLocations)
+personrouter.post('/countByPersonLocations',countByPersonLocations);
+personrouter.post('/getpersondepartment',getpersondepartment);
+personrouter.post('/countByPersonAttendences',countByPersonAttendences)
 
 module.exports = personrouter;

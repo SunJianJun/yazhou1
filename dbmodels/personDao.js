@@ -1,4 +1,4 @@
-﻿var mongodb = require('./mongodb');
+﻿﻿﻿var mongodb = require('./mongodb');
 var PersonSchema = require('./personschema');//这里相当于PersonSchema的export，真正要引用PersonSchema，应该这样PersonSchema.PersonSchema
 var departmentModule = require('./departmentschema');
 var select = require('xpath.js'),
@@ -575,7 +575,7 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
     // internally
     if (!err) {
       if (docs[0].personlocations) {
-        console.log('得到人员最新位置：' + docs[0].personlocations[docs[0].personlocations.length - 1]);//+"<>"+docs[0].personlocations
+        //console.log('得到人员最新位置：' + docs[0].personlocations[docs[0].personlocations.length - 1]);
         callback(err, docs[0].personlocations[docs[0].personlocations.length - 1]);
       } else {
         callback(err,'此人员没有坐标');
@@ -707,13 +707,35 @@ PersonDAO.prototype.findByName = function (name, callback) {
 
 // 根据用户名密码查询用户，密码可能是身份证号码，也有可能是单独的字段
 PersonDAO.prototype.findByNameAndPwd = function (dname, dpwd, callback) {
-  Personmodel.find({$or: [{pwd: dpwd}, {idNum: dpwd}], name: dname}, {personlocations: 0}, function (err, obj) {
+  Personmodel.findOne({$or: [{pwd: dpwd}, {idNum: dpwd}], name: dname}, {personlocations: 0,departments:0}, function (err, obj) {
     // ['name','sex','nation','birthday','residence','idNum','mobileUUid','title','mobile','age','create_date','images','status'],
     //console.log('有此用户名的用户有'+obj.length+'个'+obj[0]);
-    callback(err, obj[0]);
-    // console.log('有此密码的用户有很多');
-    // callback(err, obj);
-    // console.log(dpwd,dname);
+
+    departmentModel.aggregate()
+        .unwind("persons")
+        .match({
+          "persons.person": mongodb.mongoose.Types.ObjectId(obj._id)
+        })
+        .group({
+          "_id": "$_id"
+          //"persons": {$push: "$persons"}
+        })
+        .exec(function (eerr, eobj) {
+          if (eerr) {
+            console.log(eerr)
+            callback(eerr)
+          } else {
+            var newobj={};
+            var dptids = [], workmates = [];
+            for (var aa = 0; aa < eobj.length; aa++) {
+              dptids.push({department:eobj[aa]._id})
+            }
+            var news=JSON.stringify(obj);
+            var nnew=JSON.parse(news);
+            nnew.departments=dptids;
+            callback(err, nnew);
+          }
+        })
   });
 };
 
@@ -1011,7 +1033,102 @@ PersonDAO.prototype.getWorkmatesByUserId = function (userID,callback) {
 
   });
 };
+//获取用户部门
+PersonDAO.prototype.getpersondepartment= function (userID,callback) {
+  var userID = userID.toString();
+  departmentModel.aggregate()
+      .unwind("persons")
+      .match({
+        "persons.person": mongodb.mongoose.Types.ObjectId(userID)
+      })
+      .group({
+        "_id": "$_id"
+        //"persons": {$push: "$persons"}
+      })
+      .exec(function (err, obj) {
+        if (err) {
+          console.log(err)
+          callback(err)
+        } else {
+          var dptids = [], workmates = [];
+          for (var aa = 0; aa < obj.length; aa++) {
+            dptids.push({department:obj[aa]._id})
+          }
+          callback(null,dptids)
+        }
+      })
+}
+// 新的根据用户id查询同事
+PersonDAO.prototype.newgetWorkmatesByUserId = function (userID,callback) {
+  var userID=userID.toString();
+  console.log(userID)
+  departmentModel.aggregate()
+      .unwind("persons")
+      .match({
+            "persons.person": mongodb.mongoose.Types.ObjectId(userID)
+          })
+      .group({
+        "_id": "$_id"
+        //"persons": {$push: "$persons"}
+      })
+      .exec(function (err,obj) {
+        if(err){
+          console.log(err)
+        }else {
+          var dptids=[],workmates=[];
+          for(var aa=0;aa<obj.length;aa++){
+            dptids.push(obj[aa]._id)
+          }
+          departmentModel.find({_id: {$in: dptids}}, {persons: 1}).exec(function (err, dprtsObjs) {
+                if (!err) {
+                  if (dprtsObjs && dprtsObjs.length > 0) {
+                    for (var ddd = 0; ddd < dprtsObjs.length; ddd++) {
+                      if (dprtsObjs[ddd].persons && dprtsObjs[ddd].persons.length > 0) {
+                        for (var ttt = 0; ttt < dprtsObjs[ddd].persons.length; ttt++) {
+                          // 不是当前用户时，才算同事
+                          // //console.log('callback getWorkmatesByUserId 是否是同事：'+'<>'+dprtsObjs[ddd].persons[ttt].person+'<>'+curPserson._id);
+                          if ((dprtsObjs[ddd].persons[ttt].person + '') != ('' + userID))
+                          // 第二个条件，用户状态不为0，表示激活用户时才有效
+                          {
+                            // if(dprtsObjs[ddd].persons[ttt].person.status!=0)
+                            workmates.push(dprtsObjs[ddd].persons[ttt].person);
+                          }
+                        }
+                      }
+                    }
 
+                    // console.log(workmates)
+                    Personmodel.find({
+                      _id: {$in: workmates}, status: {$gt: 0}
+                      // ,personlocations:{$ne:[]}//过滤掉没有定位的人员
+                    }, {
+                      personlocations: 0,
+                      images: 0
+                    }).exec(function (err, workmatesObjs) {
+                          if (workmatesObjs) {
+                            // console.log(workmatesObjs);
+                            callback(err, workmatesObjs);
+                          }
+                          else {
+                            // 虽然没有错，但是也没有消息
+                            callback(err, null);
+                          }
+                        }
+                    );
+                  }
+                }
+                else {
+                  //console.log('callback getWorkmatesByUserId personObjs得到相关部门出错：'+'<>'+'<>');
+                  // 虽然没有错，但是也没有消息
+                  callback(err, null);
+                }
+              }
+          )
+        }
+      })
+};
+
+//根据身份证号获取人员信息
 PersonDAO.prototype.findByIDNum = function (IDNum, callback) {
   Personmodel.findOne({idNum: IDNum}, function (err, obj) {
     callback(err, obj);
@@ -1047,11 +1164,10 @@ PersonDAO.prototype.getUserPicById = function (personId, outcallback) {
     if (!err) {
       if (obj.images && obj.images.coverSmall) {
         callback(err, obj.images.coverSmall);
-        return;
       }
+    }else {
+      callback(err, null);
     }
-    callback(err, null);
-    return;
   });
 };
 
@@ -1106,19 +1222,39 @@ PersonDAO.prototype.findByMobile = function (mobile, callback) {
 
   console.log('called Person findOne by mobile' + mobile);//mobile
   Personmodel.findOne({'mobile': mobile}, function (err, obj) {
-    callback(err, obj);
-    console.log(' Person findout:' + obj);
+    if(obj) {
+      departmentModel.aggregate()
+          .unwind("persons")
+          .match({
+            "persons.person": mongodb.mongoose.Types.ObjectId(obj._id)
+          })
+          .group({
+            "_id": "$_id"
+            //"persons": {$push: "$persons"}
+          })
+          .exec(function (eerr, eobj) {
+            if (eerr) {
+              console.log(eerr);
+              callback(eerr)
+            } else {
+              var newobj = {};
+              var dptids = [], workmates = [];
+              for (var aa = 0; aa < eobj.length; aa++) {
+                dptids.push({department: eobj[aa]._id})
+              }
+              var news = JSON.stringify(obj);
+              var nnew = JSON.parse(news);
+              nnew.departments = dptids;
+              callback(err, nnew);
+            }
+          })
+      console.log(' Person findout:' + obj);
+    }else{
+      callback(err);
+    }
   });
 };
 
-PersonDAO.prototype.addpersonCheckwork = function (mobile, callback) {
-
-  console.log('called Person findOne by mobile' + mobile);//mobile
-  Personmodel.findOne({'mobile': mobile}, function (err, obj) {
-    callback(err, obj);
-    console.log(' Person findout:' + obj);
-  });
-};
 
 
 //为指定用户添加新的定位点
@@ -1192,29 +1328,6 @@ PersonDAO.prototype.provingperson = function (idNum, name, sex, callback) {
     }
   })
 }
-//人员绑定区域
-PersonDAO.prototype.addareaperson = function (personid,area, callback) {
-  Personmodel.findOne({_id:personid},function (err, perobj) {
-    if (perobj) {
-      console.log('添加区域');
-      if(!perobj.area){perobj.area=[];}
-      perobj.area.push(area)
-
-      console.log(personid)
-      console.log(perobj.area)
-      Personmodel.update({_id:personid},{area:perobj.area},function(saerr,saobj){
-        if(saobj){
-
-            callback(null,saobj);
-          } else {
-            callback(err)
-          }
-      })
-    }else {
-      callback('没有此人信息')
-    }
-  })
-}
 //获取人员的绑定区域
 PersonDAO.prototype.getpersonworkregion = function (personid,callback) {
   Personmodel.findOne({_id:personid},'area',function (err, perobj) {
@@ -1230,7 +1343,7 @@ PersonDAO.prototype.getpersonworkregion = function (personid,callback) {
 //用身份证信息识别
 PersonDAO.prototype.sendcheckperson = function (idNum, name, phoneuuid,callback) {
   var ops = {idNum: idNum,name:name};
-  Personmodel.findOne(ops, {personlocations: 0}, function (err, obj) {
+  Personmodel.findOne(ops, {personlocations: 0}, function (err, obj,data) {
     if (obj) {
       if(obj.status==4){
         callback(null,2000)
@@ -1239,10 +1352,10 @@ PersonDAO.prototype.sendcheckperson = function (idNum, name, phoneuuid,callback)
           if (obj.mobileUUid == phoneuuid) {
             callback(null,5000)
           } else {
-            callback(null,4000)
+            callback(null,4000,obj)
           }
         }else{
-          callback(null,3000)
+          callback(null,3000,obj)
         }
       }
     } else {
@@ -1346,13 +1459,16 @@ PersonDAO.prototype.updatepersonpassword = function (id, idNum, opwd, npwd, call
   });
 };
 //判断人员密码是否正确
-PersonDAO.prototype.ispersonpassword = function (id, pwd, callback) {
+PersonDAO.prototype.ispersonpassword = function (id, pwd,idNum, callback) {
   //console.log(ID,start)
-  Personmodel.findOne({_id: id}, {personlocations: 0}, function (err, obj) {
+  var ops={};
+  if(id){ops._id=id}
+  if(idNum){ops.idNum=idNum;}
+  Personmodel.findOne(ops, {personlocations: 0}, function (err, obj) {
     if (err) {
       callback(null);
     } else {
-
+      console.log(obj)
       if (obj && obj.pwd) {
         console.log(obj.pwd, pwd)
         if (obj.pwd == pwd) {//可以修改
@@ -1442,6 +1558,17 @@ PersonDAO.prototype.getAllUser = function (callback) {
     }
   )
 }
+
+//清空人员职务
+PersonDAO.prototype.cleartitle= function (id,callback) {
+  Personmodel.update({_id:{$in:id}},{title:''},function(err,obj){
+    if(!err){
+      callback(null,true)
+    }else{
+      callback(err)
+    }
+  })
+};
 
 
 //获取人员统计信息
@@ -1559,6 +1686,8 @@ PersonDAO.prototype.countByPerson = function (personId, sTime, eTime, countType,
         ).sort(
         {_id: 1}
       ).exec(function (err, obj) {
+        console.log('----------------------------------');
+        console.log(err, obj);
         if (!err) {
           //for(var i=0;i<obj.length;i++){
 
@@ -1776,15 +1905,16 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
 //     switch (countType) {
 //         case "counts":
   // console.log('2countType countByPerson ：'+'<>'+countType);
-  Personmodel.aggregate()
+
+  locationmodel.aggregate()
     .match({
-        "_id": mongodb.mongoose.Types.ObjectId(personId)
+        "person":personId
       }
     )
-    .unwind("personlocations")
+    //.unwind("personlocations")
     // .unwind("personlocations.geolocation")
     .match({
-        "personlocations.positioningdate": {
+        "positioningdate": {
           "$gte": new Date(sTime),
           "$lte": new Date(eTime)
         }
@@ -1792,28 +1922,28 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
     )
     .project(
       {
-        day: {$substr: [{"$add": ["$personlocations.positioningdate", 28800000]}, 0, 10]},//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
-        week: {$week: "$personlocations.positioningdate"},
-        month: {$month: "$personlocations.positioningdate"},
+        day: {$substr: [{"$add": ["$positioningdate", 28800000]}, 0, 10]},//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+        week: {$week: "$positioningdate"},
+        month: {$month: "$positioningdate"},
         "positioncounts": {
           $cond: {
-            if: {$and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.geolocation", null]}, {$ne: ["$personlocations.geolocation", ""]}]},
+            if: {$and: [{$not: {$not: "$geolocation"}}, {$ne: ["$geolocation", null]}, {$ne: ["$geolocation", ""]}]},
             then: 1,
             else: 0
           }
         },
-        positionPts:{lat:{'$arrayElemAt':[ '$personlocations.geolocation', 1 ]},
-          lon:{'$arrayElemAt':[ '$personlocations.geolocation', 1 ]},
-          time: "$personlocations.positioningdate"
+        positionPts:{lat:{'$arrayElemAt':[ '$geolocation', 1 ]},
+          lon:{'$arrayElemAt':[ '$geolocation', 1 ]},
+          time: "$positioningdate"
         },
 
         // 这里是判断上午有多少定位点
         "morning": {
           $cond: {
             if: {
-              $and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.positioningdate", null]}, {$ne: ["$personlocations.positioningdate", ""]},
-                {$gte: [{$hour: "$personlocations.positioningdate"}, 8]},
-                {$lte: [{$hour: "$personlocations.positioningdate"}, 12]}]
+              $and: [{$not: {$not: "$geolocation"}}, {$ne: ["$positioningdate", null]}, {$ne: ["$positioningdate", ""]},
+                {$gte: [{$hour: "$positioningdate"}, 8]},
+                {$lte: [{$hour: "$positioningdate"}, 12]}]
             }, then: 1, else: 0
           }
         },
@@ -1821,13 +1951,13 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
         "afternoon": {
           $cond: {
             if: {
-              $and: [{$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.positioningdate", null]}, {$ne: ["$personlocations.positioningdate", ""]},
-                {$gte: [{$hour: "$personlocations.positioningdate"}, 15]},
-                {$lte: [{$hour: "$personlocations.positioningdate"}, 18]}]
+              $and: [{$not: {$not: "$geolocation"}}, {$ne: ["$positioningdate", null]}, {$ne: ["$positioningdate", ""]},
+                {$gte: [{$hour: "$positioningdate"}, 15]},
+                {$lte: [{$hour: "$positioningdate"}, 18]}]
             }, then: 1, else: 0
           }
         },
-        "name": "$name"
+        "name": "$person"
       }
     )
     .group(
@@ -1847,7 +1977,11 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
     {_id: 1}
   ).exec(function (err, obj) {
     if (!err) {
+      Personmodel.findOne({_id:personId},'name').exec(function(pererr,perobj){
+
       for(var i=0;i<obj.length;i++){
+        obj[i].name=perobj.name;
+        obj[i].personId=perobj.personId;
         if(obj[i].allLocationPoints && obj[i].allLocationPoints.length && obj[i].allLocationPoints.length>1){
           for (var gg=0;gg<obj[i].allLocationPoints.length;gg++){
             obj[i].allLocationPoints[gg].time=Date.parse(obj[i].allLocationPoints[gg].time);
@@ -1860,10 +1994,11 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
           var mPerHr = (obj[i].pathlength/time)*3600;
           var speed = Math.round(mPerHr * geolib.measures['km'] * 10000)/10000;;
           obj[i].averageSpeed=speed;
-          obj[i].allLocationPoints=null;
+          // obj[i].allLocationPoints=null;
         }
       }
       callback(null, obj);
+      })
     } else {
       callback(err, null);
     }
@@ -1876,9 +2011,231 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
   // }
 }
 
+//人员位置误删，重新添加一下
+PersonDAO.prototype.cleartitles= function (id,callback) {
+  locationmodel.find({person:"58e0c199e978587014e67a50"},function(err,obj){
+    if(!err){
+      console.log(obj)
+      Personmodel.update({_id:"58e0c199e978587014e67a50"},{personlocations:obj},function(perr,pobj){
+        if(pobj){
+          console.log('添加完成')
+        }else{
+          console.log('添加失败')
+
+        }
+      })
+    }else{
+    }
+  })
+};
+
+//人员考勤统计
+PersonDAO.prototype.countByPersonAttendences = function (personId, sTime, eTime,  timespan, outcallback) {
+  // console.log('1countType countByPerson ：<>'+personId);
+  var callback = outcallback ? outcallback : function (err, obj) {
+    if (err) {
+      console.log('callback countByPersonAttendences 出错：' + '<>' + err);
+    } else {
+      // console.log('3countType countByPerson ：'+'<>'+countType);
+      console.log('callback countByPersonAttendences 成功：' + '<>' + JSON.stringify(obj));
+    }
+  };
+
+  if (!personId || !sTime || !eTime  || !timespan) {
+    callback({error: "统计参数不完整"}, null)
+    return;
+  }
+
+  // spotareaDAO.getASpotareatoperson(personId,callback);
+
+  var checkDayOfWeek=1;
+  var checkSpotarea={
+    "type": "Polygon",
+    "coordinates": [
+      [ [114.0, 38.0], [114.0, 42.0], [117.0, 42.0],
+        [117.0, 38.0], [114.0, 38.0] ]
+    ]
+  };
+// 只支持一种统计类型，就是计算不同时间比例尺内的定位数据总数
+//     switch (countType) {
+//         case "counts":
+  // console.log('2countType countByPerson ：'+'<>'+countType);
+  locationmodel.aggregate()
+      .match(
+          {
+            "person":personId
+          }
+      )
+      //.unwind("personlocations")
+      // .unwind("personlocations.geolocation")
+      .match({
+            "positioningdate": {
+              "$gte": new Date(sTime),
+              "$lte": new Date(eTime)
+            }
+          }
+          // ,
+          // {
+          //     "personlocations.geolocation":{$geoIntersects: {
+          //         "type": "Polygon",
+          //         "coordinates": [
+          //             [ [116.0, 38.0], [116.0, 42.0], [117.0, 42.0],
+          //                 [117.0, 38.0], [116.0, 38.0] ]
+          //         ]
+          //     }
+          //     }
+          // }
+      )
+      .project(
+          {
+            dayOffWeek:{$dayOfWeek: "$positioningdate"},
+            day: {$substr: [{"$add": ["$positioningdate", 28800000]}, 0, 10]},//时区数据校准，8小时换算成毫秒数为8*60*60*1000=288000后分割成YYYY-MM-DD日期格式便于分组
+            week: {$week: "$positioningdate"},
+            month: {$month: "$positioningdate"},
+            hour: {$hour: "$positioningdate"},
+            minute:{$minute: "$positioningdate"},
+            //person:"$_id",
+            "positioncounts": {
+              $cond: {
+                if: {$and: [{$not: {$not: "$geolocation"}}, {$ne: ["$geolocation", null]}, {$ne: ["$geolocation", ""]}]},
+                then: 1,
+                else: 0
+              }
+            },
+            positionPts:[{'$arrayElemAt':[ '$geolocation', 0 ]},
+              {'$arrayElemAt':[ '$geolocation', 1 ]}]
+            // ,
+            // time: "$personlocations.positioningdate"
+            // }
+            ,
+            // 这里是判断上午有多少定位点
+            "morning": {
+              $cond: {
+                if: {
+                  $and: [{$not: {$not: "$geolocation"}}, {$ne: ["$positioningdate", null]}, {$ne: ["$positioningdate", ""]},
+                    {$gte: [{$hour: "$positioningdate"}, 8]},
+                    {$lte: [{$hour: "$positioningdate"}, 12]}]
+                }, then: 1, else: 0
+              }
+            },
+            // 这里是判断一个区域内有多少定位点
+            // "inside": {
+            //     $cond: {
+            //         if: {
+            //             $and: [
+            //                 {$not: {$not: "$personlocations.geolocation"}}, {$ne: ["$personlocations.positioningdate", null]}, {$ne: ["$personlocations.positioningdate", ""]},
+            //                 {$eq: [{$hour: "$personlocations.positioningdate"}, checkDayOfWeek]}
+            //             ]
+            //         }, then: 1, else: 0
+            //     }
+            // },
+            // 这里是判断下午有多少定位点
+            "afternoon": {
+              $cond: {
+                if: {
+                  $and: [{$not: {$not: "$geolocation"}}, {$ne: ["$positioningdate", null]}, {$ne: ["$positioningdate", ""]},
+                    {$gte: [{dayOffWeek: "$positioningdate"}, 15]},
+                    {$lte: [{$hour: "$positioningdate"}, 18]}]
+                }, then: 1, else: 0
+              }
+            },
+            "name": "$person"
+          }
+      )
+      .group(
+          {
+            _id : "$"+"day",//按天统计
+            //_id :"$person",//按天统计
+            // _id : "$week",//按周统计
+            // _id : "$month",//按月统计
+            // _id: "$" + "dayOffWeek",//按设定统计,
+            // dayOffWeek:{$push:"$dayOffWeek"},
+            // dd:"$textTT",
+            allLocationPointsday: {$sum: 1},//一个timespan内的所有定位点
+            // ceddistances:{$push:"$ceddistance"},
+            morningpositionsCount: {$sum: "$morning"},//一个timespan内的上午定位点
+            afternoonpositionsCount: {$sum: "$afternoon"},//一个timespan内的下午定位点
+            allLocationPoints:{$push:"$positionPts"},
+            allLocationPointHour:{$push:"$hour"},
+            allLocationPointDayOffWeek:{$push:"$dayOffWeek"},
+            allLocationPointMinute:{$push:"$minute"},
+            allLocationPointTimes2:{$push:"$dayOffWeek"},
+            //name: {$first: "$name"},//统计人员的姓名
+            personID: {$first: "$name"}//统计人员的id
+          }
+      ).sort(
+      {_id: 1}
+  ).exec(function (err, obj) {
+    if (!err) {
+      Personmodel.findOne({_id:personId},'name').exec(function(pererr,perobj){
+        console.log(perobj.name)
+      for(var i=0;i<obj.length;i++){
+        obj[i]._id=obj[i]._id+'+'+personId;
+        obj[i].name=perobj.name;
+        if(obj[i].allLocationPoints && obj[i].allLocationPoints.length && obj[i].allLocationPoints.length>1){
+          for (var gg=0;gg<obj[i].allLocationPoints.length;gg++){
+            obj[i].allLocationPoints[gg].time=Date.parse(obj[i].allLocationPoints[gg].time);
+          }
+
+          obj[i].pathlength= geolib.getPathLength(obj[i].allLocationPoints);
+          // console.log("obj[i].pathlength:"+obj[i].pathlength);
+
+          // var time = ((obj[i].allLocationPoints[obj[i].allLocationPoints.length-1].time*1)/1000) - ((obj[i].allLocationPoints[0].time*1)/1000);
+          // var mPerHr = (obj[i].pathlength/time)*3600;
+          // var speed = Math.round(mPerHr * geolib.measures['km'] * 10000)/10000;;
+          // obj[i].averageSpeed=speed;
+          // obj[i].allLocationPoints=null;
+          // obj[i].personID=personId;//增加人员id字段
+        }
+      }
+        // console.log(obj)
+
+
+      // var fullpersons=db.collection('personLocations',obj[0].attributes);
+      var fullpersons=db.collection('personLocations',{
+        personID: String,
+        allLocationPoints: {
+          type: [Number],  // [<longitude>, <latitude>]
+          index: '2dsphere'      // create the geospatial index
+        }
+      });
+      // var newmodels= db.collection("personLocations",{
+      //     name: String,
+      //     departments: [{
+      //         role: String, //权限 worker
+      //         department: {
+      //             name:String}
+      //     }],//这里即为子表的外键
+      // ，关联主表。  ref后的blog代表的是主表blog的Model。
+      //     idNum: String
+      // });
+      // fullpersons.insertMany(obj);
+      fullpersons.updateMany({},obj
+          ,
+          {
+            "upsert": true
+          }
+      );
+
+      callback(null,obj);
+    })
+    } else {
+      callback(err, null);
+    }
+  })
+  //         break;
+  //
+  //
+  //     default:
+  //         break;
+  // }
+}
+
+
+
 var daoObj = new PersonDAO();
 
-
+ //daoObj.countByPerson("58c043cc40cbb100091c640d","2017-01-01","2017-08-17","day",null);
 //var locationObj = {
 //  positioningdate: new Date(),
 //  SRS: '4321',

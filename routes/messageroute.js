@@ -19,8 +19,8 @@ var message = require('../dbmodels/messageschema.js');
 var messageDAO = require('../dbmodels/messageDao');
 var persontieleDAO=require('../dbmodels/persontitleDao')
 
-var JPush = require("../node_modules/jpush-sdk/lib/JPush/JPush.js")
-var JPushclient = JPush.buildClient('8c95bceebb7459c9bcb29f94', '98fd64a9ac6ac47f3011b641')
+var JPush = require("../node_modules/jpush-sdk/lib/JPush/JPush.js");
+var JPushclient = JPush.buildClient('8c95bceebb7459c9bcb29f94', '98fd64a9ac6ac47f3011b641');
 
 /**
  * 保存每条消息就自动的发送推送消息
