@@ -12,6 +12,7 @@ var attendanceRecordSchema = new Schema({
     reason: String,//请假理由
     startDateTime: Date,
     endDateTime: Date
+    // agreeperson:String//请假批准的上级
   },//[startDateTime,endDateTime],//比如6月25请假
   shift: {//换班
     startDateTime: Date,
@@ -29,13 +30,21 @@ var attendanceRecordSchema = new Schema({
     lon:Number,
     time:Date
   }],
-  personcheckimg:[{
+  area:[{//考勤区域
+    name: String,
+    geometry:[{ lat: Number, lon:Number }],
+    time:[{
+      timeStart: String,
+      timeEnd:String,
+      frequency:Number
+    }]
+  }],
+  personcheckimg:[{//人员考勤图片，城管局工作抽查拍照
     images:String,
     checkdate:Date
   }],
-  times: Number,//次条记录对应当天检查次数
+  workcount: Number,//次条记录对应当天检查次数
   checkdescription: {//描述信息 ，考勤时间段
-
     startDateTime: Date,
     endDateTime: Date
   }//描述

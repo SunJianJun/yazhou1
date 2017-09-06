@@ -246,7 +246,7 @@ var getPersonLatestPosition = function(req, res) {
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     console.log('personID:'+personID);
   if(personID) {
-    person.getPersonLatestPosition(personID, function (err, obj) {
+    person.getNewPersonLatestPosition(personID, function (err, obj) {
       if (!err) {
         // console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+obj);
         res.send(obj);
@@ -270,7 +270,7 @@ var getPersonPositionInTimespan = function(req, res) {
     // 调用方法
     // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
     // //console.log('senderID:'+senderID);
-    person.getPersonLatestPositionInTimespan(personid,startTime,endTime,function( err,obj){
+    person.getNewPersonLatestPositionInTimespan(personid,startTime,endTime,function( err,obj){
         if(!err) {
             // //console.log('getPersonLatestPositionInTimespan 查询所有'+personid+'发送的消息id:'+obj);
             res.send(obj);
@@ -448,15 +448,16 @@ var getDepartmentPsersonelStatistic=function(req,res) {
  * },....]
  */
 var countByPersonLocations=function(req,res){
-  var personid=req.body.personid,
-    sart=req.body.sartTime,
-    end=req.body.endTime,
-    type=req.body.timetype;
-  if (!personid || !sart || !end  || !type) {
+  var personid=req.body.user,
+    sart=req.body.start,
+    end=req.body.end,
+    timetype=req.body.timespan;
+  // console.log(personid,sart,end,timetype)
+  if (!personid || !sart || !end  || !timetype) {
     res.send({error: "统计参数不完整"});
     return;
   }
-    person.countByPersonLocations(personid,sart,end,type,function(err,obj){
+    person.countByPersonLocations(personid,sart,end,timetype,function(err,obj){
       if(obj){
         res.send({success:obj})
       }else{

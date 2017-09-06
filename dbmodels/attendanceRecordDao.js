@@ -25,28 +25,33 @@ attendanceRecordDAO.prototype.save = function (obj, outcallback) {
     }
   });
 };
-//请假
-attendanceRecordDAO.prototype.sendpersonaskforleave = function (obj, callback) {
-  var instance = new attendanceRecordmodel(obj);
-  instance.save(function (err, obj) {
-    if (!err) {
-      callback(err,obj)
+//向考勤表添加考勤记录
+attendanceRecordDAO.prototype.getpersoncheckworktodate = function (personid,date,data, callback) {
+  // console.log(data.area)
+
+  attendanceRecordmodel.findOne({person:personid, checkdate: date}, function (err, obj) {
+    if (obj) {
+      attendanceRecordmodel.update({person: personid, checkdate: date},
+        data,
+        function (err, obj) {
+          if (obj) {
+            callback(null, obj)
+          } else {
+            callback(err, null)
+          }
+        })
     } else {
-      callback({error:"保存请假状态出错!"+err}, obj)
+      var instance = new attendanceRecordmodel(data);
+      instance.save(function (err, obj){
+        if (obj) {
+          callback(null, obj)
+        }else{
+          callback(err, null)
+        }
+      })
     }
   })
 }
-//正常上班记录
-attendanceRecordDAO.prototype.sendpersoncheckdate = function (obj, callback) {
-  var instance = new attendanceRecordmodel(obj);
-  instance.save(function (err, obj) {
-    if (err) {
-      callback(err)
-    } else {
-      callback(null, obj)
-    }
-  })
-};
 //正常上班检查记录照片
 attendanceRecordDAO.prototype.sendpersonimg = function(personid,date,route,callback){
   attendanceRecordmodel.findOne({person:personid,checkdate:date},function(err,obj){

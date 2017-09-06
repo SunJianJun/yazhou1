@@ -353,6 +353,7 @@ PersonDAO.prototype.save = function (obj, callback) {
   });
 };
 
+
 // 存储用户并注册到一个单位
 //实际上是单位把对应的用户id存入其人员集合
 PersonDAO.prototype.saveandRegisterwithdepartment = function (obj, departmentid, outcallback, rolestr) {
@@ -590,7 +591,7 @@ PersonDAO.prototype.getPersonLatestPosition = function (personid, outcallback) {
 
 // 得到人员的最新位置--新街口
 PersonDAO.prototype.getNewPersonLatestPosition = function (personid, callback) {
-  var query = locationmodel.find({'person': personid});
+  var query = locationmodel.findOne({'person': personid});
   // 排序，不过好像对子文档无效
   query.sort({'positioningdate': -1});//desc asc
   query.limit(1);
@@ -599,11 +600,13 @@ PersonDAO.prototype.getNewPersonLatestPosition = function (personid, callback) {
     // called when the `query.complete` or `query.error` are called
     // internally
     if (!err) {
-      if (docs[0].positioningdate) {
-        // console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].length-1]);//+"<>"+docs[0].personlocations
-        callback(err, docs[0]);
-      } else {
-        callback(err, null);
+      if(docs) {
+        if (docs.positioningdate) {
+          // console.log('得到人员最新位置：'+docs[0].personlocations[docs[0].length-1]);//+"<>"+docs[0].personlocations
+          callback(err, docs);
+        } else {
+          callback(err, null);
+        }
       }
     }
     else {
@@ -690,6 +693,63 @@ PersonDAO.prototype.getPersonLatestPositionInTimespan = function (personid, star
           callback(err, docs.personlocations);
         else
           callback(err, null);
+      }
+      else {
+        //console.log('获取人员一段时间的位置失败：'+docs);
+        callback(err, null);
+      }
+    });
+}
+// 得到人员一段时间的位置--新街口
+PersonDAO.prototype.getNewPersonLatestPositionInTimespan = function (personid, startTime, endTime, outcallback) {
+  console.log('新街口')
+  var callback = outcallback ? outcallback : function (err, obj) {
+    // console.log('得到人员一段时间的位置：'+obj+"<>"+startTime+"<>"+endTime);
+    if (obj && obj.length) {
+      console.log('得到人员一段时间的多个位置：' + obj.length + "<>" + startTime + "<>" + endTime + '<>' + obj[0].geolocation + '<>' + obj[0]._id + '<>' + obj[0].positioningdate);
+      // for(var index =0;index<obj.length;index++)
+      // {
+      //     // console.log('callback getPersonLatestPositionInTimespan 成功：'+obj[index]._id+'<>'+obj[index].geolocation+'<>'+obj[index].positioningdate);
+      // }
+
+    }
+  };
+  // 终端打印如下信息
+  //console.log('called Person getPersonLatestPositionInTimespan');
+  // var instance = new Personmodel(obj);
+  // var query = Personmodel.find({'_id': personid});
+
+  // query.select({personlocations: [{
+  //     "$gte": new Date('2017-03-07'),
+  //         "$lt":new Date('2017-03-09')
+  // }
+  // Personmodel.findOne({"_id":personid});
+  locationmodel.aggregate()
+    .match({
+        "person":personid
+      }
+    )
+    .match({
+        "positioningdate": {
+          "$gte": new Date(startTime),
+          "$lte": new Date(endTime)
+        }
+      }
+    )
+    // .sort({ "personlocations.positioningdate": 1 })
+    // .match({"players.trikots.isNew": true,"players.trikots.color": "red"})
+    .exec(function (err, docs) {
+      var str = '';
+      for (var o in docs) {
+        str += o + "<>";
+      }
+      console.log('得到人员一段时间的位置aggregate：' + err + "<>" + docs + "<>" + str);
+      // called when the `query.complete` or `query.error` are called
+      // internally
+      if (!err) {
+        console.log(docs)
+        //console.log('得到人员一段时间的位置：'+docs[0].personlocations);//+"<>"+docs[0].personlocations
+          callback(err, docs);
       }
       else {
         //console.log('获取人员一段时间的位置失败：'+docs);
@@ -1905,10 +1965,10 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
 //     switch (countType) {
 //         case "counts":
   // console.log('2countType countByPerson ：'+'<>'+countType);
-
+  // console.log(new Date(sTime))
   locationmodel.aggregate()
     .match({
-        "person":personId
+        "person":String(personId)
       }
     )
     //.unwind("personlocations")
@@ -1932,7 +1992,7 @@ PersonDAO.prototype.countByPersonLocations = function (personId, sTime, eTime,  
             else: 0
           }
         },
-        positionPts:{lat:{'$arrayElemAt':[ '$geolocation', 1 ]},
+        positionPts:{lat:{'$arrayElemAt':[ '$geolocation', 0 ]},
           lon:{'$arrayElemAt':[ '$geolocation', 1 ]},
           time: "$positioningdate"
         },
@@ -2231,7 +2291,28 @@ PersonDAO.prototype.countByPersonAttendences = function (personId, sTime, eTime,
   // }
 }
 
+//随机生成一个位置点
+var getRadomPt = function(){
+  var resultPt =[];
+  resultPt.push(116.40106141351825 + Math.random() / 25 * (Math.random() > 0.5 ? -1 : 1));
+  resultPt.push(39.994762731321174 + Math.random() / 25 * (Math.random() > 0.5 ? -1 : 1));
+  return resultPt;
+};
 
+// for(var aa=1;aa<30;aa++) {
+//   var locationmodelsave=new locationmodel({
+//     person: '58e0c199e978587014e67a50',
+//     positioningdate:new Date(new Date(new Date('2017-9-6 09:00:00').setMinutes(new Date('2017-9-6 09:00:00').getMinutes()+aa*10)).setSeconds(Math.floor(Math.random()*60))),
+//     "geolocation": getRadomPt()
+//   })
+//   locationmodelsave.save(function (err,obj) {
+//     if(!err){
+//       console.log('存一个虚拟位置')
+//       console.log(obj)
+//     }
+//   })
+//   console.log(aa)
+// }
 
 var daoObj = new PersonDAO();
 
