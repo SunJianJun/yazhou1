@@ -506,6 +506,38 @@ var getMessagesInATimeSpanFromWho = function (req, res) {
 
 
 /**
+ *得到一个时间段内某人的异常（请假）消息(type:“message“)
+ * @param {Object} req - 客户端提交的json{receiverID:"sdfdsf",startTime:"开始时间",lastTime:"结束时间","senderID":"发送者id"，type：“broadcast|message”（跟发送者id不同时作用，可以只发送type为broadcast而不指定senderid，如果有明确的发送者id，且type未指定或者为‘message’时，就查询个人消息，否则就是群体消息）}
+ * @param {string} req.body.receiverID - 接受者id.
+ * @param {string} req.body.senderID - 发送者id.
+ * @param {string} req.body.type - 发送类型.broadcast或者message，当为broadcast时，senderID会忽略，否则会用上，"takeoff放假|shift换班"
+ * @param {datetime} req.body.startTime - 开始时间.
+ * @param {datetime} req.body.lastTime - 结束时间.
+ * @param res
+ */
+var getAbnormalMessagesInATimeSpanFromWho = function (req, res) {
+  // //console.log('call getMessagesInATimeSpanFromWho');
+  //for(var i in req.body){ //console.log("getMessagesInATimeSpanFromWho 请求内容body子项："+i+"<>\n")};
+  var senderID = req.body.senderID,
+    startTime = req.body.startTime,
+    lastTime = req.body.lastTime,
+    type = req.body.type;
+  // 调用方法
+  // messageObj.getMessagesInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
+  // //console.log('senderID:'+senderID);
+  //待扩展实现
+  messageDAO.getAbnormalMessagesInATimeSpanFromWho(senderID, startTime, lastTime, type, function (err, obj) {
+    if (!err) {
+      // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
+      res.send(obj);
+    } else {
+      // //console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
+      res.send(null);
+    }
+  });
+};
+
+/**
  * 根据用户id得到所有未读信息
  * @param {json} req - 传来的参数是接受者的id{receiverID:"58dd96c9ac015a0809000070"}
  * @param {json} res - 发回所有未读消息，如果没有就是null，如果有，类似{ create_date: 2017-04-02T11:04:34.638Z,
@@ -615,6 +647,7 @@ messagerouter.post('/sendAMessage', sendAMessage);//发送普通消息
 messagerouter.post('/readtMessage', readtMessage);//已读普通消息
 messagerouter.post('/getMyNewestMessageFromWho', getMyNewestMessageFromWho);//得到从某人那里来的最新消息
 messagerouter.post('/getMessagesInATimeSpanFromWho', getMessagesInATimeSpanFromWho);//得到一段时间内某人发来的消息
+messagerouter.post('/getAbnormalMessagesInATimeSpanFromWho',getAbnormalMessagesInATimeSpanFromWho);
 messagerouter.post('/getAllUnreadMessages', getAllUnreadMessages);//得到一个人的所有未读消息
 messagerouter.post('/sendBroadcast', sendBroadcast);//发送系统广播消息
 messagerouter.post('/sendAbnormalMessage', sendAbnormalMessage);//发送异常消息

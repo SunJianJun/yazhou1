@@ -168,13 +168,11 @@ var kqjs = function (obj, dinw) {
         var count=simpleAreaCheck(dinw.allLocationPoints,formatarea)//空间考勤判断,返回次数
 
         countobj.workcount=count;
-        countobj.position=dinw.allLocationPoints;
         countobj.area=[{//考勤区域
           name: formatarea.name[0],
           geometry:formatarea.geometry[0].coordinates,
           time:formatarea.person[0].time
         }];
-        countobj.checkdate=checkworkstarttime.formate("Y-M-d");
       }
     }
   }
@@ -323,11 +321,11 @@ personDAO.getAllUser(function (personerr, personobj) {
     countobj={};
     if (personobj[personcount]._id == '58e0c199e978587014e67a50') {
 
-      if (personobj[personcount].status == 2) {
+      if (personobj[personcount].status == 2) {//长期假期的人员
 
         // record(personobj[personcount]._id,'2017-9-2',acallback)
 
-      } else if (personobj[personcount].status == 1) {
+      } else if (personobj[personcount].status == 1){
         //取到当前人员的定位点
         // console.log(personobj[personcount]._id, checkworkstarttime, checkworkendtime)
         personDAO.countByPersonLocations(personobj[personcount]._id, checkworkstarttime, checkworkendtime, 'day', function (checkerr, checkobj) {
@@ -344,6 +342,8 @@ personDAO.getAllUser(function (personerr, personobj) {
                 kqjs(obj, checkobj[0]);
                 countobj.name=personobj[personcount].name;
                 countobj.person=personobj[personcount]._id;
+                countobj.checkdate=checkobj[0]._id;
+                countobj.position=checkobj[0].allLocationPoints;
                 console.log('需要存储的数据')
                 console.log(countobj)
                 record(personobj[personcount]._id,countobj.checkdate,countobj)
@@ -359,7 +359,7 @@ personDAO.getAllUser(function (personerr, personobj) {
       }
     }
   }
-  personfunction();
+  // personfunction();
 })
 
 // for(所有人){

@@ -122,7 +122,11 @@ var updateASpotarea=function(req,res){
         }
     })
 }
-//查找人员所安排的区域
+/**
+ * 查找人员所安排的区域(工作日程)
+ * @param {json} req 客户端请求数据{personID:'58ddcce6ac015a08090007ce'}//人员id
+ * @param {json} res {}
+ */
 var getASpotareatoperson=function(req,res){
     var personID=req.body.personID;
     spotareaDAO.getASpotareatoperson(personID,function(err,obj){

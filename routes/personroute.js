@@ -6,6 +6,7 @@ var personrouter = express.Router();
 
 //获取数据模型
 var person = require('../dbmodels/personDAO.js');
+var attendanceRecordDAO = require('../dbmodels/attendanceRecordDAO');//考勤接口
 //console.log('person数据模型是否存在：'+person);
 
 var fs = require('fs');
@@ -391,6 +392,7 @@ var personPic = function(req, response) {
     );
 }
 
+
 /**
  * 根据部门统计相关人员
  * @param {json} req - 部门id {departmentID:''}
@@ -452,7 +454,7 @@ var countByPersonLocations=function(req,res){
     sart=req.body.start,
     end=req.body.end,
     timetype=req.body.timespan;
-  // console.log(personid,sart,end,timetype)
+  console.log(personid,sart,end,timetype)
   if (!personid || !sart || !end  || !timetype) {
     res.send({error: "统计参数不完整"});
     return;

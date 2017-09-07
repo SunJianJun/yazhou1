@@ -306,6 +306,78 @@ MessageDAO.prototype.getMessagesInATimeSpanFromWho = function(receiverID,senderI
 };
 
 
+MessageDAO.prototype.getAbnormalMessagesInATimeSpanFromWho = function(senderID,startTime,endtime,type, outcallback) {
+  var callback=outcallback?outcallback:function (err,obj) {
+    if(err)
+    {
+      //console.log('callback getMessagesInATimeSpanFromWho 出错：'+'<>'+err);
+    }else{
+      for(var index =0;index<obj.length;index++)
+      {
+        //console.log('callback getMessagesInATimeSpanFromWho 成功：'+'<>'+obj[index]);
+      }
+      if(obj.abstract){
+
+        //console.log('callback getMessagesInATimeSpanFromWho 成功：'+'<>'+obj.abstract+'<>'+obj.count+'<>'+obj.lastTime);
+      }
+
+    }
+  };
+  //默认就是message
+  var jjtype=type;//?type:"message";type可以为空
+  var query = Messagemodel.find();
+  query.or({sender:senderID,create_date:{
+    "$gte": new Date(startTime),
+    "$lt":new Date(endtime)
+  },type:'takeoff'}
+    // ,
+    // type是为了向前兼容
+    //     {'receiver': receiverID,'type':null,sender:senderID,create_date:{
+    //     "$gte": new Date(startTime),
+    //     "$lt":new Date(endtime)
+    // }}, {'receiver':senderID,sender:receiverID,'type':null,create_date:{
+    //     "$gte": new Date(startTime),
+    //     "$lt":new Date(endtime)
+    // }}
+  );
+  var opts = [{
+    path: 'sender'
+    //上下两种写法效果一样，都可以将关联查询的字段进行筛选
+    // ,
+    // select : '-personlocations'
+    // ,'images':0
+    ,
+    select: {'name': 1}
+  }];
+  query.populate(opts);
+  // 排序，不过好像对子文档无效
+  query.sort({'create_date':1});//desc asc
+  // query.limit(1);
+
+  query.exec(function (err, docs) {
+    if(!err){
+      // 如果是需要摘要信息，而且指定来源的消息数量》0
+      if(docs.length>0){
+        // var count=docs.length;
+        // var abstract=docs[docs.length-1].text?docs[docs.length-1].text.substr(0,6)+'...':(docs[docs.length-1].image?'图片消息...':(docs[docs.length-1].video?'视频消息...':'....'));
+        // var output={sender:docs[docs.length-1].sender,count:count,abstract:abstract,
+        //     firstTime:docs[0].create_date.Format("yyyy-MM-dd hh:mm:ss"),
+        //     lastTime:docs[docs.length-1].create_date.Format("yyyy-MM-dd hh:mm:ss"),
+        //     unreadmessages:docs
+        // };
+        callback(err,docs);
+      }
+      else{
+        // 虽然没有错，但是也没有消息
+        callback(err,null);
+      }
+    }
+    else {
+    }
+  });
+};
+
+
 MessageDAO.prototype.getMyUnreadMessagesCount = function(receiverID, outcallback) {
     var callback=outcallback?outcallback:function (err,obj) {
             if(err)

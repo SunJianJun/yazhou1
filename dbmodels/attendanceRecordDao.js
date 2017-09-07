@@ -52,7 +52,13 @@ attendanceRecordDAO.prototype.getpersoncheckworktodate = function (personid,date
     }
   })
 }
-//正常上班检查记录照片
+/**
+ * 上传城管局抽查上班人员照片记录
+ * @param personid //考勤人员的id
+ * @param date  //当天日期记录年与日 '2017-09-01'
+ * @param route //图片路径
+ * @param callback //返回上传成功对象
+ */
 attendanceRecordDAO.prototype.sendpersonimg = function(personid,date,route,callback){
   attendanceRecordmodel.findOne({person:personid,checkdate:date},function(err,obj){
     if(obj) {
@@ -78,7 +84,15 @@ attendanceRecordDAO.prototype.sendpersonimg = function(personid,date,route,callb
     }
   })
 }
-//添加换班记录
+
+/**
+ * 添加换班记录
+ * @param ID //换班人id
+ * @param start //换班开始时间
+ * @param end  //换班结束时间
+ * @param shift  //和谁换班
+ * @param callback  //
+ */
 attendanceRecordDAO.prototype.sendpersonshift = function (ID, start, end, shift, callback) {
   var instance = new attendanceRecordmodel(obj);
   instance.save(function (err, obj) {
@@ -103,10 +117,10 @@ attendanceRecordDAO.prototype.sendperson = function (obj, callback) {
 
 //获取一个人员考勤记录
 attendanceRecordDAO.prototype.getpersonrecordtoid = function (ID, start, end, callback) {
-  //console.log(ID,start,end)
-  attendanceRecordmodel.find({
+  console.log(ID,typeof start,end)
+  attendanceRecordmodel.findOne({
     person: ID,
-    "$and": [{checkdate: {$gt: start}}, {checkdate: {$lt: end}}]
+    checkdate: {$gte: start,$lte:end}
   }, function (err, obj) {
     if (err) {
       callback(err);
@@ -127,14 +141,14 @@ attendanceRecordDAO.prototype.getpersonrecordTodepartment = function (ID, start,
       }
       //callback(null,obj)
       attendanceRecordmodel.find({
-        person:{$in:perID},"$and": [{checkdate: {$gt: start}}, {checkdate: {$lt: end}}]
+        person:{$in:perID},checkdate: {$gte: start,$lte:end}
       }, function (err, obj) {
           if(err){
             callback(err);
           }else{
             callback(null, obj);
           }
-      });
+      })
     }
   })
 };

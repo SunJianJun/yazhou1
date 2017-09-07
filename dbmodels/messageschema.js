@@ -5,7 +5,7 @@ var locationSchema = locationModuler.LocationSchema;
 
 var MessageSchema = new Schema({
     text: String,
-    type: String,//broadcast 或者 message(默认) 或者abnormal  或者 event
+    type: String,//broadcast 或者 message(默认) 或者abnormal  或者 event takeoff
     create_date: {type: Date, default: Date.now},
     images: {
         coverSmall: String,

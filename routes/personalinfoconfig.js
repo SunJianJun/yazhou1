@@ -16,7 +16,7 @@ var phoneloginpcDAO = require('../dbmodels/phoneloginpcDao');
 /**
  * 换班
  * @param {json} req - 传入人员和时间json数据，例如{personID:'123456',startTime:date,endTime:Date,shift:'换班人ID'}
- * @param {json} res - 返回成功后的json 例如：{success:''}
+ * @param {json} res - 返回成功后的json 例如：{success:'isok'}
  */
 var sendpersonshift = function (req, res) {
   var datt = req.body;
@@ -57,10 +57,85 @@ var personjsResignation = function (req, res) {
   res.send({success: '暂时不做，请重换接口'})
   //attendanceRecordDao.sendpersoResignation()
 }
+
 /**
- * 获取一个人的考勤记录
- * @param {json} req - 传入人员和时间段json数据，例如{personID:'123456',startTime:date,endTime:Date}
- * @param {json} res - 返回成功后的json 例如：[{}]
+ * 获取一个人员考勤记录
+ * @param {json} req 客户端请求数据{userid:'58c043cc40cbb100091c640d', starttime:"2017-01-01", endtime:"2017-02-01"}
+ * 根据人员id和查询时间获取人员的考勤记录
+ * @param {json} res 服务器返回，错误{error: err}，成功{
+     "_id": "59ad04723bda9d1c1642c292",
+     "person": "58e0c199e978587014e67a50", //人员id
+     "checkdate": "2017-09-01",  //统计的日期
+     "__v": 0,
+     "personcheckimg": [  //城管局抽查人员考勤照片
+         {
+             "images": "img/abc.jpg",
+             "checkdate": "2017-09-04T07:45:12.409Z",
+             "_id": "59ad0488a7adbbfc0b7deb32"
+         },
+         {
+             "images": "img/abc.jpg",
+             "checkdate": "2017-09-04T07:47:11.315Z",
+             "_id": "59ad04ffb984783c0dba726e"
+         },
+         {
+             "_id": "59ad051a0fa659100ef2fb18",
+             "checkdate": "2017-09-04T07:47:38.480Z",
+             "images": "img/abc.jpg"
+         }
+     ],
+     "area":[  //人员当天的工作区域
+        {
+            "name" : "奥运北区_3", //工作区域名称
+            "_id" : ObjectId("59afdb24374db338166f7aaa"),//工作区域id
+            "time" : [  //安排的工作时间段
+                {
+                    "timeStart" : "2 08:00:00", //开始巡逻日期--周2早上8点
+                    "timeEnd" : "2 12:00:00", //结束巡逻日期--周2早上12点
+                    "frequency" : 2,//巡逻次数
+                    "_id" : ObjectId("59af9d443ead31881c27f9f4")
+                }
+            ],
+            "geometry" : [ //区域的坐标点
+                {
+                    "lat" : 116.386272,
+                    "lon" : 40.023215,
+                    "_id" : ObjectId("59afdb24374db338166f7ab0")
+                },
+                {
+                    "lat" : 116.408699,
+                    "lon" : 40.023002,
+                    "_id" : ObjectId("59afdb24374db338166f7aaf")
+                },
+                {
+                    "lat" : 116.407935,
+                    "lon" : 40.009442,
+                    "_id" : ObjectId("59afdb24374db338166f7aae")
+                },
+                {
+                    "lat" : 116.393077,
+                    "lon" : 40.010346,
+                    "_id" : ObjectId("59afdb24374db338166f7aad")
+                },
+                {
+                    "lat" : 116.386272,
+                    "lon" : 40.010081,
+                    "_id" : ObjectId("59afdb24374db338166f7aac")
+                },
+                {
+                    "lat" : 116.386272,
+                    "lon" : 40.023215,
+                    "_id" : ObjectId("59afdb24374db338166f7aab")
+                }
+            ]
+        }
+    ],
+     "position": [{ //人员当天的所有坐标点
+            "lat" : 116.400596940704,
+            "lon" : 39.9573734997601,
+            "time" : ISODate("2017-09-06T01:10:45.000Z")}....],
+     "status": 1 //人员当天的状态，1是正常 0离职;2请假;3旷工;4待审核
+ }
  */
 var getpersonrecordtoid = function (req, res) {
   var datt = req.body;
@@ -72,17 +147,61 @@ var getpersonrecordtoid = function (req, res) {
       if (!err) {
         res.send({success: obj});
       } else {
-        res.send({error: '获取错误'});
+        res.send({error: err});
       }
     })
   } else {
     res.send({error: '参数错误'});
   }
 };
+
 /**
  * 获取一个部门的所有人员考勤
  * @param {json} req - 传入部门id和时间段json数据，例如{departmentID:'123456',startTime:date,endTime:Date}
- * @param {json} res - 返回成功后的json 例如：[{}]
+ * @param {json} res - 请求成功返回的json 例如：错误{error: err},成功[
+ {
+     "_id": "59ad04723bda9d1c1642c292",
+     "person": "58e0c199e978587014e67a50", //人员id
+     "checkdate": "2017-09-01",  //统计的日期
+     "__v": 0,
+     "personcheckimg": [  //城管局抽查人员考勤照片
+         {
+             "images": "img/abc.jpg",
+             "checkdate": "2017-09-04T07:45:12.409Z",
+             "_id": "59ad0488a7adbbfc0b7deb32"
+         }...
+     ],
+     "area":[  //人员当天的工作区域
+        {
+            "name" : "奥运北区_3", //工作区域名称
+            "_id" : ObjectId("59afdb24374db338166f7aaa"),//工作区域id
+            "time" : [  //安排的工作时间段
+                {
+                    "timeStart" : "2 08:00:00", //开始巡逻日期--周2早上8点
+                    "timeEnd" : "2 12:00:00", //结束巡逻日期--周2早上12点
+                    "frequency" : 2,//巡逻次数
+                    "_id" : ObjectId("59af9d443ead31881c27f9f4")
+                }
+            ],
+            "geometry" : [ //区域的范围坐标点
+                {
+                    "lat" : 116.386272,
+                    "lon" : 40.023215,
+                    "_id" : ObjectId("59afdb24374db338166f7ab0")
+                },{
+                    "lat" : 116.386272,
+                    "lon" : 40.023215,
+                    "_id" : ObjectId("59afdb24374db338166f7ab0")
+                }.....
+            ]
+        }
+    ],
+     "position": [{ //人员当天的所有坐标点
+            "lat" : 116.400596940704,
+            "lon" : 39.9573734997601,
+            "time" : ISODate("2017-09-06T01:10:45.000Z")}....],
+     "status": 1 //人员当天的状态，1是正常 0离职;2请假;3旷工;4待审核
+ }.....]
  */
 var getpersonrecordTodepartment = function (req, res) {
   var datt = req.body;
@@ -187,6 +306,7 @@ var sendphoneBypcloginuuid = function (req, res) {
     res.send({'error': null});
   }
 }
+
 /**
  * 手机二维码扫描，登录桌面端
  * @param {json} req - 客户端提交人员账号密码 {uuid:'图片识别ID',personID:'人员ID']}
@@ -214,6 +334,7 @@ var sendphoneBypclogin = function (req, res) {
     res.send({'error': null});
   }
 }
+
 //pc端获取是否存在人员信息，如果有就登陆
 var getphoneBypclogin = function (req, res) {
   id = req.body._id;//登陆id
