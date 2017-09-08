@@ -31,7 +31,7 @@ var sendpersonshift = function (req, res) {
   leave.personID = datt.personID;
   leave.shift.startDateTime = start;
   leave.shift.endDateTime = end;
-  attendanceRecordDao.save(leave, function (err, obj) {
+  attendanceRecordDao.sendpersonshift(leave, function (err, obj) {
     if (!err) {
       res.send({success: obj});
     } else {
@@ -156,6 +156,15 @@ var getpersonrecordtoid = function (req, res) {
 };
 
 /**
+ * 获取部门默认办公区域
+ * @param req
+ * @param res
+ */
+var getdefaultworkarea=function (req,res) {
+  
+}
+
+/**
  * 获取一个部门的所有人员考勤
  * @param {json} req - 传入部门id和时间段json数据，例如{departmentID:'123456',startTime:date,endTime:Date}
  * @param {json} res - 请求成功返回的json 例如：错误{error: err},成功[
@@ -220,6 +229,29 @@ var getpersonrecordTodepartment = function (req, res) {
     res.send({error: '参数错误'});
   }
 };
+
+/**
+ * 上传城管局抽查上班人员照片记录
+ * @param {json} req - 客户端提交json， 例如{personID:'用户id',date:'日期',route:'图片地址'}
+ * @param {json} res - 服务器返回 {success:'is ok!'}
+ */
+var sendpersonimg=function (req,res) {
+  var personid=req.body.personID;
+  date=req.body.date;
+  route=req.body.route;
+  if(personid&&date&&route){
+    attendanceRecordDao.sendpersonimg(personid, date, route, function (err, obj) {
+      if(!err){
+        res.send({error:'参数不完整'})
+      }else{
+        res.send({success:'is ok!'})
+      }
+    })
+  }else{
+    res.send({error:'参数不完整'})
+  }
+}
+
 /**
  * 修改自己的个人密码，必须输入原密码
  * @param {json} req - 客户端提交json，没有id可以提交身份证号， 例如{_id:'用户id',idNum:'用户身份证',opwd:'原密码',npwd:'新密码'}

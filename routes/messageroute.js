@@ -549,7 +549,7 @@ var getAbnormalMessagesInATimeSpanFromWho = function (req, res) {
        geolocation: [Object] } ],
   __v: 0,
   status: 0,
-  receiver: 58dd96c9ac015a0809000070,
+  receiver: '58dd96c9ac015a0809000070',
   sender: 58c043cc40cbb100091c640d,
   image: 'images/24368180-1794-11e7-a741-7d4b0ed433e3.jpg',
   text: '',
@@ -571,6 +571,19 @@ var getAllUnreadMessages = function (req, res) {
       res.send(null);
     }
   });
+};
+
+/**
+ * 临时调派任务
+ * @param req
+ * @param res
+ */
+var gettaskMessages=function(req,res){
+    var persons=req.body.persons;
+  var start=req.body.starttime;
+  var end=req.body.endtime;
+  var area=req.body.area;
+  var text=req.body.text;
 };
 
 

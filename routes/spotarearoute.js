@@ -37,6 +37,8 @@ var spotareaDelete=function(req,res){
         }
     })
 }
+
+//工作区域解除绑定人员
 var removespotareapeople=function(req,res){
     var areaID=req.body.areaId;
     var person=req.body.person;

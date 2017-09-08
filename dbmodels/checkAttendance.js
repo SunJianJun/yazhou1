@@ -338,7 +338,7 @@ personDAO.getAllUser(function (personerr, personobj) {
               if (err) {
                 console.log({error: err})
               } else {
-                // console.log(obj);
+                console.log(checkobj);
                 kqjs(obj, checkobj[0]);
                 countobj.name=personobj[personcount].name;
                 countobj.person=personobj[personcount]._id;
