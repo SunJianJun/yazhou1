@@ -216,7 +216,7 @@ AbstracttypeDAO.prototype.abstracttypeDelete = function (id, outcallback) {
     }
   });
 }
-AbstracttypeDAO.prototype.updateAbstracttype = function (id,newName,step,newer, outcallback) {
+AbstracttypeDAO.prototype.updateAbstracttype = function (id,newName,step, outcallback) {
   var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback updateAbstracttype 出错：' + '<>' + err);
@@ -229,7 +229,7 @@ AbstracttypeDAO.prototype.updateAbstracttype = function (id,newName,step,newer, 
       }
     }
   };
-  var query = Abstracttypemodel.update({_id:id},{typeName:newName,steps:step,newer:newer});
+  var query = Abstracttypemodel.update({_id:id},{typeName:newName,steps:step,newer:new Date()});
   query.exec(function (err, docs) {
     if (!err) {
       // console.log(docs);

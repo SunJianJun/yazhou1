@@ -150,7 +150,7 @@ var getpersonworkregion=function(req,res){
 }
 /**
  * 获取当前案件的所有步骤
- * @param {json} req - 客户端发起请求
+ * @param {json} req - 客户端发起请求 _id:'59648f04472f14b01de7a74f' 事件id
  * @param {json} res - 服务器返回json，[{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"},....]
  */
 var getcasestep = function (req, res) {
@@ -205,18 +205,20 @@ var getpersonRoute = function (req, res) {
 };
 /**
  * 事件状态
- * @param {json} req 传入参数（1,2,3）<br/>1是未完成,2是正在进行的,3是正在审核，4已完成的，0是已删除的,客户端提交json 例如{status:1}
+ * @param {json} req 传入参数（1,2,3）<br/>1是未完成,2是正在进行的,3是正在审核，4已完成的，0是已删除的,客户端提交json 例如
+ * {status:1,department:'59648f04472f14b01de7a74f'}
  * @param {json} res 返回需要查询的状态json数组,数组中包含事件名称,ID,步骤<br/>{type:类型,<br/> name:名称,<br/> _id:ID,<br/> newer:更新日期,<br/> step:步骤列表}
  */
 var geteventStatus = function (req, res) {
   var status = req.body.status;
+  var department=req.body.department;
   concreteeventDAO.geteventStatus(status, function (err, obj) {
     if (err) {
       res.send({error: '获取失败'});
     } else {
       res.send({success: obj});
     }
-  })
+  },department)
 };
 /**
  * 获取案件当前需要进行的步骤
@@ -487,7 +489,7 @@ var sendnewEvent = function (req, res) {
 };
 
 /**
- * 获得所有正在审核的步骤
+ * 获得一个案件中所有正在审核的步骤
  * @param {json} req - 客户端传入json，{id:'案件ID'}
  * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
  */
@@ -513,7 +515,7 @@ var getcurrentexaminestep = function (req, res) {
 }
 
 /**
- * 获得所有已完成的步骤
+ * 获得需要查询的案件中所有已完成的步骤
  * @param {json} req - 客户端传入json，{id:'案件ID'}
  * @param {json} res - 服务器返回json，{argu:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],currentPusher:"null"name:"立案",no:1,status:"2",type:"无照经营"wordTemplate:"<p style="text-a",_id:"59648f04472f14b01de7a74e"}
  */
@@ -559,31 +561,22 @@ var getnewcurrentexamineevent = function (req, res) {
 }
 /**
  * 获得所有正在审核的事件
- * @param {} req - 客户端请求
+ * @param {json} req - 客户端请求 {department:'59648f04472f14b01de7a74f'}
  * @param {json} res - 服务器返回json，{step:["59648f04472f14b01de7a74f","59648f04472f14b01de7a750","59648f04472f14b01de7a751"],status:"1",name:"无照经营",createperson:"58e0c199e978587014e67a50",createTime:"2017-08-01T02:14:40.581Z"}
  */
 var getcurrentexamineevent = function (req, res) {
-  concretestepDAO.getallcurrentexaminestep(3, function (stepiderr, stepidobj) {
+  var department=req.body.department;//后面补的参数，加到函数最后防止其他地方出错
+  concreteeventDAO.geteventStatus(3, function (stepiderr, stepidobj) {
     if (stepiderr) {
       res.send({error: null})
     } else {
       if (stepidobj && stepidobj.length) {
-        for (var aa = 0, stepidarr = []; aa < stepidobj.length; aa++) {
-          stepidarr.push(stepidobj[aa].type);
-        }
-        console.log(stepidarr)
-        concreteeventDAO.geteventtoidarr(stepidarr,function (sterr, stobj) {
-          if (sterr) {
-            res.send({error: null})
-          } else {
-            res.send({success: stobj})
-          }
-        })
+            res.send({success: stepidobj})
       } else {
         res.send({error: null});
       }
     }
-  })
+  },department)
 }
 /**
  * 获取事件所有步骤，传入事件的步骤ID
@@ -773,7 +766,7 @@ var getEventtype = function (req, res) {
     res.send({error: '参数有误'})
   }
 }
-/**
+/*
  * 事件查询<br/>
  * 根据类型，时间，区域，人员查询事件
  * @param {json} req - 传入类型,时间段,区域,参与人员。选择传入一个值{type:”事件类型“,time:{stertTime:"起始日期",ediTime:"结束日期"},region:"区域ID",person:['人员ID']}
@@ -1124,7 +1117,7 @@ var getargutostep = function (req, res) {
  * @param {json} res - 返回数据[{typeName:'无照经营'，status:1,setDate:'2017-6-1',_id:'事件类型id'},.....]
  */
 var getAllAbstracttypetodep = function (req, res) {
-  var department = req.body.departmentID;
+  var department = req.body.department;
   // department="58c3a5e9a63cf24c16a50b8d";
   if(department) {
     // console.log('部门id'+department);
@@ -1213,6 +1206,7 @@ var getpersonpower = function (req, res) {
  * @param {json} res
  */
 var getpersonreviewedpower = function (req, res) {
+
 }
 /**
  * 根据部门获取所有法规

@@ -42,6 +42,12 @@ var abstracttypeDelete = function (req, res) {
         }
     })
 }
+
+/**
+ * 类型修改，步骤添加
+ * @param req
+ * @param res
+ */
 var updateAbstracttype = function (req, res) {
     var data = req.body;
     console.log('修改');
@@ -49,11 +55,9 @@ var updateAbstracttype = function (req, res) {
     var id = data.typeid;
     var newName = data.typeName;
     var step = data.step;
-    var newer = data.newer;
     if (id) {
-        abstracttypeDAO.updateAbstracttype(id, newName, step, newer, function (err, obj) {
+        abstracttypeDAO.updateAbstracttype(id, newName, step, function (err, obj) {
             if (!err) {
-                console.log(obj);
                 res.send(data);
             } else {
                 console.log(err);
@@ -78,7 +82,11 @@ var abstracttypepeopleDelete = function (req, res) {
     })
 }
 
-
+/**
+ *
+ * @param req
+ * @param res
+ */
 var readtAbstracttype = function (req, res) {
     //console.log('call readtAbstracttype');
     // for(var i in req.body){
@@ -102,9 +110,17 @@ var readtAbstracttype = function (req, res) {
         }
     });
 };
+/**
+ * 根据部门获取所有的事件类型
+ * @param req
+ * @param res
+ */
 var getAllAbstracttype = function (req, res) {
-    var dep = req.body.departmentID;
+    var dep = req.body.department;
     console.log(dep)
+
+
+
     if (dep) {
         abstracttypeDAO.getAllAbstracttype(dep, function (err, obj) {
             if (!err) {
@@ -131,7 +147,11 @@ var getoneeventtype = function (req, res) {
     })
 }
 
-
+/**
+ * 新建一个部门的事件类型
+ * @param {json} req - {typeName:'',createparent:'',department:''}
+ * @param {json} res - 成功返回新建类型，失败{error: '参数错误'}
+ */
 var sendAAbstracttype = function (req, res) {
     // //console.log('call sendAAbstracttype');
     //for(var i in req.body){ //console.log("sendAAbstracttype 请求内容body子项："+i+"<>\n")};
@@ -152,29 +172,9 @@ var sendAAbstracttype = function (req, res) {
         }
     });
 };
-var currentProcessedevents = function (req, res) {
-    var Id = req.body.id;
-    if (Id) {
-        abstracttypeDAO.currentProcessedevents(Id, function (err, obj) {
-            if (err) {
-                console.log('currentProcessedevents 查询出错：' + err);
-            } else {
-                console.log('currentProcessedevents 查询当前事件：' + obj)
-            }
-        })
-    }
-}
-var getIncompletesteps = function (req, res) {
-    var event = req.body;
-    abstracttypeDAO.getIncompletesteps(event, function (err, obj) {
-        if (event) {
-            console.log('getIncompletesteps 成功-' + obj)
-            res.send(obj)
-        } else {
-            console.log('getIncompletesteps 错误- ' + err)
-        }
-    })
-}
+
+
+
 var getAbstracttypesInATimeSpanFromWho = function (req, res) {
     // //console.log('call getAbstracttypesInATimeSpanFromWho');
     //for(var i in req.body){ //console.log("getAbstracttypesInATimeSpanFromWho 请求内容body子项："+i+"<>\n")};
@@ -202,15 +202,12 @@ abstracttyperouter.post('/readtAbstracttype', readtAbstracttype);//提交
 abstracttyperouter.post('/getAllAbstracttype', getAllAbstracttype);// 获得所有类型
 abstracttyperouter.post('/getoneeventtype', getoneeventtype);//根据类型名得到一个事件类型
 
-
 abstracttyperouter.post('/getMyNewestAbstracttypeFromWho', getMyNewestAbstracttypeFromWho);//编辑查询
 abstracttyperouter.post('/getAbstracttypesInATimeSpanFromWho', getAbstracttypesInATimeSpanFromWho);//编辑查询
 abstracttyperouter.post('/abstracttypeDelete', abstracttypeDelete);//类型删除
 abstracttyperouter.post('/updateAbstracttype', updateAbstracttype);//类型修改，步骤添加
 abstracttyperouter.post('/abstracttypepeopleDelete', abstracttypepeopleDelete);//人员删除
 
-abstracttyperouter.post('/currentProcessedevents', currentProcessedevents);//根据用户id得到当前需要处理的事件
-abstracttyperouter.post('/getIncompletesteps', getIncompletesteps);//根据事件得到当前未完成的步骤
 //
 //根据步骤得到当前未填报的信息  stepsGetnotfillingInfo
 //根据部门得到所有的人员title     getPersontit

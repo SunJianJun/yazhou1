@@ -166,6 +166,7 @@ var sendupdatemobileuuid = function (req, res) {
     }
 }
 /**
+ * 修改手机uuid和密码
  * 服务器存在此人数据，没有设置密码
  * @param {json} req - 客户端提交json {_id:'人员id',newmobile:'新的手机id',pwd:'设置的密码'}
  * @param {json} res - 返回提示 {success:'chenggon'}
@@ -236,7 +237,7 @@ var updatepersonstate = function (req, res) {
 //updatepersonstate({_id:"58e0c199e978587014e67a50",status:9})
 /**
  * 修改人员信息 ,传入修改的人员ID，和选择需要修改的内容
- * @param {json} req - 传入需要修改的人员ID ，客户端提交json 例如{_id:人员id,name: "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"departments":[{"department":'部门id',role:"权限"}],"title":"职务ID"},"pwd" : "123456"}
+ * @param {json} req - 传入需要修改的人员ID ，客户端提交json 例如{_id:人员id,name: "admin","sex":'男',"nation":'汉',"birthday":'1999-11-1',"residence":'住址',"idNum":'身份证号',"title":"职务ID"},"pwd" : "123456"}
  * @param {json} res - {success:'修改成功'}
  */
 var updatepersoninfo = function (req, res) {
@@ -345,7 +346,7 @@ var getAllDepartment = function (req, res) {
 /**
  * 新建一个部门
  * @param {json} req - 传入名称和上级部门id,客户端提交json 例如{name:'新建1',parentID:'上级部门id',info:'部门描述',infoLink:'www.baidu.com'}
- * @param {json} res - 返回json：例如{status:1}
+ * @param {json} res - 返回json：例如{success: true}
  */
 var sendnewdepartment = function (req, res) {
     var json = req.body,

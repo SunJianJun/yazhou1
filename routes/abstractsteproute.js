@@ -40,36 +40,6 @@ var getstepsName = function (req, res) {
             res.send(obj);
         }
     });
-    //var nameArr=[],
-    //    idcount=0,
-    //    idlength=idArr.length;
-    //console.log('-------------华丽的分割线---------------')
-    var idLoad = function () {
-      //console.log(idArr)
-      //console.log('人员步骤')
-      //console.log(idArr[idcount])
-      //    abstractstepDAO.getstepsName(idArr[idcount], function (err, obj) {
-      //        if (err) {
-      //            res.send(null);
-      //        } else {
-      //
-      //
-      //        }
-      //    });
-      idcount++;
-      if (idcount < idlength) {
-        console.log(idArr[idcount])
-        //nameArr.push(obj)
-        //console.log(nameArr)
-        idLoad();
-      }
-      else {
-        //console.log('完成')
-        //console.log(nameArr)
-        res.send(nameArr);
-      }
-    }
-    //idLoad();
   }
 };
 var updatepersonpower= function (req, res) {
@@ -85,7 +55,7 @@ var updatepersonpower= function (req, res) {
         }
     });
 };
-var removepersonpower= function (req, res) {
+var removepersonpower= function (req, res){
     var idArr=req.body.id;
     abstractstepDAO.removepersonpower(idArr,function(err,obj){
         if(err){
@@ -97,36 +67,6 @@ var removepersonpower= function (req, res) {
 };
 
 
-var getMyNewestAbstractstepFromWho = function (req, res) {
-    // //console.log('call getMyNewestAbstractstepFromWho');
-    //for(var i in req.body){ //console.log("getMyNewestAbstractstepFromWho 请求内容body子项："+i+"<>\n")};
-    var receiverID = req.body.receiverID,
-        senderID = req.body.senderID,
-        isAbstract = req.body.isAbstract;
-
-    // console.log('senderID:'+senderID);
-    abstractstepDAO.getMyNewestAbstractstepFromWho(receiverID, senderID, isAbstract, function (err, obj) {
-        if (!err) {
-            res.send(obj);
-        } else {
-            res.send(null);
-        }
-    });
-};
-var abstractstepAdd = function (req, res) {
-
-};
-var abstractstepDelete = function (req, res) {
-    var name = req.body.name;
-    console.log('删除' + name);
-    abstractstepDAO.abstractstepDelete(name, function (err, obj) {
-        if (!err) {
-            res.send(name);
-        } else {
-            res.send(null);
-        }
-    })
-}
 var abstractsteppeopleDelete = function (req, res) {
     var areaID = req.body.areaId;
     var position = req.body.position;
@@ -149,25 +89,8 @@ var getoneeventstep = function (req, res) {
         }
     })
 }
-//getoneeventstep();
-var geteventsteps= function (req, res) {
-    var ID = req.body.id;
-    abstractstepDAO.geteventsteps(ID,function (err, obj) {
-        if (!err) {
-            res.send(obj);
-        } else {
-            res.send(null);
-        }
-    })
-}
-
 
 var readtAbstractstep = function (req, res) {
-    //console.log('call readtAbstractstep');
-    // for(var i in req.body){
-    //     console.log("readtAbstractstep 请求内容body子项："+i+"<>\n")
-    // };
-    // console.log(req.body);
     var name = req.body;
     // console.log(name);
     // 调用方法
@@ -181,6 +104,12 @@ var readtAbstractstep = function (req, res) {
         }
     });
 };
+
+/**
+ *
+ * @param req
+ * @param res
+ */
 var getAllAbstractstep = function (req, res) {
 
     // console.log('获取所有步骤')
@@ -194,20 +123,8 @@ var getAllAbstractstep = function (req, res) {
         }
     })
 }
-var geteventstepname=function (req, res) {
 
-    // console.log('获取步骤名称')
-    var department=req.body.department;
-    // console.log(department)
-    abstractstepDAO.geteventstepname(department,function (err, obj) {
-        if (!err) {
-            res.send(obj);
-        } else {
-            res.send(null);
-            //console.log(err);
-        }
-    })
-}
+
 var sendAAbstractstep = function (req, res) {
     // //console.log('call sendAAbstractstep');
     //for(var i in req.body){ //console.log("sendAAbstractstep 请求内容body子项："+i+"<>\n")};
@@ -224,49 +141,8 @@ var sendAAbstractstep = function (req, res) {
         }
     });
 };
-var currentProcessedevents = function (req, res) {
-    var Id = req.body.id;
-    if (Id) {
-        abstractstepDAO.currentProcessedevents(Id, function (err, obj) {
-            if (err) {
-                console.log('currentProcessedevents 查询出错：' + err);
-            } else {
-                console.log('currentProcessedevents 查询当前事件：' + obj)
-            }
-        })
-    }
-}
-var getIncompletesteps = function (req, res) {
-    var event = req.body;
-    abstractstepDAO.getIncompletesteps(event, function (err, obj) {
-        if (event) {
-            console.log('getIncompletesteps 成功-' + obj)
-            res.send(obj)
-        } else {
-            console.log('getIncompletesteps 错误- ' + err)
-        }
-    })
-}
-var getAbstractstepsInATimeSpanFromWho = function (req, res) {
-    // //console.log('call getAbstractstepsInATimeSpanFromWho');
-    //for(var i in req.body){ //console.log("getAbstractstepsInATimeSpanFromWho 请求内容body子项："+i+"<>\n")};
-    var receiverID = req.body.receiverID,
-        senderID = req.body.senderID,
-        startTime = req.body.startTime,
-        lastTime = req.body.lastTime;
-    // 调用方法
-    // abstractstepObj.getAbstractstepsInATimeSpanFromWho("58cb3361e68197ec0c7b96c0","58cb2031e68197ec0c7b935b",'2017-03-01','2017-03-24');
-    // //console.log('senderID:'+senderID);
-    abstractstepDAO.getAbstractstepsInATimeSpanFromWho(receiverID, senderID, startTime, lastTime, function (err, obj) {
-        if (!err) {
-            // console.log('getAbstractstepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
-            res.send(obj);
-        } else {
-            //console.log('getAbstractstepsInATimeSpanFromWho 查询所有'+senderID+'发送的消息为空:'+err);
-            res.send(null);
-        }
-    });
-};
+
+
 
 
 abstractsteprouter.post('/getpersonTiele', getpersonTiele);//增加
@@ -277,17 +153,10 @@ abstractsteprouter.post('/removepersonpower', removepersonpower);//修改步骤�
 abstractsteprouter.post('/sendAAbstractstep', sendAAbstractstep);//增加
 abstractsteprouter.post('/readtAbstractstep', readtAbstractstep);//提交
 abstractsteprouter.post('/getAllAbstractstep', getAllAbstractstep);//提交
-abstractsteprouter.post('/geteventstepname',geteventstepname);//根据用户id得到事件步骤名称
 
-abstractsteprouter.post('/getMyNewestAbstractstepFromWho', getMyNewestAbstractstepFromWho);//编辑查询
-abstractsteprouter.post('/getAbstractstepsInATimeSpanFromWho', getAbstractstepsInATimeSpanFromWho);//编辑查询
-abstractsteprouter.post('/abstractstepDelete', abstractstepDelete);//查找
 abstractsteprouter.post('/abstractsteppeopleDelete', abstractsteppeopleDelete);//查找
 abstractsteprouter.post('/getoneeventstep',getoneeventstep);//根据用户id得到事件步骤
-abstractsteprouter.post('/geteventsteps',geteventsteps);//根据用户id得到事件多项步骤
 
-abstractsteprouter.post('/currentProcessedevents', currentProcessedevents);//根据用户id得到当前需要处理的事件
-abstractsteprouter.post('/getIncompletesteps', getIncompletesteps);//根据事件得到当前未完成的步骤
 
 //
 //根据步骤得到当前未填报的信息  stepsGetnotfillingInfo

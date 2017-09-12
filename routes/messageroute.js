@@ -472,7 +472,7 @@ var readtAbnormalMessage = function (req, res) {
 };
 
 /**
- *得到一个时间段内某人发来的消息(type:“message“) 或者 群体消息(type:”broadcast“)
+ * 得到一个时间段内某人发来的消息(type:“message“) 或者 群体消息(type:”broadcast“)
  * @param {Object} req - 客户端提交的json{receiverID:"sdfdsf",startTime:"开始时间",lastTime:"结束时间","senderID":"发送者id"，type：“broadcast|message”（跟发送者id不同时作用，可以只发送type为broadcast而不指定senderid，如果有明确的发送者id，且type未指定或者为‘message’时，就查询个人消息，否则就是群体消息）}
  * @param {string} req.body.receiverID - 接受者id.
  * @param {string} req.body.senderID - 发送者id.

@@ -209,15 +209,17 @@ ConcreteeventDAO.prototype.getnewcurrentexamineevent = function (departemnt,type
     }
   });
 }
-ConcreteeventDAO.prototype.geteventStatus = function (status, callback) {
-  var callback = callback ? callback : function (err, obj) {
+ConcreteeventDAO.prototype.geteventStatus = function (status, outcallback,department) {
+  var callback = outcallback ? outcallback : function (err, obj) {
     if (err) {
       console.log('callback updateaddsetp 出错：' + '<>' + err);
     } else {
       console.log('callback updateaddsetp 成功：' + '<>' + obj);
     }
   }
-  Concreteeventmodel.find({status: status},function (err,obj) {
+  var ops={status: status};
+  if(department){ops.department=department;}
+  Concreteeventmodel.find(ops,function (err,obj) {
     if (!err) {
       callback(null,obj);
     }
