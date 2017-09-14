@@ -26,6 +26,7 @@ Legalregulations.prototype.save = function (obj, callback) {
     callback(err, instance);
   });
 };
+
 //修改法规名称
 Legalregulations.prototype.updatelawname=function(id,parent,callback){
   Legalregulationsmodel.update({_id:id},{lawname:parent},function(err,obj){
@@ -36,6 +37,7 @@ Legalregulations.prototype.updatelawname=function(id,parent,callback){
     }
   })
 }
+
 //根据职务获取直接职务信息
 Legalregulations.prototype.getlegalregulations=function(id,callback){
   Legalregulationsmodel.findOne({_id:id},'parentTitle',function(err,obj){
@@ -46,35 +48,10 @@ Legalregulations.prototype.getlegalregulations=function(id,callback){
     }
   })
 }
-//获取当前人员的直接上级
-Legalregulations.prototype.getlegalregulationslevel=function(title,callback){
-  console.log(title);
-  Legalregulationsmodel.findOne({_id:title},function(err,obj){
-    if(err){
-      callback(err)
-    }else{
-      // console.log(obj);
-      // callback(err,obj)
-      Legalregulationsmodel.find({_id:obj.parentTitle},'name grade',function(perr,pobj){
-        callback(null,pobj)
-      })
-    }
-  })
-}
 
-//获取某一状态的人员
-Legalregulations.prototype.getpersonstate= function (status,callback) {
-  Legalregulationsmodel.find({status:status},{personlocations:0},function(err,obj){
-    if(err){
-      callback(err)
-    }else{
-      callback(null,obj)
-    }
-  })
-}
 //获取部门内所有法规
 Legalregulations.prototype.getdepartmentlaw=function(deoartment,callback){
-  Legalregulationsmodel.find({department:deoartment},function(err,obj){
+  Legalregulationsmodel.find({department:deoartment,status:1},function(err,obj){
     if(err){
       callback(err)
     }else{
@@ -83,8 +60,8 @@ Legalregulations.prototype.getdepartmentlaw=function(deoartment,callback){
   })
 }
 //获取职务级别
-Legalregulations.prototype.getlegalregulationsno=function(id,callback){
-  Legalregulationsmodel.findOne({_id:id},'grade',function(err,obj){
+Legalregulations.prototype.removenewdepartmentlaw=function(id,callback){
+  Legalregulationsmodel.update({_id:id},{status:0},function(err,obj){
     if(err){
       callback(err)
     }else{

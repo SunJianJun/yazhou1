@@ -110,9 +110,9 @@ var personAddLocation = function(req, res) {
             res.send(obj);
         }
     });
-}
+};
 
-//
+
 /**
  * 通过身份证解析后的json和手机uuid 和选定的部门id添加用户
  * @param {json} req - IDCard身份证识别方法返回的json 再添加 mobileUUid:"手机的uuid"，departments:[{department：“部门id”，role：“worker|admin|..”},..]
@@ -210,27 +210,24 @@ var getPersonByPcLogin = function(req, res) {
         person.findByNameAndPwd(req.body.name , req.body.pwd,function(err, obj){
             if(err) {
                 console.log('findByNameAndPwd查询出错');
-                res.send({'success':false,'err':err});
+                res.send({error:err});
             } else if (obj) {
 
                 console.log('pc端findByNameAndPwd查询用户成功:'+obj.name);
                 // console.log('\nreq.body.mobileUUid查询用户成功,用户的照片:'+obj.images.coverSmall);
-                res.send(obj);
+                res.send({success:obj});
             }else {
                 console.log('没有数据');
-                res.send(null);
+                res.send({error:null});
             }});
     }else {
-        res.send(null);
+        res.send({error:'参数错误'});
     }
 
 }
 
 // 初始化数据库里的用户
 var initializePersons = function(req, res) {
-
-
-
     // //console.log('调用了initializePersons方法 by params');
     person.initializePersons(function(err, obj){
         // //console.log('route调用initializePersons errs'+err);
@@ -253,7 +250,7 @@ var getPersonLatestPosition = function(req, res) {
         res.send(obj);
       } else {
         // //console.log('getPersonLatestPosition 查询所有'+personID+'最新的位置:'+err);
-        res.send(null);
+        res.send({error:null});
       }
     });
   }else{

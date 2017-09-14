@@ -1258,6 +1258,23 @@ var sendnewdepartmentlaw = function (req, res) {
   }
 }
 
+var removenewdepartmentlaw = function (req, res) {
+  var ddd = req.body,
+    lawname = ddd.name;
+  if (depertmentID && lawname && lawlist) {
+    ddd.create_date = new Date();
+    legalregulationsDAO.removenewdepartmentlaw(name, function (err, obj) {
+      if (obj) {
+        res.send({success: 'ok!'})
+      } else {
+        res.send({error: '添加失败'})
+      }
+    })
+  } else {
+    res.send({error: '参数错误'})
+  }
+}
+
 
 mobilegridservice.post('/getAllConcreteevent', getAllConcreteevent);
 mobilegridservice.post('/getConcreteeventtotype',getConcreteeventtotype);
@@ -1297,5 +1314,6 @@ mobilegridservice.post('/getpersonpower', getpersonpower);
 //法律法规
 mobilegridservice.post('/getdepartmentlaw', getdepartmentlaw)
 mobilegridservice.post('/sendnewdepartmentlaw', sendnewdepartmentlaw);
+mobilegridservice.post('/removenewdepartmentlaw',removenewdepartmentlaw)
 
 module.exports = mobilegridservice;

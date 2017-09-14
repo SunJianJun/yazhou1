@@ -1317,7 +1317,7 @@ PersonDAO.prototype.findByMobile = function (mobile, callback) {
 
 
 
-//为指定用户添加新的定位点
+  //为指定用户添加新的定位点
 PersonDAO.prototype.addNewLocation = function (personId, locationObj, outcallback) {
   try {
     var callback = outcallback ? outcallback : function (err, obj) {

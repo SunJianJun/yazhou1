@@ -133,19 +133,7 @@ var getAllAbstracttype = function (req, res) {
         res.send({error: '参数错误'});
     }
 }
-var getoneeventtype = function (req, res) {
-    var type = req.body.type;
 
-    abstracttypeDAO.getoneeventtype(type, function (err, obj) {
-        if (!err) {
-            res.send(obj);
-            //console.log(obj);
-        } else {
-            //console.log(err);
-            res.send(null);
-        }
-    })
-}
 
 /**
  * 新建一个部门的事件类型
@@ -200,7 +188,6 @@ var getAbstracttypesInATimeSpanFromWho = function (req, res) {
 abstracttyperouter.post('/sendAAbstracttype', sendAAbstracttype);//增加
 abstracttyperouter.post('/readtAbstracttype', readtAbstracttype);//提交
 abstracttyperouter.post('/getAllAbstracttype', getAllAbstracttype);// 获得所有类型
-abstracttyperouter.post('/getoneeventtype', getoneeventtype);//根据类型名得到一个事件类型
 
 abstracttyperouter.post('/getMyNewestAbstracttypeFromWho', getMyNewestAbstracttypeFromWho);//编辑查询
 abstracttyperouter.post('/getAbstracttypesInATimeSpanFromWho', getAbstracttypesInATimeSpanFromWho);//编辑查询
