@@ -2302,7 +2302,7 @@ var getRadomPt = function(){
 // for(var aa=1;aa<30;aa++) {
 //   var locationmodelsave=new locationmodel({
 //     person: '58e0c199e978587014e67a50',
-//     positioningdate:new Date(new Date(new Date('2017-9-6 09:00:00').setMinutes(new Date('2017-9-6 09:00:00').getMinutes()+aa*10)).setSeconds(Math.floor(Math.random()*60))),
+//     positioningdate:new Date(new Date(new Date('2017-9-14 09:00:00').setMinutes(new Date('2017-9-14 09:00:00').getMinutes()+aa*10)).setSeconds(Math.floor(Math.random()*60))),
 //     "geolocation": getRadomPt()
 //   })
 //   locationmodelsave.save(function (err,obj) {

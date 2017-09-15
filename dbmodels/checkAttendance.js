@@ -120,12 +120,48 @@ var parseGeojsonFromDb = function (jsonstr) {
 }
 //解析区域绑定人员的时间
 //获取人员被安排巡逻的区域和时间
-var personsoptarea = function (personID, callback) {
+var personsoptarea = function (personID,checkobj,personobj, callback) {
+  countobj={};
   spotareaDAO.getASpotareatoperson(personID, function (err, obj) {
     if (err) {
       console.log({error: err})
     } else {
-      callback(null, obj);
+      // callback(null, obj);
+
+          console.log('当天人员的所有定位点：'+checkobj);
+          if(checkobj) {
+            //判断考勤豁免
+              //获取人员当天有没有考勤请假
+              messageDAO.getAbnormalMessagesInATimeSpanFromWho(personID, startTime, lastTime, type, function (err, obj) {
+                if (!err) {
+                  console.log('getMessagesInATimeSpanFromWho 查询所有'+senderID+'发送的消息id:'+obj);
+                  if(obj){
+
+                  }else {//当天没有请假
+                    console.log('getMessagesInATimeSpanFromWho 查询所有');
+                  }
+                } else {
+                  console.log({error:err});
+                }
+              })
+              //先计算有没有集体临时任务
+
+            //计算当天人员定位点 是否在规定考勤内
+            var kqjscall=kqjs(obj, checkobj);
+            countobj.checkdate=checkobj._id;
+            countobj.position=checkobj.allLocationPoints;
+            if(!kqjscall){//人员不在考勤区域内
+
+            }
+          }else{
+            //当天没有定位坐标
+          }
+          countobj.name=personobj.name;
+          countobj.person=personobj._id;
+          console.log('需要存储的数据');
+          console.log(countobj)
+          // record(personobj._id,countobj.checkdate,countobj)
+
     }
   })
 };
@@ -153,6 +189,10 @@ var personsoptarea = function (personID, callback) {
 //     }
 //   }
 // })
+
+// 获取人员被安排巡逻的区域和时间
+
+//解析当前人员的工作日期
 var kqjs = function (obj, dinw) {
   for (var i = 0; i < obj.length; i++) {
     var time = obj[i].person[0].time;
@@ -168,15 +208,18 @@ var kqjs = function (obj, dinw) {
         var count=simpleAreaCheck(dinw.allLocationPoints,formatarea)//空间考勤判断,返回次数
 
         countobj.workcount=count;
+        if(!count){countobj.status=4;}
         countobj.area=[{//考勤区域
           name: formatarea.name[0],
           geometry:formatarea.geometry[0].coordinates,
           time:formatarea.person[0].time
         }];
+        return true;
       }
     }
   }
-}
+  return false;
+};
 
 // var start = new Date('2017-6-1'), end = new Date('2017-7-2');
 //attendanceRecordDAO.getpersonrecordtoid("58e0c199e978587014e67a50",start,end,function(err,obj){//取异常记录
@@ -209,86 +252,6 @@ personDAO.getAllUser(function (err, aobj) {
 
 var j = schedule.scheduleJob(rule, function () {
 })
-/*
- //得到所有待考勤人员
-
- //向考勤表添加考勤记录
- var record = function (personid, route, date, callback) {
- attendanceRecordDAO.getpersoncheckworktodate(personid, route, date, function (err, obj) {
-
- })
- }
- // console.log('向考勤表添加考勤记录')
- //获取到所有人员，开始统计当天考勤记录
- personDAO.getAllUser(function (personerr, personobj) {
- var personcount = 0;
- var personlength = personobj.length-1;
- var personfunction = function () {
- var acallback = function (err, obj) {
- if (obj) {
- if (personcount < personlength) {
- personcount++;
- personfunction()
- }
- }
- }
- if (personobj[personcount]._id == '58e0c199e978587014e67a50') {
- if (personobj[personcount].status == 2) {
-
- // record(personobj[personcount]._id,'img/abc.html','2017-9-2',acallback)
-
- } else if (personobj[personcount].status == 1) {
- // record(personobj[personcount]._id,'img/abc.html','2017-9-2',acallback)
- //取到当前人员的定位点
- personDAO.countByPersonLocations(personobj[personcount]._id, checkworkstarttime, checkworkendtime, 'day', function (checkerr, checkobj) {
- if (!checkerr) {
- checkobj[0].allLocationPoints
-
- //获取人员被安排巡逻的区域和时间
- personsoptarea(personobj[personcount]._id, function (err, obj) {
- if (err) {
- console.log({error: err})
- } else {
- console.log('--------------------------------------------------');
- // console.log(obj);
- for (var i = 0; i < obj.length; i++) {
- var time = obj[i].person[0].time;
- for (var j = 0; j < time.length; j++) {
- console.log(time[j]);
-
- }
- }
- }
- })
- }
- })
- }
- }else{
- if (personcount < personlength) {
- personcount++;
- personfunction();
- }
- }
- }
- personfunction();
- })
-
- // for(所有人){
-
- //先判断AttendanceRecordDAO指定时间段内有没有考勤异常（请假和换班），有，continue则直接更新一条考勤状态，没有再进入下面的考勤规则计算
-
- //for(
- //多少中考勤状态（规则）
- //自定义的数组，每个考勤状态都得有明确的考勤规则可以计算出来，比如迟到，就是某段时间内的前半个小时某人未出现在某地
- // )
- //对一个人计算一种考勤规则，实现方法是通过PesonDao查询和判断一段时间内的位置，spotareaDAo也会有关系
-
- //在callback中更新一个人的考勤状态，实现方法是通过AttendanceRecordDAO更新考勤状态表
- // }
- //console.log('The answer to life, the universe, and everything!');
- // personDAO.countByPersonLocations()//获取人员一定时间定位点
- });
- */
 
 
 //得到所有待考勤人员
@@ -304,7 +267,6 @@ var record = function (personid, date, data, callback) {
     }
   })
 }
-// console.log('向考勤表添加考勤记录')
 //获取到所有人员，开始统计当天考勤记录
 personDAO.getAllUser(function (personerr, personobj) {
   var personcount = 0;
@@ -318,7 +280,6 @@ personDAO.getAllUser(function (personerr, personobj) {
         }
       }
     }
-    countobj={};
     if (personobj[personcount]._id == '58e0c199e978587014e67a50') {
 
       if (personobj[personcount].status == 2) {//长期假期的人员
@@ -334,21 +295,23 @@ personDAO.getAllUser(function (personerr, personobj) {
             // console.log(checkobj)
             console.log('--------------------------------------------------');
             //获取人员被安排巡逻的区域和时间
-            personsoptarea(personobj[personcount]._id, function (err, obj) {
-              if (err) {
-                console.log({error: err})
-              } else {
-                console.log(checkobj);
-                kqjs(obj, checkobj[0]);
-                countobj.name=personobj[personcount].name;
-                countobj.person=personobj[personcount]._id;
-                countobj.checkdate=checkobj[0]._id;
-                countobj.position=checkobj[0].allLocationPoints;
-                console.log('需要存储的数据')
-                console.log(countobj)
-                record(personobj[personcount]._id,countobj.checkdate,countobj)
-              }
-            })
+            personsoptarea(personobj[personcount]._id, checkobj[0],personobj[personcount]
+            //   ,function (err, obj) {
+            //   if (err) {
+            //     console.log({error: err})
+            //   } else {
+            //     console.log(checkobj);
+            //     kqjs(obj, checkobj[0]);
+            //     countobj.name=personobj[personcount].name;
+            //     countobj.person=personobj[personcount]._id;
+            //     countobj.checkdate=checkobj[0]._id;
+            //     countobj.position=checkobj[0].allLocationPoints;
+            //     console.log('需要存储的数据')
+            //     console.log(countobj)
+            //     record(personobj[personcount]._id,countobj.checkdate,countobj)
+            //   }
+            // }
+            )
           }
         })
       }

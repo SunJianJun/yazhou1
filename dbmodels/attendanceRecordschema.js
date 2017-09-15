@@ -22,7 +22,7 @@ var attendanceRecordSchema = new Schema({
   abnormal: Boolean,// default false
   //每次考勤规则运算只有唯一的考勤状态
   status: {//考勤结果
-    type: Number,//1,正常;0离职;2请假;3旷工
+    type: Number,//1,正常;0离职;2请假;3旷工;4缺勤
     default: 1
   },
   position:[{
